@@ -6,6 +6,11 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
+import {
+  MatProgressBarModule,
+  MatButtonModule,
+} from '@angular/material/';
+
 @NgModule({
   declarations: [
     AppComponent
@@ -14,6 +19,7 @@ import { AppComponent } from './app.component';
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
+    MatProgressBarModule, MatButtonModule
   ],
   providers: [],
   bootstrap: [AppComponent]
