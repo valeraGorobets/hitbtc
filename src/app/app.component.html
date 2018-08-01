@@ -1,4 +1,18 @@
-<h1>
-  Welcome to {{ title }}!
-</h1>
-<router-outlet></router-outlet>
+<div class="content">
+  <header>
+    <div class="align">
+      <h1 class="text-center">Display name</h1>
+      <nav>
+        <a mat-raised-button routerLink="/traiding" routerLinkActive="active">Traiding</a>
+        <a mat-raised-button routerLink="/statistics" routerLinkActive="active">Statistics</a>
+      </nav>
+    </div>
+  </header>
+  
+  <!-- <mat-progress-bar mode="indeterminate"></mat-progress-bar> -->
+  <router-outlet></router-outlet>
+</div>
+
+<footer class="footer text-center">
+  <p>Copyright 2018</p>
+</footer>

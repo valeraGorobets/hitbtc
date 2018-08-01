@@ -1,0 +1,49 @@
+@import url(./colors.less);
+
+.content {
+  min-height: calc(100vh - 40px);
+  .align {
+    display: flex;
+    width: 1600px;
+  }
+}
+
+header {  
+  background-color: @mainBlue;
+  display: flex;
+  height: 56px;
+  justify-content: space-around;
+
+  .align {
+    justify-content: space-between;
+    align-self: center;
+
+    h1 {
+      align-self: center;
+      color: #fff;
+      font-size: 28px;
+      margin: 0 20px;
+    }
+
+    nav {
+      align-items: center;
+      display: flex;
+
+      a {
+        margin: 0 8px;
+      }
+    }
+  }
+}
+
+footer {
+  background-color: @accentBlue;
+  color: #fff;
+  height: 20px;
+  padding: 10px 0;
+  text-align: center;
+
+  p {
+    margin: 0;
+  }
+}
