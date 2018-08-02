@@ -5,7 +5,7 @@ import { HitbtcApiService } from './hitbtc-api.service';
 describe('HitbtcApiService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [HitbtcApiService]
+      providers: [HitbtcApiService],
     });
   });
 

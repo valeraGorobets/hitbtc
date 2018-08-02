@@ -5,7 +5,7 @@ import { TradingService } from './trading.service';
 describe('TradingService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [TradingService]
+      providers: [TradingService],
     });
   });
 
