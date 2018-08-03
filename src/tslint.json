@@ -1,7 +1,7 @@
 {
+  "extends": "../tslint.json",
   "rulesDirectory": [
-    "../node_modules/tslint-eslint-rules/dist/rules",
-    "../node_modules/codelyzer"
+    "../node_modules/tslint-eslint-rules/dist/rules"
   ],
   "rules": {
     "curly": true,
@@ -18,7 +18,7 @@
     "no-var-keyword": true,
     "one-line": [true, "check-catch", "check-finally", "check-else"],
     "no-conditional-assignment": true,
-    "no-empty": true,
+    "no-empty": false,
     "no-switch-case-fall-through": true,
     "forin": true,
     "no-bitwise": true,
