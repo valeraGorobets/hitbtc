@@ -1,4 +1,4 @@
-import { Type } from '../../trade/position-constants';
+import { Type } from '../../trade-module/position-constants';
 
 class MA {
   private period: number;
