@@ -6,7 +6,7 @@ import { HitbtcApiService } from './hitbtc-api.service';
   imports: [
     CommonModule,
   ],
-  declarations: [HitbtcApiService],
-  exports: [HitbtcApiService],
+  providers: [HitbtcApiService],
+  exports: [],
 })
 export class CryptoExchangeModule { }
