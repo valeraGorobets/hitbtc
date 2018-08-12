@@ -18,7 +18,7 @@ export class WSService {
 
   public onMessage(): Observable<MessageEvent> {
     return new Observable<MessageEvent>(observer => {
-      this.ws.onmessage = (data: MessageEvent) => observer.next(data);
+      this.ws.onmessage = (data: MessageEvent) => observer.next(JSON.parse(data.data));
     });
   }
 

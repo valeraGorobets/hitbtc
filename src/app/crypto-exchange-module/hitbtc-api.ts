@@ -1,16 +1,11 @@
-import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { WSService } from '../../libs/ws.service';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class HitbtcApiService {
+export class HitbtcApi {
   private ws: WSService;
 
-  public createConnection(url: string = 'wss://api.hitbtc.com/api/2/ws'): void {
+  public createConnection(url: string = 'wss://api.hitbtc.com/api/2/ws') {
     this.ws = new WSService(url);
-    setTimeout(() => this.closeConnection(), 5000);
   }
 
   public subscribeCandles(): void {
@@ -25,11 +20,22 @@ export class HitbtcApiService {
     this.ws.send(message);
   }
 
+  public subscribeTrades(): void {
+    const message = {
+      'method': 'subscribeTrades',
+      'params': {
+        'symbol': 'ETHBTC'
+      },
+      'id': 123
+    };
+    this.ws.send(message);
+  }
+
   public onMessage(): Observable<MessageEvent> {
     return this.ws.onMessage();
   }
 
-  public closeConnection(): void {
-    this.ws.closeConnection();
+  public closeConnection(delay: number = 0): void {
+    setTimeout(() => this.ws.closeConnection(), delay);
   }
 }

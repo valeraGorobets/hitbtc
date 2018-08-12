@@ -6,7 +6,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
-import { CryptoExchangeModule } from '../crypto-exchange-module/crypto-exchange.module';
+import { InvestingModule } from '../investing-module/investing.module';
 
 import {
   MatProgressBarModule,
@@ -21,7 +21,7 @@ import {
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
-    CryptoExchangeModule,
+    InvestingModule,
     MatProgressBarModule, MatButtonModule,
   ],
   providers: [],

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { HitbtcApiService } from '../crypto-exchange-module/hitbtc-api.service';
+import { StrategyService } from '../investing-module/strategy.service';
 
 @Component({
   selector: 'app-root',
@@ -7,15 +7,6 @@ import { HitbtcApiService } from '../crypto-exchange-module/hitbtc-api.service';
   styleUrls: ['./app.component.less'],
 })
 export class AppComponent {
-  public title = 'hitbtc';
 
-  constructor(private hitbtcApiService: HitbtcApiService) {
-    this.hitbtcApiService.createConnection();
-    this.hitbtcApiService.subscribeCandles();
-    this.hitbtcApiService.onMessage()
-      .subscribe((message: any) => {
-       console.log(message);
-      });
-  }
-
+  constructor(strategyService: StrategyService) { }
 }
