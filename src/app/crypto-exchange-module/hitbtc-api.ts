@@ -4,7 +4,7 @@ import { WSService } from '../../libs/ws.service';
 export class HitbtcApi {
   private ws: WSService;
 
-  public createConnection(url: string = 'wss://api.hitbtc.com/api/2/ws') {
+  public createConnection(url: string = 'wss://api.hitbtc.com/api/2/ws'): void {
     this.ws = new WSService(url);
   }
 
@@ -22,11 +22,11 @@ export class HitbtcApi {
 
   public subscribeTrades(): void {
     const message = {
-      'method': 'subscribeTrades',
-      'params': {
-        'symbol': 'ETHBTC'
+      method: 'subscribeTrades',
+      params: {
+        symbol: 'ETHBTC',
       },
-      'id': 123
+      id: 123,
     };
     this.ws.send(message);
   }
