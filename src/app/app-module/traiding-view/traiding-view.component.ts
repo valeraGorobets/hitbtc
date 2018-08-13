@@ -59,9 +59,9 @@ export class TraidingViewComponent {
     },
   };
 
-  public plots: Candle[] = this.mapCandleToChartFormat(this.notificationCandle.params.data);
+  public plots: CandlesChartFormat[] = this.mapCandleToChartFormat(this.notificationCandle.params.data);
 
-  private mapCandleToChartFormat(candles: Candle[]): CandlesChartFormat {
+  private mapCandleToChartFormat(candles: Candle[]): CandlesChartFormat[] {
     return [Object.assign(new CandlesChartFormat(), {
       x: candles.map(candle => candle.timestamp),
       open: candles.map(candle => candle.open),

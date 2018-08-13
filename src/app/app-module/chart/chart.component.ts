@@ -1,6 +1,6 @@
 import { Component, SimpleChanges, Input, OnChanges } from '@angular/core';
 import Plotly from 'plotly.js-dist';
-import CandlesChartFormat from '../../trade-module/models/CandlesChartFormat';
+import { CandlesChartFormat } from '../../trade-module/models/CandlesChartFormat';
 
 @Component({
   selector: 'chart',
@@ -11,7 +11,7 @@ import CandlesChartFormat from '../../trade-module/models/CandlesChartFormat';
 export class ChartComponent implements OnChanges {
   @Input() public plots;
 
-  private ngOnChanges(changes: SimpleChanges): void {
+  public ngOnChanges(changes: SimpleChanges): void {
     if (changes['plots'] ) {
       this.plots = changes.plots.currentValue;
       this.drawPlot(this.plots);
