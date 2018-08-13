@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { StrategyService } from '../investing-module/strategy.service';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +7,6 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.less'],
 })
 export class AppComponent {
-  public title = 'hitbtc';
+
+  constructor(strategyService: StrategyService) { }
 }

@@ -6,6 +6,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
+import { InvestingModule } from '../investing-module/investing.module';
+
 import {
   MatProgressBarModule,
   MatButtonModule,
@@ -19,6 +21,7 @@ import {
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
+    InvestingModule,
     MatProgressBarModule, MatButtonModule,
   ],
   providers: [],
