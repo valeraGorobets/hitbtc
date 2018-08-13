@@ -10,11 +10,10 @@ import * as notificationCandle from './data.json';
   styleUrls: ['./traiding-view.component.less'],
 })
 export class TraidingViewComponent {
-  public notificationCandle = <NotificationCandle>(<any>notificationCandle);
-  
+  public notificationCandle = (notificationCandle as any) as NotificationCandle;
+
   constructor() {
   }
-
 
   public plots: CandlesChartFormat[] = this.mapCandleToChartFormat(this.notificationCandle.params.data);
 
