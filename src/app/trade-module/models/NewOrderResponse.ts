@@ -1,5 +1,5 @@
 import { Candle } from './candle';
-import { Period } from './position-constants';
+import { Period } from './SharedConstants';
 
 enum notificationMethod {
   snapshotCandles,

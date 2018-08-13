@@ -1,4 +1,4 @@
-import { Side } from '../../trade-module/models/position-constants';
+import { Side } from '../../trade-module/models/SharedConstants';
 
 export default class MA {
   private period: number;

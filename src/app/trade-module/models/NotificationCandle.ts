@@ -1,17 +1,18 @@
 import { Candle } from './candle';
-import { Period } from './position-constants';
+import { Period } from './SharedConstants';
 
 enum notificationMethod {
-  snapshotCandles,
-  updateCandles,
+  snapshotCandles = 'snapshotCandles',
+  updateCandles = 'updateCandles',
 }
 
+// TODO: change method and period types
 export class NotificationCandle {
-  private jsonrpc: string;
-  private method: notificationMethod;
-  private params: {
+  public jsonrpc: string;
+  public method: string;
+  public params: {
     data: Candle[],
     symbol: string,
-    period: Period,
+    period: string,
   };
 }

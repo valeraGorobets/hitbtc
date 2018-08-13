@@ -12,10 +12,14 @@ import {
   MatProgressBarModule,
   MatButtonModule,
 } from '@angular/material/';
+import { ChartComponent } from './chart/chart.component';
+import { TraidingViewComponent } from './traiding-view/traiding-view.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    ChartComponent,
+    TraidingViewComponent,
   ],
   imports: [
     BrowserModule,
