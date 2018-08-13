@@ -1,9 +1,9 @@
 export class Candle {
-  private timestamp: string;
-  private open: string;
-  private close: string;
-  private min: string;
-  private max: string;
-  private volume: string;
-  private volumeQuote: string;
+  public timestamp: string;
+  public open: string;
+  public close: string;
+  public min: string;
+  public max: string;
+  public volume: string;
+  public volumeQuote: string;
 }
