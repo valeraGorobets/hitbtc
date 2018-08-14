@@ -1,6 +1,6 @@
 import { Component, SimpleChanges, Input, OnChanges } from '@angular/core';
 import Plotly from 'plotly.js-dist';
-import { CandlesChartFormat } from '../../trade-module/models/CandlesChartFormat';
+import { CandlesChartFormat } from '../../trade-module/models/ChartFormats/CandlesChartFormat';
 
 @Component({
   selector: 'chart',

@@ -1,6 +1,8 @@
-export class ScatterChartFormat {
-  private x: string[];
-  private y: number[];
-  private type: string = 'scatter';
-  private name: string = '';
+import { ChartFormat } from './ChartFormat';
+
+export class ScatterChartFormat extends ChartFormat {
+  public x: string[];
+  public y: number[];
+  public type: string = 'scatter';
+  public name: string = '';
 }

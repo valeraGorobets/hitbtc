@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { NotificationCandle } from '../../trade-module/models/notificationCandle';
 import { Candle } from '../../trade-module/models/Candle';
+import { ChartFormat } from '../../trade-module/models/ChartFormats/ChartFormat';
 import { CandlesChartFormat } from '../../trade-module/models/ChartFormats/CandlesChartFormat';
 import { ScatterChartFormat } from '../../trade-module/models/ChartFormats/ScatterChartFormat';
 import * as notificationCandle from './data.json';
@@ -22,7 +23,7 @@ export class TraidingViewComponent {
     type: 'scatter',
     name: 'MA',
   }
-  public plots: CandlesChartFormat[] = [this.mapCandleToChartFormat(this.notificationCandle.params.data), this.line];
+  public plots: ChartFormat[] = [this.mapCandleToChartFormat(this.notificationCandle.params.data), this.line];
 
   private mapCandleToChartFormat(candles: Candle[]): CandlesChartFormat {
     return Object.assign(new CandlesChartFormat(), {
