@@ -1,6 +1,6 @@
 import { Component, SimpleChanges, Input, OnChanges } from '@angular/core';
 import Plotly from 'plotly.js-dist';
-import { CandlesChartFormat } from '../../trade-module/models/CandlesChartFormat';
+import { CandlesChartFormat } from '../../trade-module/models/ChartFormats/CandlesChartFormat';
 
 @Component({
   selector: 'chart',
@@ -24,8 +24,8 @@ export class ChartComponent implements OnChanges {
     }
 
     const layout = {
-      width: 1000,
-      height: 400,
+      width: 600,
+      height: 600,
       dragmode: 'zoom',
       margin: {
         r: 10,
