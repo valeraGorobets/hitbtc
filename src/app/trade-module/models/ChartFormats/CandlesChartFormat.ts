@@ -8,6 +8,7 @@ export class CandlesChartFormat {
   private increasing = {line: {color: 'green'}};
   private line = {color: 'rgba(31,119,180,1)'};
   private type: string = 'candlestick';
+  private name: string = '';
   private xaxis: string = 'x';
   private yaxis: string = 'y';
 }

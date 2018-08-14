@@ -24,8 +24,8 @@ export class ChartComponent implements OnChanges {
     }
 
     const layout = {
-      width: 1000,
-      height: 400,
+      width: 600,
+      height: 600,
       dragmode: 'zoom',
       margin: {
         r: 10,
