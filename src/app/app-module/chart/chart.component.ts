@@ -42,6 +42,6 @@ export class ChartComponent implements OnChanges {
         fixedrange: false,
       },
     };
-    Plotly.plot('displayPlot', plots, layout);
+    Plotly.newPlot('displayPlot', plots, layout);
   }
 }
