@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HitbtcApi } from '../crypto-exchange-module/hitbtc-api';
-import { MA9MA5Strategy as Strategy } from './strategies/MA9MA5.strategy';
+import Strategy from './strategies/MALongMAShort.strategy';
 import { NotificationCandle } from '../trade-module/models/NotificationCandle';
 import { CandlesChartFormat } from '../trade-module/models/ChartFormats/CandlesChartFormat';
 import { Candle } from '../trade-module/models/Candle';
@@ -23,7 +23,7 @@ export class StrategyService{
 
   constructor(private injectableObservables: InjectableObservables) {
     console.log('working');
-    this.strategy = new Strategy(injectableObservables);
+    this.strategy = new Strategy(injectableObservables, 5, 9);
     this.injectableObservables = injectableObservables;
     console.log(injectableObservables);
 
