@@ -18,6 +18,7 @@ import * as notificationCandle from './../app-module/traiding-view/data.json';
 export class StrategyService{
   private hitbtcApiService: HitbtcApi;
   private strategy: Strategy;
+  private savedCandles: Candle[] = [];
   private notificationCandle: NotificationCandle = (notificationCandle as any) as NotificationCandle;
 
   constructor(private injectableObservables: InjectableObservables) {
@@ -33,12 +34,12 @@ export class StrategyService{
   private connectToLocalData(): void {
     const data = this.notificationCandle.params.data;
     const history = data.slice(0, 10);
-    this.injectableObservables.prices$.next(this.candleToNotificationCandle(history));
+    this.updateSavedCandles(this.candleToNotificationCandle('snapshotCandles', history));
 
     const restData = data.slice(10);
     for (let i = 0; i < restData.length; i++) {
       setTimeout(() => {
-        this.handleNotificationCandle(this.candleToNotificationCandle([restData[i]]));
+        this.handleUpdateCandles(this.candleToNotificationCandle('updateCandles', [restData[i]]));
       }, i * 200);
     }
   }
@@ -48,14 +49,26 @@ export class StrategyService{
     this.hitbtcApiService.createConnection();
     this.hitbtcApiService.subscribeCandles();
     this.hitbtcApiService.onMessage()
-      .subscribe((message: any) => this.handleNotificationCandle(message));
+      .subscribe((message: any) => {
+        switch (message.method) {
+          case 'snapshotCandles':
+            this.updateSavedCandles(message);
+          break;
+          case 'updateCandles':
+            this.handleUpdateCandles(message);
+          break;
+          default:
+            console.error('Cant handle unknown method');
+            break;
+        }
+      });
     this.hitbtcApiService.closeConnection(5000);
   }
 
-  private candleToNotificationCandle(el: Candle[]): NotificationCandle {
+  private candleToNotificationCandle(method: string, el: Candle[]): NotificationCandle {
     return {
       jsonrpc: '2.0',
-      method: 'snapshotCandles',
+      method,
       params: {
         data: el,
         symbol: 'ETHBTC',
@@ -64,8 +77,15 @@ export class StrategyService{
     };
   }
 
-  private handleNotificationCandle(message: NotificationCandle): void {
-    this.injectableObservables.prices$.next(message);
-    // this.strategy.shouldInvest();
+  private updateSavedCandles(message: NotificationCandle): void {
+    const candles: Candle[] = message.params.data;
+    this.injectableObservables.prices$.next(candles);
+    this.savedCandles = [...this.savedCandles, ...candles];
+  }
+
+  private handleUpdateCandles(message: NotificationCandle): void {
+    this.updateSavedCandles(message);
+    const shouldInvest = this.strategy.shouldInvest(this.savedCandles);
+    console.log(shouldInvest);
   }
 }
