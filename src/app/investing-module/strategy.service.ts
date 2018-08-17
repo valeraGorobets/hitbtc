@@ -22,34 +22,25 @@ export class StrategyService{
 
   constructor(private injectableObservables: InjectableObservables) {
     console.log('working');
-    const data = this.notificationCandle.params.data;
     this.strategy = new Strategy();
     this.injectableObservables = injectableObservables;
     console.log(injectableObservables);
 
+    this.connectToLocalData();
+    // this.connectToHitBtcApi();
+  }
+
+  private connectToLocalData(): void {
+    const data = this.notificationCandle.params.data;
     const history = data.slice(0, 10);
-    this.onNext(history);
+    this.injectableObservables.prices$.next(this.candleToNotificationCandle(history));
 
     const restData = data.slice(10);
     for (let i = 0; i < restData.length; i++) {
       setTimeout(() => {
-        this.onNext([restData[i]]);
+        this.handleNotificationCandle(this.candleToNotificationCandle([restData[i]]));
       }, i * 200);
     }
-
-    // this.connectToHitBtcApi();
-  }
-
-  private onNext(el: Candle[]): void {
-    this.injectableObservables.prices$.next({
-      jsonrpc: '2.0',
-      method: 'snapshotCandles',
-      params: {
-        data: el,
-        symbol: 'ETHBTC',
-        period: 'M1',
-      },
-    });
   }
 
   private connectToHitBtcApi(): void {
@@ -57,9 +48,24 @@ export class StrategyService{
     this.hitbtcApiService.createConnection();
     this.hitbtcApiService.subscribeCandles();
     this.hitbtcApiService.onMessage()
-      .subscribe((message: any) => {
-        console.log(message);
-      });
+      .subscribe((message: any) => this.handleNotificationCandle(message));
     this.hitbtcApiService.closeConnection(5000);
+  }
+
+  private candleToNotificationCandle(el: Candle[]): NotificationCandle {
+    return {
+      jsonrpc: '2.0',
+      method: 'snapshotCandles',
+      params: {
+        data: el,
+        symbol: 'ETHBTC',
+        period: 'M1',
+      },
+    };
+  }
+
+  private handleNotificationCandle(message: NotificationCandle): void {
+    this.injectableObservables.prices$.next(message);
+    // this.strategy.shouldInvest();
   }
 }
