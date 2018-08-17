@@ -1,6 +1,6 @@
 import { Component, SimpleChanges, Input, OnChanges } from '@angular/core';
 import Plotly from 'plotly.js-dist';
-import { CandlesChartFormat } from '../../trade-module/models/ChartFormats/CandlesChartFormat';
+import { ChartFormat } from '../../trade-module/models/ChartFormats/ChartFormat';
 
 @Component({
   selector: 'chart',
@@ -10,15 +10,17 @@ import { CandlesChartFormat } from '../../trade-module/models/ChartFormats/Candl
 
 export class ChartComponent implements OnChanges {
   @Input() public plots;
+  private colorPalet: any = {};
 
   public ngOnChanges(changes: SimpleChanges): void {
     if (changes['plots'] ) {
       this.plots = changes.plots.currentValue;
+      this.plots.filter(plot => plot.type === 'scatter').forEach(plot => plot.marker = { color: this.getColor(plot.name)});
       this.drawPlot(this.plots);
     }
   }
 
-  private drawPlot(plots: CandlesChartFormat[]): void {
+  private drawPlot(plots: ChartFormat[]): void {
     if (!Object.keys(plots).length) {
       return;
     }
@@ -43,5 +45,13 @@ export class ChartComponent implements OnChanges {
       },
     };
     Plotly.newPlot('displayPlot', plots, layout);
+  }
+
+  private getColor(name: string): string {
+    const availableColors = ['blue', 'MediumVioletRed', 'LightSalmon', 'DarkMagenta', 'Chartreuse'];
+    if (!this.colorPalet.hasOwnProperty(name)) {
+      this.colorPalet[name] = Object.keys(this.colorPalet).length % availableColors.length;
+    }
+    return availableColors[this.colorPalet[name]];
   }
 }
