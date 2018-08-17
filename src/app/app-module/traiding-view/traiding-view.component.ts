@@ -20,7 +20,7 @@ export class TraidingViewComponent {
   public savedIndicators = {};
 
   constructor(injectableObservables: InjectableObservables) {
-    const candleSubscription = injectableObservables.prices$.subscribe(
+    const candleSubscription = injectableObservables.candles$.subscribe(
       (x: Candle[]) => this.handleCandlesUpdate(x),
       e => this.handleError(e),
       () => this.handleOnComplete());

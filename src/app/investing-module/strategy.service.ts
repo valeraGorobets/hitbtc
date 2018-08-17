@@ -79,7 +79,7 @@ export class StrategyService{
 
   private updateSavedCandles(message: NotificationCandle): void {
     const candles: Candle[] = message.params.data;
-    this.injectableObservables.prices$.next(candles);
+    this.injectableObservables.candles$.next(candles);
     this.savedCandles = [...this.savedCandles, ...candles];
   }
 
