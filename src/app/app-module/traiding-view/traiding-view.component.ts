@@ -20,13 +20,13 @@ export class TraidingViewComponent {
 
   constructor(injectableObservables: InjectableObservables) {
     const pricesSubscription = injectableObservables.prices$.subscribe(
-      (x: NotificationCandle) => this.drawPlot(x),
+      (x: Candle[]) => this.drawPlot(x),
       e => this.handleError(e),
       () => this.handleOnComplete());
   }
 
-  private drawPlot(x: NotificationCandle): void {
-    this.savedParams = [...this.savedParams, ...x.params.data];
+  private drawPlot(newCandles: Candle[]): void {
+    this.savedParams = [...this.savedParams, ...newCandles];
     const ss = this.mapCandleToChartFormat(this.savedParams);
     this.plots = [ss];
   }
