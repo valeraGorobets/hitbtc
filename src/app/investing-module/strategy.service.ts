@@ -23,7 +23,7 @@ export class StrategyService{
 
   constructor(private injectableObservables: InjectableObservables) {
     console.log('working');
-    this.strategy = new Strategy();
+    this.strategy = new Strategy(injectableObservables);
     this.injectableObservables = injectableObservables;
     console.log(injectableObservables);
 

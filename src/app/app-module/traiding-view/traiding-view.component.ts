@@ -16,44 +16,66 @@ import { InjectableObservables } from '../injectable-observables';
 
 export class TraidingViewComponent {
   public plots: ChartFormat[] = [];
-  public savedParams: Candle[] = [];
+  public savedCandles: Candle[] = [];
+  public savedIndicators = {};
 
   constructor(injectableObservables: InjectableObservables) {
-    const pricesSubscription = injectableObservables.prices$.subscribe(
-      (x: Candle[]) => this.drawPlot(x),
+    const candleSubscription = injectableObservables.prices$.subscribe(
+      (x: Candle[]) => this.handleCandlesUpdate(x),
+      e => this.handleError(e),
+      () => this.handleOnComplete());
+
+    const indicatorsSubscription = injectableObservables.indicator$.subscribe(
+      (x: any) => this.handleIndicatorsUpdate(x),
       e => this.handleError(e),
       () => this.handleOnComplete());
   }
 
-  private drawPlot(newCandles: Candle[]): void {
-    this.savedParams = [...this.savedParams, ...newCandles];
-    const ss = this.mapCandleToChartFormat(this.savedParams);
-    this.plots = [ss];
+  private handleCandlesUpdate(newCandles: Candle[]): void {
+    this.savedCandles = [...this.savedCandles, ...newCandles];
+    this.reDrawPlots();
+  }
+
+  private handleIndicatorsUpdate(x: any): void {
+    Object.keys(x).forEach(plot => {
+      if (!this.savedIndicators[plot]) {
+        this.savedIndicators[plot] = this.createScatterPlot(plot);
+      }
+      this.savedIndicators[plot].x.push(x[plot].timestamp);
+      this.savedIndicators[plot].y.push(x[plot].value);
+    });
+    this.reDrawPlots();
+  }
+
+  private reDrawPlots(): void {
+    const indicators: ChartFormat[] = Object.values(this.savedIndicators);
+    this.plots = [this.mapCandleToChartFormat(this.savedCandles), ...indicators];
   }
 
   private handleError(e: Error): void {
-    console.error('Error in TraidingViewComponent in injectableObservables.prices:', e);
+    console.error('Error in TraidingViewComponent in injectableObservables:', e);
   }
 
   private handleOnComplete(): void {
-    console.log('InjectableObservables.prices onCompleted');
+    console.log('InjectableObservables onCompleted');
   }
 
-  // public line: ScatterChartFormat = {
-  //   x: this.notificationCandle.params.data.map(candle => candle.timestamp),
-  //   y: this.notificationCandle.params.data.map(candle => 0.0465),
-  //   type: 'scatter',
-  //   name: 'MA',
-  // }
-
   private mapCandleToChartFormat(candles: Candle[]): CandlesChartFormat {
-    const ss = {
+    return Object.assign(new CandlesChartFormat(), {
       x: candles.map(candle => candle.timestamp),
       open: candles.map(candle => candle.open),
       close: candles.map(candle => candle.close),
       high: candles.map(candle => candle.max),
       low: candles.map(candle => candle.min),
+    });
+  }
+
+  private createScatterPlot(name: string): ScatterChartFormat {
+    return {
+      name,
+      type: 'scatter',
+      x: [],
+      y: [],
     };
-    return Object.assign(new CandlesChartFormat(), ss);
   }
 }
