@@ -8,6 +8,11 @@ import { Subject } from 'rxjs';
 
 import { InjectableObservables } from '../injectable-observables';
 
+interface IndicatorUpdateModel {
+    value: number;
+  timestamp: string;
+}
+
 @Component({
   selector: 'traiding-view',
   templateUrl: './traiding-view.component.html',
@@ -26,30 +31,60 @@ export class TraidingViewComponent {
       () => this.handleOnComplete());
 
     const indicatorsSubscription = injectableObservables.indicator$.subscribe(
-      (x: any) => this.handleIndicatorsUpdate(x),
+      (x: IndicatorUpdateModel[]) => this.handleIndicatorsUpdate(x),
       e => this.handleError(e),
       () => this.handleOnComplete());
   }
 
   private handleCandlesUpdate(newCandles: Candle[]): void {
+    const candles: Candle[] = newCandles.slice(0, 1);
+    if (this.savedCandles.length) {
+      this.updateLastCandle(candles[0]);
+    }
     this.savedCandles = [...this.savedCandles, ...newCandles];
     this.reDrawPlots();
   }
 
-  private handleIndicatorsUpdate(x: any): void {
+  private updateLastCandle(updateCandle: Candle): void {
+    const prevCandle = this.savedCandles[this.savedCandles.length - 1];
+    const prevUpdate: number = +new Date(prevCandle.timestamp);
+    const lastUpdate: number = +new Date(updateCandle.timestamp);
+    if (lastUpdate - prevUpdate === 0) {
+      this.savedCandles.pop();
+    }
+  }
+
+  private handleIndicatorsUpdate(x: IndicatorUpdateModel[]): void {
     Object.keys(x).forEach(plot => {
       if (!this.savedIndicators[plot]) {
-        this.savedIndicators[plot] = this.createScatterPlot(plot);
+        this.savedIndicators[plot] = new ScatterChartFormat();
+        this.savedIndicators[plot].name = plot;
       }
+      this.updateLastIndicator(this.savedIndicators[plot], x[plot]);
       this.savedIndicators[plot].x.push(x[plot].timestamp);
       this.savedIndicators[plot].y.push(x[plot].value);
     });
     this.reDrawPlots();
   }
 
+  private updateLastIndicator(plotObject: ScatterChartFormat, updateIndicator: IndicatorUpdateModel): void {
+    const lastUpdate: number = +new Date(updateIndicator.timestamp);
+    const prevUpdate: number = +new Date(plotObject.x[plotObject.x.length - 1]);
+    if (lastUpdate - prevUpdate === 0) {
+      plotObject.x.pop();
+      plotObject.y.pop();
+    }
+  }
+
   private reDrawPlots(): void {
+    const viewingAmount = 85;
     const indicators: ChartFormat[] = Object.values(this.savedIndicators);
-    this.plots = [this.mapCandleToChartFormat(this.savedCandles), ...indicators];
+    indicators.forEach(indicator => {
+      indicator.x = indicator.x.slice(-viewingAmount);
+      indicator.y = indicator.y.slice(-viewingAmount);
+    });
+    const showingCandles = this.mapCandleToChartFormat(this.savedCandles.slice(-viewingAmount));
+    this.plots = [showingCandles, ...indicators];
   }
 
   private handleError(e: Error): void {
@@ -68,14 +103,5 @@ export class TraidingViewComponent {
       high: candles.map(candle => candle.max),
       low: candles.map(candle => candle.min),
     });
-  }
-
-  private createScatterPlot(name: string): ScatterChartFormat {
-    return {
-      name,
-      type: 'scatter',
-      x: [],
-      y: [],
-    };
   }
 }
