@@ -8,6 +8,11 @@ import { Subject } from 'rxjs';
 
 import { InjectableObservables } from '../injectable-observables';
 
+interface IndicatorUpdateModel {
+    value: number;
+  timestamp: string;
+}
+
 @Component({
   selector: 'traiding-view',
   templateUrl: './traiding-view.component.html',
@@ -26,15 +31,15 @@ export class TraidingViewComponent {
       () => this.handleOnComplete());
 
     const indicatorsSubscription = injectableObservables.indicator$.subscribe(
-      (x: any) => this.handleIndicatorsUpdate(x),
+      (x: IndicatorUpdateModel[]) => this.handleIndicatorsUpdate(x),
       e => this.handleError(e),
       () => this.handleOnComplete());
   }
 
   private handleCandlesUpdate(newCandles: Candle[]): void {
-    let candles: Candle[] = newCandles.slice(0, 1);
-    if(this.savedCandles.length) {
-      this.updateLastCandle(candles[0]); 
+    const candles: Candle[] = newCandles.slice(0, 1);
+    if (this.savedCandles.length) {
+      this.updateLastCandle(candles[0]);
     }
     this.savedCandles = [...this.savedCandles, ...newCandles];
     this.reDrawPlots();
@@ -44,12 +49,12 @@ export class TraidingViewComponent {
     const prevCandle = this.savedCandles[this.savedCandles.length - 1];
     const prevUpdate: number = +new Date(prevCandle.timestamp);
     const lastUpdate: number = +new Date(updateCandle.timestamp);
-    if(lastUpdate - prevUpdate === 0) {
+    if (lastUpdate - prevUpdate === 0) {
       this.savedCandles.pop();
     }
   }
 
-  private handleIndicatorsUpdate(x: any): void {
+  private handleIndicatorsUpdate(x: IndicatorUpdateModel[]): void {
     Object.keys(x).forEach(plot => {
       if (!this.savedIndicators[plot]) {
         this.savedIndicators[plot] = new ScatterChartFormat();
@@ -62,17 +67,17 @@ export class TraidingViewComponent {
     this.reDrawPlots();
   }
 
-  private updateLastIndicator(plotObject, updateIndicator): void {
+  private updateLastIndicator(plotObject: ScatterChartFormat, updateIndicator: IndicatorUpdateModel): void {
     const lastUpdate: number = +new Date(updateIndicator.timestamp);
     const prevUpdate: number = +new Date(plotObject.x[plotObject.x.length - 1]);
-    if(lastUpdate - prevUpdate === 0) {
+    if (lastUpdate - prevUpdate === 0) {
       plotObject.x.pop();
       plotObject.y.pop();
     }
   }
 
   private reDrawPlots(): void {
-    const viewingAmount = 60;
+    const viewingAmount = 85;
     const indicators: ChartFormat[] = Object.values(this.savedIndicators);
     indicators.forEach(indicator => {
       indicator.x = indicator.x.slice(-viewingAmount);

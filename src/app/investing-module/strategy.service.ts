@@ -84,7 +84,7 @@ export class StrategyService{
   private updateSavedCandles(message: NotificationCandle): void {
     let candles: Candle[] = message.params.data;
     this.injectableObservables.candles$.next(candles);
-    if(message.method === 'updateCandles'){
+    if (message.method === 'updateCandles') {
       this.updatePrevCandle(candles[0]);
       candles = candles.slice(0, 1);
     }
@@ -101,7 +101,7 @@ export class StrategyService{
     const prevCandle = this.savedCandles[this.savedCandles.length - 1];
     const prevUpdate: number = +new Date(prevCandle.timestamp);
     const lastUpdate: number = +new Date(updateCandle.timestamp);
-    if(lastUpdate - prevUpdate === 0) {
+    if (lastUpdate - prevUpdate === 0) {
       this.savedCandles.pop();
     }
   }
