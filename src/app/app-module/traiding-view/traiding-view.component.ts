@@ -9,7 +9,7 @@ import { Subject } from 'rxjs';
 import { InjectableObservables } from '../injectable-observables';
 
 interface IndicatorUpdateModel {
-    value: number;
+  value: number;
   timestamp: string;
 }
 
