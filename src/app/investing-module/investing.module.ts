@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { StrategyService } from './strategy.service';
+import { InvestingService } from './investing.service';
 
 @NgModule({
   imports: [
     CommonModule,
   ],
-  providers: [StrategyService],
+  providers: [InvestingService],
 })
 export class InvestingModule { }

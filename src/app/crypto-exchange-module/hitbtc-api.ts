@@ -1,8 +1,16 @@
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { WSService } from '../../libs/ws.service';
 
+@Injectable({
+  providedIn: 'root',
+})
+
 export class HitbtcApi {
   private ws: WSService;
+  constructor() {
+    console.log('HitbtcApi working');
+  }
 
   public createConnection(url: string = 'wss://api.hitbtc.com/api/2/ws'): void {
     this.ws = new WSService(url);
