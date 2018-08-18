@@ -28,7 +28,6 @@ export class InvestingService{
     this.strategy = new Strategy(injectableObservables, 5, 9);
     this.injectableObservables = injectableObservables;
     this.hitbtcApiService = hitbtcApiService;
-    console.log(injectableObservables);
 
     // this.connectToLocalData();
     this.connectToHitBtcApi();
@@ -67,8 +66,29 @@ export class InvestingService{
       });
   }
 
-  public stopWatching(): void {
-    this.hitbtcApiService.closeConnection();
+  private handleUpdateCandles(message: NotificationCandle): void {
+    this.updateSavedCandles(message);
+    const shouldInvest = this.strategy.shouldInvest(this.savedCandles);
+    console.log(shouldInvest);
+  }
+
+  private updateSavedCandles(message: NotificationCandle): void {
+    let candles: Candle[] = message.params.data;
+    this.injectableObservables.candles$.next(candles);
+    if (message.method === 'updateCandles') {
+      this.updatePrevCandle(candles[0]);
+      candles = candles.slice(0, 1);
+    }
+    this.savedCandles = [...this.savedCandles, ...candles];
+  }
+
+  private updatePrevCandle(updateCandle: Candle): void {
+    const prevCandle = this.savedCandles[this.savedCandles.length - 1];
+    const prevUpdate: number = +new Date(prevCandle.timestamp);
+    const lastUpdate: number = +new Date(updateCandle.timestamp);
+    if (lastUpdate - prevUpdate === 0) {
+      this.savedCandles.pop();
+    }
   }
 
   private candleToNotificationCandle(method: string, el: Candle[]): NotificationCandle {
@@ -83,28 +103,7 @@ export class InvestingService{
     };
   }
 
-  private updateSavedCandles(message: NotificationCandle): void {
-    let candles: Candle[] = message.params.data;
-    this.injectableObservables.candles$.next(candles);
-    if (message.method === 'updateCandles') {
-      this.updatePrevCandle(candles[0]);
-      candles = candles.slice(0, 1);
-    }
-    this.savedCandles = [...this.savedCandles, ...candles];
-  }
-
-  private handleUpdateCandles(message: NotificationCandle): void {
-    this.updateSavedCandles(message);
-    const shouldInvest = this.strategy.shouldInvest(this.savedCandles);
-    console.log(shouldInvest);
-  }
-
-  private updatePrevCandle(updateCandle: Candle): void {
-    const prevCandle = this.savedCandles[this.savedCandles.length - 1];
-    const prevUpdate: number = +new Date(prevCandle.timestamp);
-    const lastUpdate: number = +new Date(updateCandle.timestamp);
-    if (lastUpdate - prevUpdate === 0) {
-      this.savedCandles.pop();
-    }
+  public stopWatching(): void {
+    this.hitbtcApiService.closeConnection();
   }
 }
