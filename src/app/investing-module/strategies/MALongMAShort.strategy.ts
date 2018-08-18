@@ -18,7 +18,7 @@ export default class MALongMAShortStrategy {
     console.log('Strategy MALongMAShort started');
   }
 
-  public shouldInvest(candles: Candle[], isPartOfStrategy?: boolean): Side {
+  public advisedInvestingSide(candles: Candle[], isPartOfStrategy?: boolean): Side {
     const prices = candles.map(candle => +candle[this.field]);
 
     const lastShort = this.MAShort.calculate(prices.slice(-this.short));
@@ -31,11 +31,9 @@ export default class MALongMAShortStrategy {
 
     if ((prevLong > prevShort && lastLong < lastShort) ||
       (isPartOfStrategy && lastLong < lastShort)) {
-      console.log(candles[candles.length - 1].timestamp);
       return Side.buy;
     } else if ((prevLong < prevShort && lastLong > lastShort) ||
       (isPartOfStrategy && lastLong > lastShort)) {
-      console.log(candles[candles.length - 1].timestamp);
       return Side.sell;
     } else {
       return Side.none;

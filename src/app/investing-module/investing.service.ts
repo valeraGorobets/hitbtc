@@ -4,6 +4,7 @@ import Strategy from './strategies/MALongMAShort.strategy';
 import { NotificationCandle } from '../models/NotificationCandle';
 import { CandlesChartFormat } from '../models/ChartFormats/CandlesChartFormat';
 import { Candle } from '../models/Candle';
+import { Side } from '../models/SharedConstants';
 
 import { InjectableObservables } from '../app-module/injectable-observables';
 
@@ -20,6 +21,15 @@ export class InvestingService{
   private savedCandles: Candle[] = [];
   private notificationCandle: NotificationCandle = (notificationCandle as any) as NotificationCandle;
 
+  private openedTrade = {
+    money: 1000,
+    value: 0,
+    side: Side.sell,
+    time: '',
+  };
+  private money: number = 1000;
+  private value: number = 0;
+
   constructor(
     private injectableObservables: InjectableObservables,
     private hitbtcApiService: HitbtcApi,
@@ -29,21 +39,24 @@ export class InvestingService{
     this.injectableObservables = injectableObservables;
     this.hitbtcApiService = hitbtcApiService;
 
-    // this.connectToLocalData();
-    this.connectToHitBtcApi();
+    this.connectToLocalData();
+    // this.connectToHitBtcApi();
   }
 
   private connectToLocalData(): void {
     const data = this.notificationCandle.params.data;
-    const history = data.slice(0, 10);
+    const history = data.slice(0, 25);
     this.updateSavedCandles(this.candleToNotificationCandle('snapshotCandles', history));
 
-    const restData = data.slice(10);
+    const restData = data.slice(25);
     for (let i = 0; i < restData.length; i++) {
       setTimeout(() => {
         this.handleUpdateCandles(this.candleToNotificationCandle('updateCandles', [restData[i]]));
-      }, i * 200);
+      }, i * 0);
     }
+    setTimeout(() => {
+      console.log(this.openedTrade);
+    });
   }
 
   private connectToHitBtcApi(): void {
@@ -68,8 +81,28 @@ export class InvestingService{
 
   private handleUpdateCandles(message: NotificationCandle): void {
     this.updateSavedCandles(message);
-    const shouldInvest = this.strategy.shouldInvest(this.savedCandles);
-    console.log(shouldInvest);
+    const advisedInvestingSide: Side = this.strategy.advisedInvestingSide(this.savedCandles);
+    // console.log(advisedInvestingSide);
+    if (advisedInvestingSide === Side.none ||
+      advisedInvestingSide === this.openedTrade.side) {
+      return;
+    } else {
+      this.invest(message, advisedInvestingSide);
+    }
+  }
+
+  private invest(candle: NotificationCandle, side: Side): void {
+    const candleData = candle.params.data[0];
+    this.openedTrade.side = side;
+    this.openedTrade.time = candleData.timestamp;
+    if (side === Side.buy) {
+      this.openedTrade.value = this.openedTrade.money / +candleData.close;
+      this.openedTrade.money = 0;
+    } else {
+      this.openedTrade.money = this.openedTrade.value * +candleData.close;
+      this.openedTrade.value = 0;
+    }
+    console.log(this.openedTrade);
   }
 
   private updateSavedCandles(message: NotificationCandle): void {
