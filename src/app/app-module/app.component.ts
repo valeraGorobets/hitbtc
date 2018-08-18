@@ -8,5 +8,9 @@ import { StrategyService } from '../investing-module/strategy.service';
 })
 export class AppComponent {
 
-  constructor(strategyService: StrategyService) { }
+  constructor(private strategyService: StrategyService) { }
+
+  private stopWatching(): void {
+    this.strategyService.stopWatching();
+  }
 }
