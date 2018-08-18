@@ -27,8 +27,8 @@ export class StrategyService{
     this.injectableObservables = injectableObservables;
     console.log(injectableObservables);
 
-    this.connectToLocalData();
-    // this.connectToHitBtcApi();
+    // this.connectToLocalData();
+    this.connectToHitBtcApi();
   }
 
   private connectToLocalData(): void {
@@ -59,10 +59,14 @@ export class StrategyService{
           break;
           default:
             console.error('Cant handle unknown method');
+            console.error(message);
             break;
         }
       });
-    this.hitbtcApiService.closeConnection(5000);
+  }
+
+  public stopWatching(): void {
+    this.hitbtcApiService.closeConnection();
   }
 
   private candleToNotificationCandle(method: string, el: Candle[]): NotificationCandle {
@@ -78,8 +82,12 @@ export class StrategyService{
   }
 
   private updateSavedCandles(message: NotificationCandle): void {
-    const candles: Candle[] = message.params.data;
+    let candles: Candle[] = message.params.data;
     this.injectableObservables.candles$.next(candles);
+    if(message.method === 'updateCandles'){
+      this.updatePrevCandle(candles[0]);
+      candles = candles.slice(0, 1);
+    }
     this.savedCandles = [...this.savedCandles, ...candles];
   }
 
@@ -87,5 +95,14 @@ export class StrategyService{
     this.updateSavedCandles(message);
     const shouldInvest = this.strategy.shouldInvest(this.savedCandles);
     console.log(shouldInvest);
+  }
+
+  private updatePrevCandle(updateCandle: Candle): void {
+    const prevCandle = this.savedCandles[this.savedCandles.length - 1];
+    const prevUpdate: number = +new Date(prevCandle.timestamp);
+    const lastUpdate: number = +new Date(updateCandle.timestamp);
+    if(lastUpdate - prevUpdate === 0) {
+      this.savedCandles.pop();
+    }
   }
 }
