@@ -6,6 +6,7 @@ import { CandlesChartFormat } from '../trade-module/models/ChartFormats/CandlesC
 import { Candle } from '../trade-module/models/Candle';
 
 import { InjectableObservables } from '../app-module/injectable-observables';
+import { TradingService } from '../trade-module/trading.service';
 
 import { Observable, Subject, from, of, pipe } from 'rxjs';
 import { concatMap, delay } from 'rxjs/operators';
@@ -16,15 +17,20 @@ import * as notificationCandle from './../app-module/traiding-view/data.json';
   providedIn: 'root',
 })
 export class StrategyService{
-  private hitbtcApiService: HitbtcApi;
   private strategy: Strategy;
   private savedCandles: Candle[] = [];
   private notificationCandle: NotificationCandle = (notificationCandle as any) as NotificationCandle;
 
-  constructor(private injectableObservables: InjectableObservables) {
-    console.log('working');
+  constructor(
+    private injectableObservables: InjectableObservables,
+    private tradingService: TradingService,
+    private hitbtcApiService: HitbtcApi,
+    ) {
+    console.log('StrategyService working');
     this.strategy = new Strategy(injectableObservables, 5, 9);
     this.injectableObservables = injectableObservables;
+    this.tradingService = tradingService;
+    this.hitbtcApiService = hitbtcApiService;
     console.log(injectableObservables);
 
     // this.connectToLocalData();
@@ -45,7 +51,6 @@ export class StrategyService{
   }
 
   private connectToHitBtcApi(): void {
-    this.hitbtcApiService = new HitbtcApi();
     this.hitbtcApiService.createConnection();
     this.hitbtcApiService.subscribeCandles();
     this.hitbtcApiService.onMessage()
