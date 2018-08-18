@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { StrategyService } from '../investing-module/strategy.service';
+import { InvestingService } from '../investing-module/investing.service';
 
 @Component({
   selector: 'app-root',
@@ -8,9 +8,9 @@ import { StrategyService } from '../investing-module/strategy.service';
 })
 export class AppComponent {
 
-  constructor(private strategyService: StrategyService) { }
+  constructor(private investingService: InvestingService) { }
 
   private stopWatching(): void {
-    this.strategyService.stopWatching();
+    this.investingService.stopWatching();
   }
 }

@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HitbtcApi } from '../crypto-exchange-module/hitbtc-api';
 import Strategy from './strategies/MALongMAShort.strategy';
-import { NotificationCandle } from '../trade-module/models/NotificationCandle';
-import { CandlesChartFormat } from '../trade-module/models/ChartFormats/CandlesChartFormat';
-import { Candle } from '../trade-module/models/Candle';
+import { NotificationCandle } from '../models/NotificationCandle';
+import { CandlesChartFormat } from '../models/ChartFormats/CandlesChartFormat';
+import { Candle } from '../models/Candle';
 
 import { InjectableObservables } from '../app-module/injectable-observables';
-import { TradingService } from '../trade-module/trading.service';
 
 import { Observable, Subject, from, of, pipe } from 'rxjs';
 import { concatMap, delay } from 'rxjs/operators';
@@ -16,20 +15,18 @@ import * as notificationCandle from './../app-module/traiding-view/data.json';
 @Injectable({
   providedIn: 'root',
 })
-export class StrategyService{
+export class InvestingService{
   private strategy: Strategy;
   private savedCandles: Candle[] = [];
   private notificationCandle: NotificationCandle = (notificationCandle as any) as NotificationCandle;
 
   constructor(
     private injectableObservables: InjectableObservables,
-    private tradingService: TradingService,
     private hitbtcApiService: HitbtcApi,
     ) {
-    console.log('StrategyService working');
+    console.log('InvestingService working');
     this.strategy = new Strategy(injectableObservables, 5, 9);
     this.injectableObservables = injectableObservables;
-    this.tradingService = tradingService;
     this.hitbtcApiService = hitbtcApiService;
     console.log(injectableObservables);
 

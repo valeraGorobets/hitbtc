@@ -1,6 +1,6 @@
 import { Component, SimpleChanges, Input, OnChanges } from '@angular/core';
 import Plotly from 'plotly.js-dist';
-import { ChartFormat } from '../../trade-module/models/ChartFormats/ChartFormat';
+import { ChartFormat } from '../../models/ChartFormats/ChartFormat';
 
 @Component({
   selector: 'chart',

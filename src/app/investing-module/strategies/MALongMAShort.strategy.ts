@@ -1,6 +1,6 @@
-import { Side } from '../../trade-module/models/SharedConstants';
+import { Side } from '../../models/SharedConstants';
 import MA from '../indicators/MA';
-import { Candle } from '../../trade-module/models/Candle';
+import { Candle } from '../../models/Candle';
 import { InjectableObservables } from '../../app-module/injectable-observables';
 
 export default class MALongMAShortStrategy {

@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { NotificationCandle } from '../../trade-module/models/notificationCandle';
-import { Candle } from '../../trade-module/models/Candle';
-import { ChartFormat } from '../../trade-module/models/ChartFormats/ChartFormat';
-import { CandlesChartFormat } from '../../trade-module/models/ChartFormats/CandlesChartFormat';
-import { ScatterChartFormat } from '../../trade-module/models/ChartFormats/ScatterChartFormat';
+import { NotificationCandle } from '../../models/notificationCandle';
+import { Candle } from '../../models/Candle';
+import { ChartFormat } from '../../models/ChartFormats/ChartFormat';
+import { CandlesChartFormat } from '../../models/ChartFormats/CandlesChartFormat';
+import { ScatterChartFormat } from '../../models/ChartFormats/ScatterChartFormat';
 import { Subject } from 'rxjs';
 
 import { InjectableObservables } from '../injectable-observables';
