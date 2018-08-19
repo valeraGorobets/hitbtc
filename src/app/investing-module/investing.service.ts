@@ -25,7 +25,9 @@ export class InvestingService{
     money: 1000,
     value: 0,
     side: Side.sell,
+    status: 'o',
     time: '',
+    openedPrice: Number.MAX_SAFE_INTEGER,
   };
   private money: number = 1000;
   private value: number = 0;
@@ -39,8 +41,8 @@ export class InvestingService{
     this.injectableObservables = injectableObservables;
     this.hitbtcApiService = hitbtcApiService;
 
-    this.connectToLocalData();
-    // this.connectToHitBtcApi();
+    // this.connectToLocalData();
+    this.connectToHitBtcApi();
   }
 
   private connectToLocalData(): void {
@@ -81,6 +83,7 @@ export class InvestingService{
 
   private handleUpdateCandles(message: NotificationCandle): void {
     this.updateSavedCandles(message);
+    this.checkForClosing(message);
     const advisedInvestingSide: Side = this.strategy.advisedInvestingSide(this.savedCandles);
     // console.log(advisedInvestingSide);
     if (advisedInvestingSide === Side.none ||
@@ -91,10 +94,35 @@ export class InvestingService{
     }
   }
 
+  private checkForClosing(candle: NotificationCandle): void {
+    const candleData = candle.params.data[0];
+    if (this.openedTrade.status === 'c' ||
+      +new Date(candleData.timestamp) - +new Date(this.openedTrade.time) === 0) {
+      return;
+    }
+    if (this.openedTrade.side === Side.buy &&
+      this.openedTrade.openedPrice >= +candleData.max) {
+        this.openedTrade.status = 'c';
+        this.openedTrade.side = Side.sell;
+        this.openedTrade.money = this.openedTrade.value * +candleData.max;
+        this.openedTrade.value = 0;
+        console.log(this.openedTrade);
+    } else if (this.openedTrade.side === Side.sell &&
+      this.openedTrade.openedPrice <= +candleData.min) {
+        this.openedTrade.status = 'c';
+        this.openedTrade.side = Side.buy;
+        this.openedTrade.value = this.openedTrade.money / +candleData.min;
+        this.openedTrade.money = 0;
+        console.log(this.openedTrade);
+    }
+  }
+
   private invest(candle: NotificationCandle, side: Side): void {
     const candleData = candle.params.data[0];
+    this.openedTrade.status = 'o';
     this.openedTrade.side = side;
     this.openedTrade.time = candleData.timestamp;
+    this.openedTrade.openedPrice = +candleData.close;
     if (side === Side.buy) {
       this.openedTrade.value = this.openedTrade.money / +candleData.close;
       this.openedTrade.money = 0;
