@@ -21,13 +21,13 @@ export default class MALongMAShortStrategy {
   public advisedInvestingSide(candles: Candle[], isPartOfStrategy?: boolean): Side {
     const prices = candles.map(candle => +candle[this.field]);
 
-    const lastShort = this.MAShort.calculate(prices.slice(-this.short));
-    const prevShort = this.MAShort.calculate(prices.slice(-this.short - 1, -1));
+    const lastShort = this.MAShort.calculate(prices.slice(-this.short - 1, -1));
+    const prevShort = this.MAShort.calculate(prices.slice(-this.short - 2, -2));
 
-    const lastLong = this.MALong.calculate(prices.slice(-this.long));
-    const prevLong = this.MALong.calculate(prices.slice(-this.long - 1, -1));
+    const lastLong = this.MALong.calculate(prices.slice(-this.long - 1, -1));
+    const prevLong = this.MALong.calculate(prices.slice(-this.long - 2, -2));
 
-    this.notifyAboutNewIndicatorValues(lastShort, lastLong, candles[candles.length - 1].timestamp);
+    this.notifyAboutNewIndicatorValues(lastShort, lastLong, candles[candles.length - 2].timestamp);
 
     if ((prevLong > prevShort && lastLong < lastShort) ||
       (isPartOfStrategy && lastLong < lastShort)) {
