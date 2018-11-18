@@ -1,3 +1,4 @@
+import { AbstractCryptoService } from './abstract-crypto-service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { WSService } from '../../libs/ws.service';
@@ -6,9 +7,11 @@ import { WSService } from '../../libs/ws.service';
   providedIn: 'root',
 })
 
-export class HitbtcApi {
+export class HitbtcApi implements AbstractCryptoService {
   private ws: WSService;
   private symbol: string = 'BTCUSD';
+  private period: string = 'M1';
+
   constructor() {
     console.log('HitbtcApi working');
   }
@@ -17,27 +20,25 @@ export class HitbtcApi {
     this.ws = new WSService(url);
   }
 
-  public subscribeCandles(): void {
-    const message = {
+  public subscribeCandles(symbol: string = this.symbol, period: string = this.period): void {
+    this.ws.send({
       method: 'subscribeCandles',
       params: {
-        symbol: this.symbol,
-        period: 'M1',
+        symbol,
+        period,
       },
       id: 123,
-    };
-    this.ws.send(message);
+    });
   }
 
-  public subscribeTrades(): void {
-    const message = {
+  public subscribeTrades(symbol: string = this.symbol): void {
+    this.ws.send({
       method: 'subscribeTrades',
       params: {
-        symbol: this.symbol,
+        symbol,
       },
       id: 123,
-    };
-    this.ws.send(message);
+    });
   }
 
   public onMessage(): Observable<MessageEvent> {
