@@ -5,6 +5,7 @@ import { ReplaySubject } from 'rxjs';
 export class InjectableObservables {
   public candles$ = new ReplaySubject();
   public indicator$ = new ReplaySubject();
+  public positionAction$ = new ReplaySubject();
 
   constructor() { }
 }
