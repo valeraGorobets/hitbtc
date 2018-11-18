@@ -17,17 +17,20 @@ import { Strategy } from './strategies/abstractStrategy';
   providedIn: 'root',
 })
 
-export class InvestingService{
+export class InvestingService {
+  private actualOpenTime = null;
   private strategy: Strategy;
   private strategyId = 'MACDFromPrimarySymbolStrategy';
   private openedTrade = null;
   private money: number = 1000;
   private config = {
-    investingSymbol: 'ETHBTC',
-    indicatorSymbol: 'BTCUSD',
-    quantityIncrement: 0.001,
-    tickSize: 0.000001,
     allowedLost: 0.001,
+    enoughtProfit: 0.01,
+    indicatorSymbol: 'BTCUSD',
+    investingSymbol: 'ETHBTC',
+    quantityIncrement: 0.001,
+    shiftForOpening: 3,
+    tickSize: 0.000001,
   }
 
   constructor(
@@ -51,13 +54,16 @@ export class InvestingService{
     this.injectableObservables.positionAction$.subscribe((action: any) => this.handleActionUpdate(action));
   }
 
-  private handleActionUpdate(action: {time: string, side: Side}) {
-    console.log(action);
+  private handleActionUpdate(action: {time: string, side: Side}): void {
+    // console.log(action);
     this.hitbtcApiService.getOrderbook(this.config.investingSymbol).pipe(
       first(),
     ).subscribe((orderbook: Orderbook) => {
-      console.log(orderbook.bid[0].price + ' bid | ask ' + orderbook.ask[0].price);
-      if (action.side === Side.buy && !this.openedTrade) {
+      // console.log(orderbook.bid[0].price + ' bid | ask ' + orderbook.ask[0].price);
+      if (action.side === Side.buy && !this.openedTrade && !this.actualOpenTime) {
+        this.actualOpenTime = new Date(action.time);
+        this.actualOpenTime.setMinutes(this.actualOpenTime.getMinutes() + this.config.shiftForOpening);
+      } else if (+this.actualOpenTime === +new Date(action.time)) {
         this.openPosition(action.time, +orderbook.bid[0].price);
       } else if (action.side === Side.sell && this.openedTrade) {
         this.closePosition(action.time, +orderbook.ask[0].price);
@@ -76,6 +82,7 @@ export class InvestingService{
       value: this.money / openPrice,
     }
     console.log(this.openedTrade);
+    this.actualOpenTime = null;
   }
 
   private closePosition(time: string, askPrice: number): void {
@@ -91,7 +98,11 @@ export class InvestingService{
       return false;
     }
     const openPrice = this.openedTrade.openPrice;
-    if ((openPrice - askPrice)/openPrice > this.config.allowedLost) {
+    if (
+      (openPrice - askPrice)/openPrice > this.config.allowedLost ||
+      (askPrice - openPrice)/openPrice > this.config.enoughtProfit
+    ) {
+      console.log('Closing due to > allowedLost of enoghtProfit');
       return true;
     }
     return true;
