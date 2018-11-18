@@ -3,13 +3,13 @@ import { AbstractCryptoService } from '../../crypto-exchange-module/abstract-cry
 import { Candle, NotificationCandle } from '../../models/Candle';
 import { IMACD, MACD } from '../indicators/macd';
 import { InjectableObservables } from '../../app-module/injectable-observables';
-import { ReplaySubject } from 'rxjs';
 import { Side } from '../../models/SharedConstants';
 import { Strategy } from './abstractStrategy';
 
 export class MACDStrategy extends Strategy  {
   private field: string = 'close';
   private savedCandles: Candle[] = [];
+  private macd = new MACD();
   private notificationCandle: NotificationCandle = (notificationCandle as any) as NotificationCandle;
 
 
@@ -23,21 +23,17 @@ export class MACDStrategy extends Strategy  {
   }
 
   public advisedInvestingSide(candles: Candle[], isPartOfStrategy?: boolean): Side {
-    const macd = new MACD();
-    const macdResult: IMACD = macd.calculate(candles.map(candle => +candle.close))
-    const copy = JSON.parse(JSON.stringify(macdResult));
+    const macdResult: IMACD = this.macd.calculate(candles.map(candle => +candle.close))
     if (
       macdResult.MACD.pop() < 0 &&
       macdResult.histogram.pop() > 0 &&
       macdResult.histogram.pop() > 0 &&
       macdResult.histogram.pop() < 0) {
-        console.log('byyyy')
         return Side.buy;
     }  else if (
       macdResult.histogram.pop() < 0 &&
       macdResult.histogram.pop() < 0 &&
       macdResult.histogram.pop() > 0) {
-        console.log('sell')
         return Side.sell;
     }
     return Side.none;
