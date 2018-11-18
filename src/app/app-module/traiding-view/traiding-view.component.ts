@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { NotificationCandle } from '../../models/notificationCandle';
-import { Candle } from '../../models/Candle';
+import { Candle, NotificationCandle } from '../../models/Candle';
 import { ChartFormat } from '../../models/ChartFormats/ChartFormat';
 import { CandlesChartFormat } from '../../models/ChartFormats/CandlesChartFormat';
 import { ScatterChartFormat } from '../../models/ChartFormats/ScatterChartFormat';
