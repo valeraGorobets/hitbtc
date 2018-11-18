@@ -8,6 +8,7 @@ import { WSService } from '../../libs/ws.service';
 
 export class HitbtcApi {
   private ws: WSService;
+  private symbol: string = 'BTCUSD';
   constructor() {
     console.log('HitbtcApi working');
   }
@@ -20,7 +21,7 @@ export class HitbtcApi {
     const message = {
       method: 'subscribeCandles',
       params: {
-        symbol: 'ETHBTC',
+        symbol: this.symbol,
         period: 'M1',
       },
       id: 123,
@@ -32,7 +33,7 @@ export class HitbtcApi {
     const message = {
       method: 'subscribeTrades',
       params: {
-        symbol: 'ETHBTC',
+        symbol: this.symbol,
       },
       id: 123,
     };

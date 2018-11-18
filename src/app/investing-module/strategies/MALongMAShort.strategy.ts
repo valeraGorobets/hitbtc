@@ -1,9 +1,9 @@
 import { Side } from '../../models/SharedConstants';
-import MA from '../indicators/MA';
+import { MA } from '../indicators/MA';
 import { Candle } from '../../models/Candle';
 import { InjectableObservables } from '../../app-module/injectable-observables';
 
-export default class MALongMAShortStrategy {
+export class MALongMAShortStrategy {
   private field: string = 'close';
   private MAShort: MA;
   private MALong: MA;
