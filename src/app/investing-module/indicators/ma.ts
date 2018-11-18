@@ -1,4 +1,4 @@
-export default class MA {
+export class MA {
   private period: number;
 
   constructor(period: number = 9) {
