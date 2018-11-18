@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HitbtcApi } from '../crypto-exchange-module/hitbtc-api';
-import Strategy from './strategies/MALongMAShort.strategy';
+import { Strategy } from './strategies/abstractStrategy';
+import { MALongMAShortStrategy } from './strategies/MALongMAShort.strategy';
+import { MACDStrategy } from './strategies/MACD.strategy';
 import { NotificationCandle } from '../models/NotificationCandle';
 import { CandlesChartFormat } from '../models/ChartFormats/CandlesChartFormat';
 import { Candle } from '../models/Candle';
@@ -17,16 +19,12 @@ import * as notificationCandle from './../app-module/traiding-view/data.json';
   providedIn: 'root',
 })
 export class InvestingService{
+  private strategyId = 'MACDStrategy';
   private strategy: Strategy;
   private savedCandles: Candle[] = [];
   private notificationCandle: NotificationCandle = (notificationCandle as any) as NotificationCandle;
 
-  private openedTrade = {
-    money: 1000,
-    value: 0,
-    side: Side.sell,
-    time: '',
-  };
+  private openedTrade = null;
   private money: number = 1000;
   private value: number = 0;
 
@@ -35,12 +33,21 @@ export class InvestingService{
     private hitbtcApiService: HitbtcApi,
     ) {
     console.log('InvestingService working');
-    this.strategy = new Strategy(injectableObservables, 5, 9);
+    let strategyConstructor;
+    switch (this.strategyId) {
+      case 'MACDStrategy':
+        strategyConstructor = MACDStrategy;
+        break;
+      case 'MALongMAShortStrategy':
+        strategyConstructor = MALongMAShortStrategy;
+        break;
+    }
+    this.strategy = new strategyConstructor(injectableObservables.indicator$);
     this.injectableObservables = injectableObservables;
     this.hitbtcApiService = hitbtcApiService;
 
-    this.connectToLocalData();
-    // this.connectToHitBtcApi();
+    // this.connectToLocalData();
+    this.connectToHitBtcApi();
   }
 
   private connectToLocalData(): void {
@@ -79,30 +86,31 @@ export class InvestingService{
       });
   }
 
-  private handleUpdateCandles(message: NotificationCandle): void {
-    this.updateSavedCandles(message);
+  private handleUpdateCandles(candle: NotificationCandle): void {
+    this.updateSavedCandles(candle);
     const advisedInvestingSide: Side = this.strategy.advisedInvestingSide(this.savedCandles);
-    // console.log(advisedInvestingSide);
-    if (advisedInvestingSide === Side.none ||
-      advisedInvestingSide === this.openedTrade.side) {
-      return;
-    } else {
-      this.invest(message, advisedInvestingSide);
+    if (advisedInvestingSide === Side.buy && !this.openedTrade) {
+      this.openPosition(candle);
+    } else if (advisedInvestingSide === Side.sell && this.openedTrade) {
+      this.closePosition(candle);
     }
   }
 
-  private invest(candle: NotificationCandle, side: Side): void {
+  private openPosition(candle: NotificationCandle): void {
     const candleData = candle.params.data[0];
-    this.openedTrade.side = side;
-    this.openedTrade.time = candleData.timestamp;
-    if (side === Side.buy) {
-      this.openedTrade.value = this.openedTrade.money / +candleData.close;
-      this.openedTrade.money = 0;
-    } else {
-      this.openedTrade.money = this.openedTrade.value * +candleData.close;
-      this.openedTrade.value = 0;
+    this.openedTrade = {
+      time: candleData.timestamp,
+      value: this.money / +candleData.close,
+
     }
     console.log(this.openedTrade);
+  }
+
+  private closePosition(candle: NotificationCandle): void {
+    const candleData = candle.params.data[0];
+    this.money = this.openedTrade.value * +candleData.close;
+    this.openedTrade = null;
+    console.log(this.money);
   }
 
   private updateSavedCandles(message: NotificationCandle): void {
