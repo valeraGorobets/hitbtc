@@ -1,147 +1,111 @@
-import { Injectable } from '@angular/core';
-import { HitbtcApi } from '../crypto-exchange-module/hitbtc-api';
-import { Strategy } from './strategies/abstractStrategy';
-import { MALongMAShortStrategy } from './strategies/MALongMAShort.strategy';
-import { MACDStrategy } from './strategies/MACD.strategy';
-import { NotificationCandle } from '../models/NotificationCandle';
+import { Candle, NotificationCandle } from '../models/Candle';
 import { CandlesChartFormat } from '../models/ChartFormats/CandlesChartFormat';
-import { Candle } from '../models/Candle';
-import { Side } from '../models/SharedConstants';
-
-import { InjectableObservables } from '../app-module/injectable-observables';
-
-import { Observable, Subject, from, of, pipe } from 'rxjs';
 import { concatMap, delay } from 'rxjs/operators';
-
-import * as notificationCandle from './../app-module/traiding-view/data.json';
+import { first } from 'rxjs/operators';
+import { HitbtcApi } from '../crypto-exchange-module/hitbtc-api';
+import { Injectable } from '@angular/core';
+import { InjectableObservables } from '../app-module/injectable-observables';
+import { MACDFromPrimarySymbolStrategy } from './strategies/MACDFromPrimarySymbol.strategy';
+import { MACDStrategy } from './strategies/MACD.strategy';
+import { MALongMAShortStrategy } from './strategies/MALongMAShort.strategy';
+import { Observable, Subject, from, of, pipe } from 'rxjs';
+import { Orderbook } from '../models/Orderbook';
+import { Side } from '../models/SharedConstants';
+import { Strategy } from './strategies/abstractStrategy';
 
 @Injectable({
   providedIn: 'root',
 })
-export class InvestingService{
-  private strategyId = 'MACDStrategy';
-  private strategy: Strategy;
-  private savedCandles: Candle[] = [];
-  private notificationCandle: NotificationCandle = (notificationCandle as any) as NotificationCandle;
 
+export class InvestingService {
+  private actualOpenTime = null;
+  private strategy: Strategy;
+  private strategyId = 'MACDFromPrimarySymbolStrategy';
   private openedTrade = null;
   private money: number = 1000;
-  private value: number = 0;
-
-  constructor(
-    private injectableObservables: InjectableObservables,
-    private hitbtcApiService: HitbtcApi,
-    ) {
-    console.log('InvestingService working');
-    let strategyConstructor;
-    switch (this.strategyId) {
-      case 'MACDStrategy':
-        strategyConstructor = MACDStrategy;
-        break;
-      case 'MALongMAShortStrategy':
-        strategyConstructor = MALongMAShortStrategy;
-        break;
-    }
-    this.strategy = new strategyConstructor(injectableObservables.indicator$);
-    this.injectableObservables = injectableObservables;
-    this.hitbtcApiService = hitbtcApiService;
-
-    // this.connectToLocalData();
-    this.connectToHitBtcApi();
+  private config = {
+    allowedLost: 0.001,
+    enoughtProfit: 0.01,
+    indicatorSymbol: 'BTCUSD',
+    investingSymbol: 'ETHBTC',
+    quantityIncrement: 0.001,
+    shiftForOpening: 3,
+    tickSize: 0.000001,
   }
 
-  private connectToLocalData(): void {
-    const data = this.notificationCandle.params.data;
-    const history = data.slice(0, 25);
-    this.updateSavedCandles(this.candleToNotificationCandle('snapshotCandles', history));
-
-    const restData = data.slice(25);
-    for (let i = 0; i < restData.length; i++) {
-      setTimeout(() => {
-        this.handleUpdateCandles(this.candleToNotificationCandle('updateCandles', [restData[i]]));
-      }, i * 0);
+  constructor(
+      private injectableObservables: InjectableObservables,
+      private hitbtcApiService: HitbtcApi,
+    ) {
+    console.log('InvestingService working');
+    let StrategyConstructor;
+    switch (this.strategyId) {
+      case 'MACDStrategy':
+        StrategyConstructor = MACDStrategy;
+        break;
+      case 'MACDFromPrimarySymbolStrategy':
+        StrategyConstructor = MACDFromPrimarySymbolStrategy;
+        break;
+      case 'MALongMAShortStrategy':
+        StrategyConstructor = MALongMAShortStrategy;
+        break;
     }
-    setTimeout(() => {
-      console.log(this.openedTrade);
+    this.strategy = new StrategyConstructor(injectableObservables, hitbtcApiService, this.config);
+    this.injectableObservables.positionAction$.subscribe((action: any) => this.handleActionUpdate(action));
+  }
+
+  private handleActionUpdate(action: {time: string, side: Side}): void {
+    // console.log(action);
+    this.hitbtcApiService.getOrderbook(this.config.investingSymbol).pipe(
+      first(),
+    ).subscribe((orderbook: Orderbook) => {
+      // console.log(orderbook.bid[0].price + ' bid | ask ' + orderbook.ask[0].price);
+      if (action.side === Side.buy && !this.openedTrade && !this.actualOpenTime) {
+        this.actualOpenTime = new Date(action.time);
+        this.actualOpenTime.setMinutes(this.actualOpenTime.getMinutes() + this.config.shiftForOpening);
+      } else if (+this.actualOpenTime === +new Date(action.time)) {
+        this.openPosition(action.time, +orderbook.bid[0].price);
+      } else if (action.side === Side.sell && this.openedTrade) {
+        this.closePosition(action.time, +orderbook.ask[0].price);
+      } else if (this.shouldBeClosedEarly(+orderbook.ask[0].price)) {
+        this.closePosition(action.time, +orderbook.ask[0].price);
+      }
     });
   }
 
-  private connectToHitBtcApi(): void {
-    this.hitbtcApiService.createConnection();
-    this.hitbtcApiService.subscribeCandles();
-    this.hitbtcApiService.onMessage()
-      .subscribe((message: any) => {
-        switch (message.method) {
-          case 'snapshotCandles':
-            this.updateSavedCandles(message);
-          break;
-          case 'updateCandles':
-            this.handleUpdateCandles(message);
-          break;
-          default:
-            console.error('Cant handle unknown method');
-            console.error(message);
-            break;
-        }
-      });
-  }
-
-  private handleUpdateCandles(candle: NotificationCandle): void {
-    this.updateSavedCandles(candle);
-    const advisedInvestingSide: Side = this.strategy.advisedInvestingSide(this.savedCandles);
-    if (advisedInvestingSide === Side.buy && !this.openedTrade) {
-      this.openPosition(candle);
-    } else if (advisedInvestingSide === Side.sell && this.openedTrade) {
-      this.closePosition(candle);
-    }
-  }
-
-  private openPosition(candle: NotificationCandle): void {
-    const candleData = candle.params.data[0];
+  private openPosition(time: string, bidPrice: number): void {
+    console.log('Open: ' + time);
+    const openPrice = bidPrice - 2 * this.config.tickSize;
     this.openedTrade = {
-      time: candleData.timestamp,
-      value: this.money / +candleData.close,
-
+      time,
+      openPrice,
+      value: this.money / openPrice,
     }
     console.log(this.openedTrade);
+    this.actualOpenTime = null;
   }
 
-  private closePosition(candle: NotificationCandle): void {
-    const candleData = candle.params.data[0];
-    this.money = this.openedTrade.value * +candleData.close;
+  private closePosition(time: string, askPrice: number): void {
+    console.log('Close: ' + time);
+    const closePrice = askPrice + 2 * this.config.tickSize;
+    this.money = this.openedTrade.value * closePrice;
     this.openedTrade = null;
     console.log(this.money);
   }
 
-  private updateSavedCandles(message: NotificationCandle): void {
-    let candles: Candle[] = message.params.data;
-    this.injectableObservables.candles$.next(candles);
-    if (message.method === 'updateCandles') {
-      this.updatePrevCandle(candles[0]);
-      candles = candles.slice(0, 1);
+  private shouldBeClosedEarly(askPrice: number): boolean {
+    if (!this.openedTrade) {
+      return false;
     }
-    this.savedCandles = [...this.savedCandles, ...candles];
-  }
-
-  private updatePrevCandle(updateCandle: Candle): void {
-    const prevCandle = this.savedCandles[this.savedCandles.length - 1];
-    const prevUpdate: number = +new Date(prevCandle.timestamp);
-    const lastUpdate: number = +new Date(updateCandle.timestamp);
-    if (lastUpdate - prevUpdate === 0) {
-      this.savedCandles.pop();
+    const openPrice = this.openedTrade.openPrice;
+    if (
+      (openPrice - askPrice)/openPrice > this.config.allowedLost ||
+      (askPrice - openPrice)/openPrice > this.config.enoughtProfit
+    ) {
+      console.log('Closing due to > allowedLost of enoghtProfit');
+      return true;
     }
-  }
-
-  private candleToNotificationCandle(method: string, el: Candle[]): NotificationCandle {
-    return {
-      jsonrpc: '2.0',
-      method,
-      params: {
-        data: el,
-        symbol: 'ETHBTC',
-        period: 'M1',
-      },
-    };
+    return true;
   }
 
   public stopWatching(): void {

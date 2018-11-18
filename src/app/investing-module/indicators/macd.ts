@@ -25,9 +25,9 @@ export class MACD {
     const histogram = mul(2, sub(MACD, signal), 1);
 
     return {
+      histogram: histogram.slice(-3),
       MACD: MACD.slice(-3),
       signal: signal.slice(-3),
-      histogram: histogram.slice(-3),
     }
   }
 }

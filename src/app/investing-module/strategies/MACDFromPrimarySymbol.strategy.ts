@@ -6,9 +6,10 @@ import { InjectableObservables } from '../../app-module/injectable-observables';
 import { Side } from '../../models/SharedConstants';
 import { Strategy } from './abstractStrategy';
 
-export class MACDStrategy extends Strategy  {
+export class MACDFromPrimarySymbolStrategy extends Strategy  {
   private field: string = 'close';
   private savedCandles: Candle[] = [];
+  private savedIndicatorsCandles: Candle[] = [];
   private macd = new MACD();
   private notificationCandle: NotificationCandle = (notificationCandle as any) as NotificationCandle;
 
@@ -16,24 +17,30 @@ export class MACDStrategy extends Strategy  {
   constructor(
       private injectableObservables: InjectableObservables,
       private cryptoExchangeService: AbstractCryptoService,
+      private config: any,
     ) {
     super();
     // this.connectToLocalData();
-    this.connectToHitBtcApi();
+    this.connectToInvestingCandles(config.investingSymbol);
+    this.connectToIndicatorsCandles(config.indicatorSymbol);
   }
 
   public advisedInvestingSide(candles: Candle[], isPartOfStrategy?: boolean): Side {
-    const macdResult: IMACD = this.macd.calculate(candles.map(candle => +candle.close))
+    const macdResult: IMACD = this.macd.calculate(candles.map(candle => +candle.close));
+    // const copy = JSON.parse(JSON.stringify(macdResult));
+    // console.log(copy);
     if (
       macdResult.MACD.pop() < 0 &&
       macdResult.histogram.pop() > 0 &&
       macdResult.histogram.pop() > 0 &&
       macdResult.histogram.pop() < 0) {
+        console.log('byyyy')
         return Side.buy;
     }  else if (
       macdResult.histogram.pop() < 0 &&
       macdResult.histogram.pop() < 0 &&
       macdResult.histogram.pop() > 0) {
+        console.log('sell')
         return Side.sell;
     }
     return Side.none;
@@ -59,9 +66,10 @@ export class MACDStrategy extends Strategy  {
     });
   }
 
-  private connectToHitBtcApi(): void {
+  private connectToInvestingCandles(symbol: string): void {
     this.cryptoExchangeService.createConnection();
-    this.cryptoExchangeService.subscribeCandles();
+    this.cryptoExchangeService.subscribeCandles(symbol);
+    // this.cryptoExchangeService.subscribeOrderbook(symbol);
     this.cryptoExchangeService.onMessage()
       .subscribe((message: any) => {
         switch (message.method) {
@@ -79,12 +87,37 @@ export class MACDStrategy extends Strategy  {
       });
   }
 
+  private connectToIndicatorsCandles(symbol: string): void {
+    this.cryptoExchangeService.createConnection();
+    this.cryptoExchangeService.subscribeCandles(symbol);
+    this.cryptoExchangeService.onMessage()
+      .subscribe((message: any) => {
+        switch (message.method) {
+          case 'snapshotCandles':
+            this.updateSavedIndicatorsCandles(message);
+          break;
+          case 'updateCandles':
+            this.handleUpdateIndicatorsCandles(message);
+          break;
+          default:
+            console.error('Cant handle unknown method');
+            console.error(message);
+            break;
+        }
+      });
+  }
+
   private handleUpdateCandles(candle: NotificationCandle): void {
     this.updateSavedCandles(candle);
+  }
+  
+  private handleUpdateIndicatorsCandles(candle: NotificationCandle): void {
+    this.updateSavedIndicatorsCandles(candle);
     this.injectableObservables.positionAction$.next({
-      candle,
-      side: this.advisedInvestingSide(this.savedCandles),
+      time: candle.params.data[0].timestamp,
+      side: this.advisedInvestingSide(this.savedIndicatorsCandles),
     });
+
   }
 
   private updateSavedCandles(message: NotificationCandle): void {
@@ -97,12 +130,30 @@ export class MACDStrategy extends Strategy  {
     this.savedCandles = [...this.savedCandles, ...candles];
   }
 
+  private updateSavedIndicatorsCandles(message: NotificationCandle): void {
+    let candles: Candle[] = message.params.data;
+    if (message.method === 'updateCandles') {
+      this.updatePrevIndicatorsCandle(candles[0]);
+      candles = candles.slice(0, 1);
+    }
+    this.savedIndicatorsCandles = [...this.savedIndicatorsCandles, ...candles];
+  }
+
   private updatePrevCandle(updateCandle: Candle): void {
     const prevCandle = this.savedCandles[this.savedCandles.length - 1];
     const prevUpdate: number = +new Date(prevCandle.timestamp);
     const lastUpdate: number = +new Date(updateCandle.timestamp);
     if (lastUpdate - prevUpdate === 0) {
       this.savedCandles.pop();
+    }
+  }
+
+  private updatePrevIndicatorsCandle(updateCandle: Candle): void {
+    const prevCandle = this.savedIndicatorsCandles[this.savedIndicatorsCandles.length - 1];
+    const prevUpdate: number = +new Date(prevCandle.timestamp);
+    const lastUpdate: number = +new Date(updateCandle.timestamp);
+    if (lastUpdate - prevUpdate === 0) {
+      this.savedIndicatorsCandles.pop();
     }
   }
 
