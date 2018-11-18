@@ -34,13 +34,11 @@ export class MACDFromPrimarySymbolStrategy extends Strategy  {
       macdResult.histogram.pop() > 0 &&
       macdResult.histogram.pop() > 0 &&
       macdResult.histogram.pop() < 0) {
-        console.log('byyyy')
         return Side.buy;
     }  else if (
       macdResult.histogram.pop() < 0 &&
       macdResult.histogram.pop() < 0 &&
       macdResult.histogram.pop() > 0) {
-        console.log('sell')
         return Side.sell;
     }
     return Side.none;
