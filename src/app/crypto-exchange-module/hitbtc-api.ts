@@ -1,7 +1,11 @@
 import { AbstractCryptoService } from './abstract-crypto-service';
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { WSService } from '../../libs/ws.service';
+
+const socketURL = 'wss://api.hitbtc.com/api/2/ws';
+const restEndPoint = 'https://api.hitbtc.com/api/2/public';
 
 @Injectable({
   providedIn: 'root',
@@ -9,18 +13,19 @@ import { WSService } from '../../libs/ws.service';
 
 export class HitbtcApi implements AbstractCryptoService {
   private ws: WSService;
-  private symbol: string = 'BTCUSD';
   private period: string = 'M1';
 
-  constructor() {
+  constructor(
+      private http: HttpClient,
+    ) {
     console.log('HitbtcApi working');
   }
 
-  public createConnection(url: string = 'wss://api.hitbtc.com/api/2/ws'): void {
-    this.ws = new WSService(url);
+  public createConnection(): void {
+    this.ws = new WSService(socketURL);
   }
 
-  public subscribeCandles(symbol: string = this.symbol, period: string = this.period): void {
+  public subscribeCandles(symbol: string, period: string = this.period): void {
     this.ws.send({
       method: 'subscribeCandles',
       params: {
@@ -31,7 +36,7 @@ export class HitbtcApi implements AbstractCryptoService {
     });
   }
 
-  public subscribeTrades(symbol: string = this.symbol): void {
+  public subscribeTrades(symbol: string): void {
     this.ws.send({
       method: 'subscribeTrades',
       params: {
@@ -39,6 +44,12 @@ export class HitbtcApi implements AbstractCryptoService {
       },
       id: 123,
     });
+  }
+
+  // cd c:\Program\ Files\ \(x86\)//Google/Chrome/Application/
+  // ./chrome.exe --user-data-dir="C://Chrome dev session" --disable-web-security
+  public getOrderbook(symbol: string) {
+    return this.http.get(`${restEndPoint}/orderbook/${symbol}?limit=1`);
   }
 
   public onMessage(): Observable<MessageEvent> {
