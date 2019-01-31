@@ -24,7 +24,7 @@ export class TradingViewComponent {
 
   constructor(injectableObservables: InjectableObservables) {
     injectableObservables.candles$.subscribe(
-      (x: Candle[]) => this.handleCandlesUpdate(x),
+      (candles: Candle[]) => this.handleCandlesUpdate(candles),
       e => this.handleError(e),
       () => this.handleOnComplete());
 
@@ -35,21 +35,8 @@ export class TradingViewComponent {
   }
 
   private handleCandlesUpdate(newCandles: Candle[]): void {
-    const candles: Candle[] = newCandles.slice(0, 1);
-    if (this.savedCandles.length) {
-      this.updateLastCandle(candles[0]);
-    }
-    this.savedCandles = [...this.savedCandles, ...newCandles];
+    this.savedCandles = [...newCandles];
     this.reDrawPlots();
-  }
-
-  private updateLastCandle(updateCandle: Candle): void {
-    const prevCandle = this.savedCandles[this.savedCandles.length - 1];
-    const prevUpdate: number = +new Date(prevCandle.timestamp);
-    const lastUpdate: number = +new Date(updateCandle.timestamp);
-    if (lastUpdate - prevUpdate === 0) {
-      this.savedCandles.pop();
-    }
   }
 
   private handleIndicatorsUpdate(x: IndicatorUpdateModel[]): void {

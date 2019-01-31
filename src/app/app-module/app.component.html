@@ -1,9 +1,9 @@
 <div class="content">
   <header>
     <div class="align">
-      <h1 class="text-center">Display name</h1>
+      <h1 class="text-center">{{symbol}}</h1>
       <nav>
-        <a mat-raised-button routerLink="/traiding" routerLinkActive="active">Traiding</a>
+        <a mat-raised-button routerLink="/trading" routerLinkActive="active">Trading</a>
         <a mat-raised-button routerLink="/statistics" routerLinkActive="active">Statistics</a>
       </nav>
     </div>
@@ -11,7 +11,7 @@
   
   <!-- <mat-progress-bar mode="indeterminate"></mat-progress-bar> -->
   <!-- <router-outlet></router-outlet> -->
-  <traiding-view></traiding-view>
+  <trading-view></trading-view>
 
   <button (click)="stopWatching()">Stop</button>
 </div>
