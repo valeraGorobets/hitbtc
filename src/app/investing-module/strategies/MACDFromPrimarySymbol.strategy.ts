@@ -1,4 +1,4 @@
-import * as notificationCandle from './../../app-module/traiding-view/data.json';
+import * as notificationCandle from '../../app-module/trading-view/data.json';
 import { AbstractCryptoService } from '../../crypto-exchange-module/abstract-crypto-service';
 import { Candle, NotificationCandle } from '../../models/Candle';
 import { IMACD, MACD } from '../indicators/macd';

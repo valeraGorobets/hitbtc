@@ -1,5 +1,5 @@
 export class MA {
-  private period: number;
+  private readonly period: number;
 
   constructor(period: number = 9) {
     this.period = period;
