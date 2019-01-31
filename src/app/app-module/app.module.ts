@@ -12,7 +12,7 @@ import { InvestingModule } from '../investing-module/investing.module';
 
 import { AppComponent } from './app.component';
 import { ChartComponent } from './chart/chart.component';
-import { TraidingViewComponent } from './traiding-view/traiding-view.component';
+import { TradingViewComponent } from './trading-view/trading-view.component';
 
 import { InjectableObservables } from './injectable-observables';
 
@@ -20,7 +20,7 @@ import { InjectableObservables } from './injectable-observables';
   declarations: [
     AppComponent,
     ChartComponent,
-    TraidingViewComponent,
+    TradingViewComponent,
   ],
   imports: [
     BrowserModule,

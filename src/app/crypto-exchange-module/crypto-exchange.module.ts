@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HitbtcApi } from './hitbtc-api';
+import { HitBTCApi } from './hitbtc-api.service';
 
 @NgModule({
   imports: [
     CommonModule,
   ],
-  providers: [HitbtcApi],
+  providers: [HitBTCApi],
   exports: [],
 })
 export class CryptoExchangeModule { }

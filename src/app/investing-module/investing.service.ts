@@ -1,14 +1,10 @@
-import { Candle, NotificationCandle } from '../models/Candle';
-import { CandlesChartFormat } from '../models/ChartFormats/CandlesChartFormat';
-import { concatMap, delay } from 'rxjs/operators';
 import { first } from 'rxjs/operators';
-import { HitbtcApi } from '../crypto-exchange-module/hitbtc-api';
+import { HitBTCApi } from '../crypto-exchange-module/hitbtc-api.service';
 import { Injectable } from '@angular/core';
 import { InjectableObservables } from '../app-module/injectable-observables';
 import { MACDFromPrimarySymbolStrategy } from './strategies/MACDFromPrimarySymbol.strategy';
 import { MACDStrategy } from './strategies/MACD.strategy';
 import { MALongMAShortStrategy } from './strategies/MALongMAShort.strategy';
-import { Observable, Subject, from, of, pipe } from 'rxjs';
 import { Orderbook } from '../models/Orderbook';
 import { Side } from '../models/SharedConstants';
 import { Strategy } from './strategies/abstractStrategy';
@@ -25,17 +21,17 @@ export class InvestingService {
   private money: number = 1000;
   private config = {
     allowedLost: 0.001,
-    enoughtProfit: 0.01,
+    enoughProfit: 0.01,
     indicatorSymbol: 'BTCUSD',
     investingSymbol: 'ETHBTC',
     quantityIncrement: 0.001,
     shiftForOpening: 3,
     tickSize: 0.000001,
-  }
+  };
 
   constructor(
       private injectableObservables: InjectableObservables,
-      private hitbtcApiService: HitbtcApi,
+      private hitbtcApiService: HitBTCApi,
     ) {
     console.log('InvestingService working');
     let StrategyConstructor;
@@ -59,7 +55,7 @@ export class InvestingService {
     this.hitbtcApiService.getOrderbook(this.config.investingSymbol).pipe(
       first(),
     ).subscribe((orderbook: Orderbook) => {
-      // console.log(orderbook.bid[0].price + ' bid | ask ' + orderbook.ask[0].price);
+      console.log(orderbook);
       if (action.side === Side.buy && !this.openedTrade && !this.actualOpenTime) {
         this.actualOpenTime = new Date(action.time);
         this.actualOpenTime.setMinutes(this.actualOpenTime.getMinutes() + this.config.shiftForOpening);
@@ -75,19 +71,19 @@ export class InvestingService {
 
   private openPosition(time: string, bidPrice: number): void {
     console.log('Open: ' + time);
-    const openPrice = bidPrice - 2 * this.config.tickSize;
+    const openPrice = bidPrice - this.config.tickSize *  2;
     this.openedTrade = {
       time,
       openPrice,
       value: this.money / openPrice,
-    }
+    };
     console.log(this.openedTrade);
     this.actualOpenTime = null;
   }
 
   private closePosition(time: string, askPrice: number): void {
     console.log('Close: ' + time);
-    const closePrice = askPrice + 2 * this.config.tickSize;
+    const closePrice = askPrice + this.config.tickSize * 2;
     this.money = this.openedTrade.value * closePrice;
     this.openedTrade = null;
     console.log(this.money);
@@ -99,10 +95,10 @@ export class InvestingService {
     }
     const openPrice = this.openedTrade.openPrice;
     if (
-      (openPrice - askPrice)/openPrice > this.config.allowedLost ||
-      (askPrice - openPrice)/openPrice > this.config.enoughtProfit
+      (openPrice - askPrice) / openPrice > this.config.allowedLost ||
+      (askPrice - openPrice) / openPrice > this.config.enoughProfit
     ) {
-      console.log('Closing due to > allowedLost of enoghtProfit');
+      console.log('Closing due to > allowedLost of enoughProfit');
       return true;
     }
     return true;

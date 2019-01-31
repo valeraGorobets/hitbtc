@@ -5,20 +5,21 @@ import { Observable } from 'rxjs';
 import { WSService } from '../../libs/ws.service';
 
 const socketURL = 'wss://api.hitbtc.com/api/2/ws';
+const backendPoint = 'http://localhost:8000/backend';
 const restEndPoint = 'https://api.hitbtc.com/api/2/public';
 
 @Injectable({
   providedIn: 'root',
 })
 
-export class HitbtcApi implements AbstractCryptoService {
+export class HitBTCApi implements AbstractCryptoService {
   private ws: WSService;
   private period: string = 'M1';
 
   constructor(
       private http: HttpClient,
     ) {
-    console.log('HitbtcApi working');
+    console.log('HitBTCApi working');
   }
 
   public createConnection(): void {
@@ -48,8 +49,8 @@ export class HitbtcApi implements AbstractCryptoService {
 
   // cd c:\Program\ Files\ \(x86\)//Google/Chrome/Application/
   // ./chrome.exe --user-data-dir="C://Chrome dev session" --disable-web-security
-  public getOrderbook(symbol: string) {
-    return this.http.get(`${restEndPoint}/orderbook/${symbol}?limit=1`);
+  public getOrderbook(symbol: string): any {
+    return this.http.get(`${backendPoint}/getOrderbook/${symbol}`);
   }
 
   public onMessage(): Observable<MessageEvent> {

@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
-import { Candle, NotificationCandle } from '../../models/Candle';
+import { Candle } from '../../models/Candle';
 import { ChartFormat } from '../../models/ChartFormats/ChartFormat';
 import { CandlesChartFormat } from '../../models/ChartFormats/CandlesChartFormat';
 import { ScatterChartFormat } from '../../models/ChartFormats/ScatterChartFormat';
-import { Subject } from 'rxjs';
 
 import { InjectableObservables } from '../injectable-observables';
 
@@ -13,23 +12,23 @@ interface IndicatorUpdateModel {
 }
 
 @Component({
-  selector: 'traiding-view',
-  templateUrl: './traiding-view.component.html',
-  styleUrls: ['./traiding-view.component.less'],
+  selector: 'trading-view',
+  templateUrl: './trading-view.component.html',
+  styleUrls: ['./trading-view.component.less'],
 })
 
-export class TraidingViewComponent {
+export class TradingViewComponent {
   public plots: ChartFormat[] = [];
   public savedCandles: Candle[] = [];
   public savedIndicators = {};
 
   constructor(injectableObservables: InjectableObservables) {
-    const candleSubscription = injectableObservables.candles$.subscribe(
+    injectableObservables.candles$.subscribe(
       (x: Candle[]) => this.handleCandlesUpdate(x),
       e => this.handleError(e),
       () => this.handleOnComplete());
 
-    const indicatorsSubscription = injectableObservables.indicator$.subscribe(
+   injectableObservables.indicator$.subscribe(
       (x: IndicatorUpdateModel[]) => this.handleIndicatorsUpdate(x),
       e => this.handleError(e),
       () => this.handleOnComplete());
@@ -87,7 +86,7 @@ export class TraidingViewComponent {
   }
 
   private handleError(e: Error): void {
-    console.error('Error in TraidingViewComponent in injectableObservables:', e);
+    console.error('Error in TradingViewComponent in injectableObservables:', e);
   }
 
   private handleOnComplete(): void {
