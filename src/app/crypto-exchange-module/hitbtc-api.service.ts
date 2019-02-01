@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { WSService } from '../../libs/ws.service';
+import { map } from 'rxjs/operators';
 
 const socketURL = 'wss://api.hitbtc.com/api/2/ws';
 const backendPoint = 'http://localhost:8000/backend';
@@ -47,8 +48,10 @@ export class HitBTCApi implements AbstractCryptoService {
     });
   }
 
-  // cd c:\Program\ Files\ \(x86\)//Google/Chrome/Application/
-  // ./chrome.exe --user-data-dir="C://Chrome dev session" --disable-web-security
+  public getSymbolDescription(symbol: string): Observable<any> {
+    return this.http.get(`${backendPoint}/symbol/${symbol}`);
+  }
+
   public getOrderbook(symbol: string): any {
     return this.http.get(`${backendPoint}/getOrderbook/${symbol}`);
   }
@@ -62,10 +65,17 @@ export class HitBTCApi implements AbstractCryptoService {
   }
 
   public getBalance(): any {
-    return this.http.get(`${backendPoint}/trading/balance`);
+    return this.http.get(`${backendPoint}/trading/balance`)
+      .pipe(
+        map((response: any) => JSON.parse(response)
+          .filter((currency: any) => !!(+currency.available || +currency.reserved))),
+      );
   }
 
   public getHistoryOrder(): any {
-    return this.http.get(`${backendPoint}/history/order`);
+    return this.http.get(`${backendPoint}/history/order`)
+      .pipe(
+        map((response: any) => JSON.parse(response)),
+      );
   }
 }

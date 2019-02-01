@@ -26,7 +26,7 @@ function makePublicRequest(response, url, method = 'GET') {
   request({
     method,
     url,
-  }, function (error, response, body) {
+  }, function (error, res, body) {
     if (!error) {
       response.status(200).send(JSON.stringify(body));
     } else {
@@ -41,8 +41,10 @@ app.route('/backend/getOrderbook/:orderbook').get((request, response) => {
   makePublicRequest(response, url);
 });
 
-app.route('/backend/trading/balance').get((request, response) => {
-  makePrivateRequest(0, response, `${apiURL}/trading/balance`);
+app.route('/backend/symbol/:symbol').get((request, response) => {
+  const symbol = request.params['symbol'];
+  const url = `${apiURL}/public/symbol/${symbol}`;
+  makePublicRequest(response, url);
 });
 
 function makePrivateRequest(type, response, url, method = 'GET') {
@@ -55,7 +57,7 @@ function makePrivateRequest(type, response, url, method = 'GET') {
       'user': api,
       'pass': secret
     }
-  }, function (error, response, body) {
+  }, function (error, res, body) {
     if (!error) {
       response.status(200).send(JSON.stringify(body));
     } else {
@@ -63,6 +65,10 @@ function makePrivateRequest(type, response, url, method = 'GET') {
     }
   });
 }
+
+app.route('/backend/trading/balance').get((request, response) => {
+  makePrivateRequest(0, response, `${apiURL}/trading/balance`);
+});
 
 app.route('/backend/history/order').get((request, response) => {
   makePrivateRequest(0, response, `${apiURL}/history/order`);

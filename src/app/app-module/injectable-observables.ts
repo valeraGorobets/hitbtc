@@ -2,13 +2,7 @@ import { Injectable } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
 
 const defaultConfig = {
-  allowedLost: 0.001,
-  enoughProfit: 0.01,
-  indicatorSymbol: 'BTCUSD',
   investingSymbol: 'BTCUSD',
-  quantityIncrement: 0.001,
-  shiftForOpening: 3,
-  tickSize: 0.000001,
 };
 
 @Injectable()
