@@ -2,14 +2,8 @@ import { Component } from '@angular/core';
 import { Candle } from '../../models/Candle';
 import { ChartFormat } from '../../models/ChartFormats/ChartFormat';
 import { CandlesChartFormat } from '../../models/ChartFormats/CandlesChartFormat';
-import { ScatterChartFormat } from '../../models/ChartFormats/ScatterChartFormat';
-
 import { InjectableObservables } from '../injectable-observables';
-
-interface IndicatorUpdateModel {
-  value: number;
-  timestamp: string;
-}
+import { IndicatorPlotModel } from '../../services/indicator.service';
 
 @Component({
   selector: 'trading-view',
@@ -20,7 +14,7 @@ interface IndicatorUpdateModel {
 export class TradingViewComponent {
   public plots: ChartFormat[] = [];
   public savedCandles: Candle[] = [];
-  public savedIndicators = {};
+  public savedIndicators: IndicatorPlotModel = {};
 
   constructor(injectableObservables: InjectableObservables) {
     injectableObservables.candles$.subscribe(
@@ -29,7 +23,7 @@ export class TradingViewComponent {
       () => this.handleOnComplete());
 
    injectableObservables.indicator$.subscribe(
-      (x: IndicatorUpdateModel[]) => this.handleIndicatorsUpdate(x),
+      (indicators: IndicatorPlotModel) => this.handleIndicatorsUpdate(indicators),
       e => this.handleError(e),
       () => this.handleOnComplete());
   }
@@ -39,26 +33,9 @@ export class TradingViewComponent {
     this.reDrawPlots();
   }
 
-  private handleIndicatorsUpdate(x: IndicatorUpdateModel[]): void {
-    Object.keys(x).forEach(plot => {
-      if (!this.savedIndicators[plot]) {
-        this.savedIndicators[plot] = new ScatterChartFormat();
-        this.savedIndicators[plot].name = plot;
-      }
-      this.updateLastIndicator(this.savedIndicators[plot], x[plot]);
-      this.savedIndicators[plot].x.push(x[plot].timestamp);
-      this.savedIndicators[plot].y.push(x[plot].value);
-    });
+  private handleIndicatorsUpdate(indicators: IndicatorPlotModel): void {
+    this.savedIndicators = {...indicators};
     this.reDrawPlots();
-  }
-
-  private updateLastIndicator(plotObject: ScatterChartFormat, updateIndicator: IndicatorUpdateModel): void {
-    const lastUpdate: number = +new Date(updateIndicator.timestamp);
-    const prevUpdate: number = +new Date(plotObject.x[plotObject.x.length - 1]);
-    if (lastUpdate - prevUpdate === 0) {
-      plotObject.x.pop();
-      plotObject.y.pop();
-    }
   }
 
   private reDrawPlots(): void {
@@ -72,14 +49,6 @@ export class TradingViewComponent {
     this.plots = [showingCandles, ...indicators];
   }
 
-  private handleError(e: Error): void {
-    console.error('Error in TradingViewComponent in injectableObservables:', e);
-  }
-
-  private handleOnComplete(): void {
-    console.log('InjectableObservables onCompleted');
-  }
-
   private mapCandleToChartFormat(candles: Candle[]): CandlesChartFormat {
     return Object.assign(new CandlesChartFormat(), {
       x: candles.map(candle => candle.timestamp),
@@ -88,5 +57,13 @@ export class TradingViewComponent {
       high: candles.map(candle => candle.max),
       low: candles.map(candle => candle.min),
     });
+  }
+
+  private handleError(e: Error): void {
+    console.error('Error in TradingViewComponent in injectableObservables:', e);
+  }
+
+  private handleOnComplete(): void {
+    console.log('InjectableObservables onCompleted');
   }
 }

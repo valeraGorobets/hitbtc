@@ -10,6 +10,7 @@ import { Strategy } from './strategies/abstractStrategy';
 // import { MACDStrategy } from './strategies/MACD.strategy';
 // import { MALongMAShortStrategy } from './strategies/MALongMAShort.strategy';
 import { ThreeMAStrategy } from './strategies/ThreeMA.strategy';
+import { IndicatorService } from '../services/indicator.service';
 
 @Injectable({
   providedIn: 'root',
@@ -25,6 +26,7 @@ export class InvestingService {
 
   constructor(
       private injectableObservables: InjectableObservables,
+      private indicatorService: IndicatorService,
       private hitBTCApiService: HitBTCApi,
     ) {
     console.log('InvestingService working');
@@ -50,7 +52,7 @@ export class InvestingService {
       //   StrategyConstructor = MALongMAShortStrategy;
       //   break;
     }
-    return new StrategyConstructor(this.injectableObservables, this.hitBTCApiService, this.config);
+    return new StrategyConstructor(this.injectableObservables, this.indicatorService);
   }
 
   private handleActionUpdate(action: {time: string, side: Side}): void {
