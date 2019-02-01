@@ -15,7 +15,6 @@ export class MoneyManagerService {
   constructor(
     private injectableObservables: InjectableObservables,
   ) {
-    console.log('MoneyManagerService');
     injectableObservables.strategyAction$.subscribe((actionUpdate: IActionUpdate) => this.handleActionUpdate(actionUpdate));
   }
 

@@ -60,4 +60,12 @@ export class HitBTCApi implements AbstractCryptoService {
   public closeConnection(delay: number = 0): void {
     setTimeout(() => this.ws.closeConnection(), delay);
   }
+
+  public getBalance(): any {
+    return this.http.get(`${backendPoint}/trading/balance`);
+  }
+
+  public getHistoryOrder(): any {
+    return this.http.get(`${backendPoint}/history/order`);
+  }
 }

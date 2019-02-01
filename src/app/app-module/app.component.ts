@@ -27,4 +27,12 @@ export class AppComponent {
   private stopWatching(): void {
     this.investingService.stopWatching();
   }
+
+  public getBalance(): void {
+    this.investingService.getBalance();
+  }
+
+  public getHistoryOrder(): void {
+    this.investingService.getHistoryOrder();
+  }
 }

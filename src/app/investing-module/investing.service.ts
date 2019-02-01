@@ -99,4 +99,16 @@ export class InvestingService {
   public stopWatching(): void {
     this.hitBTCApiService.closeConnection();
   }
+
+  public getBalance(): void {
+    this.hitBTCApiService.getBalance().subscribe(res => {
+      console.log(res);
+    });
+  }
+
+  public getHistoryOrder(): void {
+    this.hitBTCApiService.getHistoryOrder().subscribe(res => {
+      console.log(res);
+    });
+  }
 }
