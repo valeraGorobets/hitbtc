@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { InvestingService } from '../investing-module/investing.service';
 import { CandleService } from '../services/candle.service';
 import { InjectableObservables } from './injectable-observables';
+import { MoneyManagerService } from '../services/money-manager.service';
 
 @Component({
   selector: 'app-root',
@@ -13,6 +14,7 @@ export class AppComponent {
 
   constructor(
     private investingService: InvestingService,
+    private moneyManagerService: MoneyManagerService,
     private candleService: CandleService,
     private injectableObservables: InjectableObservables,
     ) {

@@ -23,8 +23,12 @@ export class ThreeMAStrategy implements Strategy {
 
   private handleCandlesUpdate(candles: Candle[]): void {
     this.timestamp = candles[candles.length - 1].timestamp;
-    const r = this.advisedInvestingSide(candles);
-    console.log(`${r} - ${this.timestamp}`);
+    const advisedResult = this.advisedInvestingSide(candles);
+    this.injectableObservables.strategyAction$.next({
+      advisedResult,
+      timestamp: this.timestamp,
+    });
+    console.log(`${advisedResult} - ${this.timestamp}`);
   }
 
   public advisedInvestingSide(candles: Candle[], isPartOfStrategy?: boolean): Side {

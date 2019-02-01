@@ -17,6 +17,7 @@ export class InjectableObservables {
   public candles$ = new ReplaySubject();
   public indicator$ = new ReplaySubject();
   public positionAction$ = new ReplaySubject();
+  public strategyAction$ = new ReplaySubject();
 
   constructor() {
     this.config$.next(defaultConfig);
