@@ -2,14 +2,8 @@ import { Component } from '@angular/core';
 import { Candle } from '../../models/Candle';
 import { ChartFormat } from '../../models/ChartFormats/ChartFormat';
 import { CandlesChartFormat } from '../../models/ChartFormats/CandlesChartFormat';
-import { ScatterChartFormat } from '../../models/ChartFormats/ScatterChartFormat';
-
 import { InjectableObservables } from '../injectable-observables';
-
-interface IndicatorUpdateModel {
-  value: number;
-  timestamp: string;
-}
+import { IndicatorPlotModel } from '../../services/indicator.service';
 
 @Component({
   selector: 'trading-view',
@@ -20,62 +14,32 @@ interface IndicatorUpdateModel {
 export class TradingViewComponent {
   public plots: ChartFormat[] = [];
   public savedCandles: Candle[] = [];
-  public savedIndicators = {};
+  public savedIndicators: IndicatorPlotModel = {};
 
   constructor(injectableObservables: InjectableObservables) {
     injectableObservables.candles$.subscribe(
-      (x: Candle[]) => this.handleCandlesUpdate(x),
+      (candles: Candle[]) => this.handleCandlesUpdate(candles),
       e => this.handleError(e),
       () => this.handleOnComplete());
 
    injectableObservables.indicator$.subscribe(
-      (x: IndicatorUpdateModel[]) => this.handleIndicatorsUpdate(x),
+      (indicators: IndicatorPlotModel) => this.handleIndicatorsUpdate(indicators),
       e => this.handleError(e),
       () => this.handleOnComplete());
   }
 
   private handleCandlesUpdate(newCandles: Candle[]): void {
-    const candles: Candle[] = newCandles.slice(0, 1);
-    if (this.savedCandles.length) {
-      this.updateLastCandle(candles[0]);
-    }
-    this.savedCandles = [...this.savedCandles, ...newCandles];
+    this.savedCandles = [...newCandles];
     this.reDrawPlots();
   }
 
-  private updateLastCandle(updateCandle: Candle): void {
-    const prevCandle = this.savedCandles[this.savedCandles.length - 1];
-    const prevUpdate: number = +new Date(prevCandle.timestamp);
-    const lastUpdate: number = +new Date(updateCandle.timestamp);
-    if (lastUpdate - prevUpdate === 0) {
-      this.savedCandles.pop();
-    }
-  }
-
-  private handleIndicatorsUpdate(x: IndicatorUpdateModel[]): void {
-    Object.keys(x).forEach(plot => {
-      if (!this.savedIndicators[plot]) {
-        this.savedIndicators[plot] = new ScatterChartFormat();
-        this.savedIndicators[plot].name = plot;
-      }
-      this.updateLastIndicator(this.savedIndicators[plot], x[plot]);
-      this.savedIndicators[plot].x.push(x[plot].timestamp);
-      this.savedIndicators[plot].y.push(x[plot].value);
-    });
+  private handleIndicatorsUpdate(indicators: IndicatorPlotModel): void {
+    this.savedIndicators = {...indicators};
     this.reDrawPlots();
-  }
-
-  private updateLastIndicator(plotObject: ScatterChartFormat, updateIndicator: IndicatorUpdateModel): void {
-    const lastUpdate: number = +new Date(updateIndicator.timestamp);
-    const prevUpdate: number = +new Date(plotObject.x[plotObject.x.length - 1]);
-    if (lastUpdate - prevUpdate === 0) {
-      plotObject.x.pop();
-      plotObject.y.pop();
-    }
   }
 
   private reDrawPlots(): void {
-    const viewingAmount = 85;
+    const viewingAmount = 55;
     const indicators: ChartFormat[] = Object.values(this.savedIndicators);
     indicators.forEach(indicator => {
       indicator.x = indicator.x.slice(-viewingAmount);
@@ -83,14 +47,6 @@ export class TradingViewComponent {
     });
     const showingCandles = this.mapCandleToChartFormat(this.savedCandles.slice(-viewingAmount));
     this.plots = [showingCandles, ...indicators];
-  }
-
-  private handleError(e: Error): void {
-    console.error('Error in TradingViewComponent in injectableObservables:', e);
-  }
-
-  private handleOnComplete(): void {
-    console.log('InjectableObservables onCompleted');
   }
 
   private mapCandleToChartFormat(candles: Candle[]): CandlesChartFormat {
@@ -101,5 +57,13 @@ export class TradingViewComponent {
       high: candles.map(candle => candle.max),
       low: candles.map(candle => candle.min),
     });
+  }
+
+  private handleError(e: Error): void {
+    console.error('Error in TradingViewComponent in injectableObservables:', e);
+  }
+
+  private handleOnComplete(): void {
+    console.log('InjectableObservables onCompleted');
   }
 }

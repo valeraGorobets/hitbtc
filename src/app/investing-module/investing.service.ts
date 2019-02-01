@@ -2,12 +2,11 @@ import { first } from 'rxjs/operators';
 import { HitBTCApi } from '../crypto-exchange-module/hitbtc-api.service';
 import { Injectable } from '@angular/core';
 import { InjectableObservables } from '../app-module/injectable-observables';
-import { MACDFromPrimarySymbolStrategy } from './strategies/MACDFromPrimarySymbol.strategy';
-import { MACDStrategy } from './strategies/MACD.strategy';
-import { MALongMAShortStrategy } from './strategies/MALongMAShort.strategy';
 import { Orderbook } from '../models/Orderbook';
 import { Side } from '../models/SharedConstants';
 import { Strategy } from './strategies/abstractStrategy';
+import { ThreeMAStrategy } from './strategies/ThreeMA.strategy';
+import { IndicatorService } from '../services/indicator.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,43 +15,36 @@ import { Strategy } from './strategies/abstractStrategy';
 export class InvestingService {
   private actualOpenTime = null;
   private strategy: Strategy;
-  private strategyId = 'MACDFromPrimarySymbolStrategy';
+  private strategyId = 'ThreeMAStrategy';
   private openedTrade = null;
   private money: number = 1000;
-  private config = {
-    allowedLost: 0.001,
-    enoughProfit: 0.01,
-    indicatorSymbol: 'BTCUSD',
-    investingSymbol: 'ETHBTC',
-    quantityIncrement: 0.001,
-    shiftForOpening: 3,
-    tickSize: 0.000001,
-  };
+  private config: any = {};
 
   constructor(
       private injectableObservables: InjectableObservables,
-      private hitbtcApiService: HitBTCApi,
+      private indicatorService: IndicatorService,
+      private hitBTCApiService: HitBTCApi,
     ) {
     console.log('InvestingService working');
+
+    this.strategy = this.getStrategyInstance();
+    this.injectableObservables.config$.subscribe((action: any) => this.config = action);
+    this.injectableObservables.positionAction$.subscribe((action: any) => this.handleActionUpdate(action));
+  }
+
+  private getStrategyInstance(): Strategy {
     let StrategyConstructor;
     switch (this.strategyId) {
-      case 'MACDStrategy':
-        StrategyConstructor = MACDStrategy;
-        break;
-      case 'MACDFromPrimarySymbolStrategy':
-        StrategyConstructor = MACDFromPrimarySymbolStrategy;
-        break;
-      case 'MALongMAShortStrategy':
-        StrategyConstructor = MALongMAShortStrategy;
+      case 'ThreeMAStrategy':
+        StrategyConstructor = ThreeMAStrategy;
         break;
     }
-    this.strategy = new StrategyConstructor(injectableObservables, hitbtcApiService, this.config);
-    this.injectableObservables.positionAction$.subscribe((action: any) => this.handleActionUpdate(action));
+    return new StrategyConstructor(this.injectableObservables, this.indicatorService);
   }
 
   private handleActionUpdate(action: {time: string, side: Side}): void {
     // console.log(action);
-    this.hitbtcApiService.getOrderbook(this.config.investingSymbol).pipe(
+    this.hitBTCApiService.getOrderbook(this.config.investingSymbol).pipe(
       first(),
     ).subscribe((orderbook: Orderbook) => {
       console.log(orderbook);
@@ -105,6 +97,6 @@ export class InvestingService {
   }
 
   public stopWatching(): void {
-    this.hitbtcApiService.closeConnection();
+    this.hitBTCApiService.closeConnection();
   }
 }
