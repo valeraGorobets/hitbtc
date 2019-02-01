@@ -39,7 +39,7 @@ export class TradingViewComponent {
   }
 
   private reDrawPlots(): void {
-    const viewingAmount = 85;
+    const viewingAmount = 55;
     const indicators: ChartFormat[] = Object.values(this.savedIndicators);
     indicators.forEach(indicator => {
       indicator.x = indicator.x.slice(-viewingAmount);

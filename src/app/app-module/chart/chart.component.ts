@@ -55,7 +55,7 @@ export class ChartComponent implements OnChanges {
         type: 'date',
       },
       yaxis: {
-        dtick: 0.5,
+        // dtick: 0.5,
         fixedrange: false,
         gridcolor,
         side: 'right',
