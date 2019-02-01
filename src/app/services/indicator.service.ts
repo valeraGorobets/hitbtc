@@ -39,6 +39,17 @@ export class IndicatorService {
     this.notifyAboutNewIndicatorValues();
   }
 
+  public getIndicatorValue(period: number = 1): IndicatorUpdateModel {
+    const indicatorValuePeriodsAgo: IndicatorUpdateModel = {};
+    Object.keys(this.savedIndicators).forEach(plotName => {
+      indicatorValuePeriodsAgo[plotName] = {
+        value: this.savedIndicators[plotName].y.slice(-period).shift(),
+        timestamp: this.savedIndicators[plotName].x.slice(-period).shift(),
+      };
+    });
+    return indicatorValuePeriodsAgo;
+  }
+
   private updateLastIndicator(plotObject: ScatterChartFormat, updateIndicator: IndicatorModel): void {
     const lastUpdate: number = +new Date(updateIndicator.timestamp);
     const prevUpdate: number = +new Date(plotObject.x[plotObject.x.length - 1]);
