@@ -5,10 +5,6 @@ import { InjectableObservables } from '../app-module/injectable-observables';
 import { Orderbook } from '../models/Orderbook';
 import { Side } from '../models/SharedConstants';
 import { Strategy } from './strategies/abstractStrategy';
-
-// import { MACDFromPrimarySymbolStrategy } from './strategies/MACDFromPrimarySymbol.strategy';
-// import { MACDStrategy } from './strategies/MACD.strategy';
-// import { MALongMAShortStrategy } from './strategies/MALongMAShort.strategy';
 import { ThreeMAStrategy } from './strategies/ThreeMA.strategy';
 import { IndicatorService } from '../services/indicator.service';
 
@@ -42,15 +38,6 @@ export class InvestingService {
       case 'ThreeMAStrategy':
         StrategyConstructor = ThreeMAStrategy;
         break;
-      // case 'MACDStrategy':
-      //   StrategyConstructor = MACDStrategy;
-      //   break;
-      // case 'MACDFromPrimarySymbolStrategy':
-      //   StrategyConstructor = MACDFromPrimarySymbolStrategy;
-      //   break;
-      // case 'MALongMAShortStrategy':
-      //   StrategyConstructor = MALongMAShortStrategy;
-      //   break;
     }
     return new StrategyConstructor(this.injectableObservables, this.indicatorService);
   }
