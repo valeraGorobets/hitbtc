@@ -3,6 +3,7 @@ import { InjectableObservables } from '../app-module/injectable-observables';
 import { Side } from '../models/SharedConstants';
 import { HitBTCApi } from '../crypto-exchange-module/hitbtc-api.service';
 import { Symbol } from '../models/Symbol';
+import { zip } from 'rxjs';
 
 interface IActionUpdate {
   advisedResult: Side;
@@ -13,7 +14,7 @@ interface IActionUpdate {
 })
 
 export class MoneyManagerService {
-  private symbolInfo: Symbol;
+  private config: any;
 
   constructor(
     private injectableObservables: InjectableObservables,
@@ -28,10 +29,23 @@ export class MoneyManagerService {
   }
 
   private handleConfigUpdate(configUpdate: any): void {
-    this.hitBTCApiService.getSymbolDescription(configUpdate.investingSymbol)
-      .subscribe((symbol: string) => {
-        this.symbolInfo = JSON.parse(symbol);
-        console.log(this.symbolInfo);
+    this.config = configUpdate;
+    const arrayOfRequests = configUpdate.availableSymbolsFornIvesting.map(symbol => {
+      if (configUpdate[symbol]) {
+        return;
+      }
+      return this.hitBTCApiService.getSymbolDescription(symbol);
+    }).filter(request => request);
+    zip(...arrayOfRequests).subscribe((symbolInfo: string[]) => {
+      const objForUpd = {};
+      symbolInfo.forEach((symbol: string) => {
+        const parsedSymbolInfo: Symbol = JSON.parse(symbol);
+        objForUpd[parsedSymbolInfo.id] = parsedSymbolInfo;
       });
+      this.injectableObservables.config$.next({
+        ...configUpdate,
+        ...objForUpd,
+      });
+    });
   }
 }

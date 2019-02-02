@@ -1,10 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
 
-const defaultConfig = {
-  investingSymbol: 'BTCUSD',
-};
-
 @Injectable()
 export class InjectableObservables {
   public config$ = new ReplaySubject();
@@ -13,7 +9,5 @@ export class InjectableObservables {
   public positionAction$ = new ReplaySubject();
   public strategyAction$ = new ReplaySubject();
 
-  constructor() {
-    this.config$.next(defaultConfig);
-  }
+  constructor() {}
 }
