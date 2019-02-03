@@ -29,7 +29,7 @@ export class CandleService {
         switch (message.method) {
           case 'snapshotCandles':
             console.log('snapshotCandles');
-            this.savedCandles[message.params.symbol] = [...message.params.data].map(this.convertTimeToCurrentTimezone);
+            this.savedCandles[message.params.symbol] = [...message.params.data];
             break;
           case 'updateCandles':
             console.log(`${symbol} - updateCandles - ${this.count[symbol]++}`);
@@ -47,22 +47,15 @@ export class CandleService {
 
   private updateSavedCandles(message: NotificationCandle): void {
     const symbol = message.params.symbol;
-    const updateCandle = this.convertTimeToCurrentTimezone(message.params.data.pop());
+    const updateCandle = message.params.data.pop();
     // console.log(`${symbol} - ${updateCandle.close} - ${updateCandle.timestamp}`);
     const prevCandle = this.savedCandles[symbol][this.savedCandles[symbol].length - 1];
-    const prevUpdate: number = +prevCandle.timestamp;
-    const lastUpdate: number = +updateCandle.timestamp;
+    const prevUpdate: number = +new Date(prevCandle.timestamp);
+    const lastUpdate: number = +new Date(updateCandle.timestamp);
     if (lastUpdate - prevUpdate === 0) {
       this.savedCandles[symbol].pop();
     }
     this.savedCandles[symbol] = [...this.savedCandles[symbol], updateCandle];
     this.injectableObservables.candles$.next(this.savedCandles);
-  }
-
-  private convertTimeToCurrentTimezone(candle: Candle): Candle {
-    return {
-      ...candle,
-      timestamp: new Date(candle.timestamp as string),
-    };
   }
 }

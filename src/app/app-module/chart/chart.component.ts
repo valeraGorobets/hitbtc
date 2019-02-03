@@ -1,6 +1,7 @@
 import { Component, SimpleChanges, Input, OnChanges } from '@angular/core';
 import Plotly from 'plotly.js-dist';
 import { ChartFormat } from '../../models/ChartFormats/ChartFormat';
+import { Candle } from '../../models/Candle';
 
 @Component({
   selector: 'chart',
@@ -18,6 +19,7 @@ export class ChartComponent implements OnChanges {
     if (changes['plots'] ) {
       this.plots = changes.plots.currentValue;
       this.plots.filter(plot => plot.type === 'scatter').forEach(plot => plot.marker = { color: this.getColor(plot.name)});
+      this.plots.forEach(plot => plot.x = plot.x.map(xAxis => new Date(xAxis)));
       this.drawPlot(this.plots);
       this.adjustWidth();
     }
@@ -84,5 +86,9 @@ export class ChartComponent implements OnChanges {
     [].forEach.call(svgElements, (svgElement) => {
       svgElement.attributes.width.value = 800;
     });
+  }
+
+  private convertTimeToCurrentTimezone(candle: Candle): Date {
+    return new Date(candle.timestamp);
   }
 }

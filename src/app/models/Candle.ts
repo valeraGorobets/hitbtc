@@ -6,7 +6,7 @@ enum notificationMethod {
 }
 
 export class Candle {
-  public timestamp: string | Date;
+  public timestamp: string;
   public open: string;
   public close: string;
   public min: string;
