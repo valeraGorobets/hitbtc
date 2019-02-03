@@ -4,6 +4,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { WSService } from '../../libs/ws.service';
 import { map } from 'rxjs/operators';
+import { IBalance } from '../services/money-manager.service';
+import { InjectableObservables } from '../app-module/injectable-observables';
+import { Symbol } from '../models/Symbol';
 
 const socketURL = 'wss://api.hitbtc.com/api/2/ws';
 const backendPoint = 'http://localhost:8000/backend';
@@ -14,21 +17,30 @@ const restEndPoint = 'https://api.hitbtc.com/api/2/public';
 })
 
 export class HitBTCApi implements AbstractCryptoService {
-  private ws: WSService;
+  private ws: {
+    [symbol: string]: WSService,
+  } = {};
   private period: string = 'M1';
+  private config: any = {};
 
   constructor(
       private http: HttpClient,
+      private injectableObservables: InjectableObservables,
     ) {
     console.log('HitBTCApi working');
+    this.injectableObservables.config$.subscribe((configUpdate: any) => {
+      this.config = {...configUpdate};
+      console.log(this.config);
+  });
   }
 
-  public createConnection(): void {
-    this.ws = new WSService(socketURL);
+  public createConnection(symbol: string): void {
+    console.log('create connection');
+    this.ws[symbol] = new WSService(socketURL);
   }
 
   public subscribeCandles(symbol: string, period: string = this.period): void {
-    this.ws.send({
+    this.ws[symbol].send({
       method: 'subscribeCandles',
       params: {
         symbol,
@@ -39,7 +51,7 @@ export class HitBTCApi implements AbstractCryptoService {
   }
 
   public subscribeTrades(symbol: string): void {
-    this.ws.send({
+    this.ws[symbol].send({
       method: 'subscribeTrades',
       params: {
         symbol,
@@ -56,19 +68,26 @@ export class HitBTCApi implements AbstractCryptoService {
     return this.http.get(`${backendPoint}/getOrderbook/${symbol}`);
   }
 
-  public onMessage(): Observable<MessageEvent> {
-    return this.ws.onMessage();
+  public onMessage(symbol: string): Observable<MessageEvent> {
+    return this.ws[symbol].onMessage();
   }
 
-  public closeConnection(delay: number = 0): void {
-    setTimeout(() => this.ws.closeConnection(), delay);
+  public closeConnection(symbol?: string, delay: number = 0): void {
+    if (symbol) {
+      setTimeout(() => this.ws[symbol].closeConnection(), delay);
+    } else {
+      Object.values(this.ws).forEach((wsConnection: WSService) => wsConnection.closeConnection());
+    }
   }
 
-  public getBalance(): any {
+  public getBalance(): Observable<IBalance> {
+    const requiredCurrencies: any = Object.values(this.config.symbolInfo)
+      .reduce((array: string[], symbolInfo: Symbol ) => [...array, symbolInfo.baseCurrency, symbolInfo.quoteCurrency], []);
+    console.log(requiredCurrencies);
     return this.http.get(`${backendPoint}/trading/balance`)
       .pipe(
         map((response: any) => JSON.parse(response)
-          .filter((currency: any) => !!(+currency.available || +currency.reserved))),
+          .filter((currency: IBalance) => !!(requiredCurrencies.includes(currency.currency) || +currency.available || +currency.reserved))),
       );
   }
 

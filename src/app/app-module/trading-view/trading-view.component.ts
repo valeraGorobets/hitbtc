@@ -27,23 +27,24 @@ export class TradingViewComponent {
     injectableObservables: InjectableObservables,
   ) {
     injectableObservables.candles$.subscribe(
-      (candles: Candle[]) => this.handleCandlesUpdate(candles[this.observableSymbol]),
+      (candlesUpdate: ISavedCandles) => this.handleCandlesUpdate(candlesUpdate),
       e => this.handleError(e),
       () => this.handleOnComplete());
 
    injectableObservables.indicator$.subscribe(
-      (indicators: IndicatorPlotModel) => this.handleIndicatorsUpdate(indicators[this.observableSymbol]),
+      (indicatorsUpdate: IndicatorPlotModel) => this.handleIndicatorsUpdate(indicatorsUpdate),
       e => this.handleError(e),
       () => this.handleOnComplete());
   }
 
-  private handleCandlesUpdate(newCandles: Candle[]): void {
-    this.savedCandles = [...newCandles];
+  private handleCandlesUpdate(newCandles: ISavedCandles): void {
+    const candles = newCandles[this.observableSymbol] || [];
+    this.savedCandles = [...candles];
     this.reDrawPlots();
   }
 
   private handleIndicatorsUpdate(indicators: IndicatorPlotModel): void {
-    this.savedIndicators = {...indicators};
+    this.savedIndicators = {...indicators[this.observableSymbol]};
     this.reDrawPlots();
   }
 

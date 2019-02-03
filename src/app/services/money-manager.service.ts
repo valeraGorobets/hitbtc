@@ -10,6 +10,13 @@ interface IActionUpdate {
   advisedResult: Side;
   timestamp: string;
 }
+
+export interface IBalance {
+  currency: string;
+  available: string;
+  reserved: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -22,17 +29,18 @@ export class MoneyManagerService {
     private hitBTCApiService: HitBTCApi,
   ) {
     injectableObservables.strategyAction$.subscribe((actionUpdate: IActionUpdate) => this.handleActionUpdate(actionUpdate));
-    injectableObservables.config$.subscribe((config: any) => this.handleConfigUpdate(config));
+    injectableObservables.config$.subscribe((configUpdate: any) => this.handleConfigUpdate(configUpdate));
   }
 
   private handleActionUpdate(actionUpdate: IActionUpdate): void {
-    console.log(actionUpdate);
+    // console.log(actionUpdate);
+
   }
 
   private handleConfigUpdate(configUpdate: any): void {
     this.config = configUpdate;
     const arrayOfRequests = configUpdate.availableSymbolsForInvesting.map(symbol => {
-      if (configUpdate[symbol.id]) {
+      if (configUpdate.symbolInfo[symbol.id]) {
         return;
       }
       return this.hitBTCApiService.getSymbolDescription(symbol.id);
@@ -45,7 +53,7 @@ export class MoneyManagerService {
       });
       this.injectableObservables.config$.next({
         ...configUpdate,
-        ...objForUpd,
+        symbolInfo: objForUpd,
       });
     });
   }

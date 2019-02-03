@@ -10,6 +10,15 @@ export class WSService {
   constructor(url: string) {
     console.log('WebSocket is inited');
     this.ws = new WebSocket(url);
+    this.ws.onclose = (event: any) => {
+      console.log('WebSocket is closed now.');
+      console.log(event);
+      console.log('WebSocket is inited');
+      this.ws = new WebSocket(url);
+    };
+    this.ws.onerror = function(event: any): void {
+      console.error('WebSocket error observed:', event);
+    };
   }
 
   public send(message: any): void {

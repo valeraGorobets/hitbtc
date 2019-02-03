@@ -6,14 +6,33 @@ import { MoneyManagerService } from '../services/money-manager.service';
 import { AvailableStrategies } from '../investing-module/strategies/abstractStrategy';
 
 const defaultConfig = {
-  availableSymbolsForInvesting: [{
+  availableSymbolsForInvesting: [
+   {
     id: 'ETHUSD',
     strategy: AvailableStrategies.ThreeMAStrategy,
-  }, {
+  },
+  {
     id: 'BTCUSD',
+    strategy: AvailableStrategies.ThreeMAStrategy,
+  },
+  {
+    id: 'LTCUSD',
+    strategy: AvailableStrategies.ThreeMAStrategy,
+  },
+  {
+    id: 'ZECUSD',
+    strategy: AvailableStrategies.ThreeMAStrategy,
+  },
+  {
+    id: 'ETHBTC',
+    strategy: AvailableStrategies.ThreeMAStrategy,
+  },
+  {
+    id: 'XMRUSD',
     strategy: AvailableStrategies.ThreeMAStrategy,
   }],
   currentInvestingSymbol: 'BTCUSD',
+  symbolInfo: {},
 };
 
 @Component({
@@ -34,7 +53,7 @@ export class AppComponent {
     this.config.availableSymbolsForInvesting.forEach(symbol => {
       this.candleService.connectToHitBtcApi(symbol.id);
     });
-    this.injectableObservables.config$.subscribe((newConfig: any) => this.config = {...this.config, ...newConfig});
+    this.injectableObservables.config$.subscribe((configUpdate: any) => this.config = {...this.config, ...configUpdate});
   }
 
   private stopWatching(): void {

@@ -13,6 +13,7 @@ export interface ISavedCandles {
 
 export class CandleService {
   private savedCandles: ISavedCandles = {};
+  public count = {};
 
   constructor(
     private injectableObservables: InjectableObservables,
@@ -20,15 +21,18 @@ export class CandleService {
   ) {}
 
   public connectToHitBtcApi(symbol: string): void {
-    this.cryptoExchangeService.createConnection();
+    this.count[symbol] = 0;
+    this.cryptoExchangeService.createConnection(symbol);
     this.cryptoExchangeService.subscribeCandles(symbol);
-    this.cryptoExchangeService.onMessage()
+    this.cryptoExchangeService.onMessage(symbol)
       .subscribe((message: any) => {
         switch (message.method) {
           case 'snapshotCandles':
+            console.log('snapshotCandles');
             this.savedCandles[message.params.symbol] = [...message.params.data];
             break;
           case 'updateCandles':
+            console.log(`${symbol} - updateCandles - ${this.count[symbol]++}`);
             this.updateSavedCandles(message);
             break;
           default:
