@@ -7,6 +7,7 @@ import { Side } from '../models/SharedConstants';
 import { AvailableStrategies, Strategy } from './strategies/abstractStrategy';
 import { ThreeMAStrategy } from './strategies/ThreeMA.strategy';
 import { IndicatorService } from '../services/indicator.service';
+import { IMoneyUpdate } from '../services/money-manager.service';
 
 @Injectable({
   providedIn: 'root',
@@ -30,6 +31,7 @@ export class InvestingService {
       .pipe(first())
       .subscribe((config: any) => this.handleConfigUpdate(config));
     this.injectableObservables.positionAction$.subscribe((actionUpdate: any) => this.handleActionUpdate(actionUpdate));
+    this.injectableObservables.moneyAction$.subscribe((moneyUpdate: any) => this.handleMoneyUpdate(moneyUpdate));
   }
 
   private handleConfigUpdate(config: any): void {
@@ -37,6 +39,10 @@ export class InvestingService {
     config.availableSymbolsForInvesting.forEach(symbol => {
       this.createStrategyInstance(symbol);
     });
+  }
+
+  private handleMoneyUpdate(moneyUpdate: IMoneyUpdate): void {
+    console.log(moneyUpdate);
   }
 
   private createStrategyInstance(symbol: any): Strategy {

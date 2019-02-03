@@ -22,6 +22,7 @@ export class HitBTCApi implements AbstractCryptoService {
   } = {};
   private period: string = 'M1';
   private config: any = {};
+  private requiredCurrencies: any;
 
   constructor(
       private http: HttpClient,
@@ -30,7 +31,8 @@ export class HitBTCApi implements AbstractCryptoService {
     console.log('HitBTCApi working');
     this.injectableObservables.config$.subscribe((configUpdate: any) => {
       this.config = {...configUpdate};
-      console.log(this.config);
+      this.requiredCurrencies = Object.values(this.config.symbolInfo)
+        .reduce((array: string[], symbolInfo: Symbol ) => [...array, symbolInfo.baseCurrency, symbolInfo.quoteCurrency], []);
   });
   }
 
@@ -80,14 +82,13 @@ export class HitBTCApi implements AbstractCryptoService {
     }
   }
 
-  public getBalance(): Observable<IBalance> {
-    const requiredCurrencies: any = Object.values(this.config.symbolInfo)
-      .reduce((array: string[], symbolInfo: Symbol ) => [...array, symbolInfo.baseCurrency, symbolInfo.quoteCurrency], []);
-    console.log(requiredCurrencies);
+  public getBalance(): Observable<IBalance[]> {
     return this.http.get(`${backendPoint}/trading/balance`)
       .pipe(
         map((response: any) => JSON.parse(response)
-          .filter((currency: IBalance) => !!(requiredCurrencies.includes(currency.currency) || +currency.available || +currency.reserved))),
+          .filter((currency: IBalance) =>
+            !!(this.requiredCurrencies.includes(currency.currency) || +currency.available || +currency.reserved)),
+        ),
       );
   }
 

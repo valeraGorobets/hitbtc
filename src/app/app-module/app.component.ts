@@ -23,14 +23,15 @@ const defaultConfig = {
     id: 'ZECUSD',
     strategy: AvailableStrategies.ThreeMAStrategy,
   },
-  {
-    id: 'ETHBTC',
-    strategy: AvailableStrategies.ThreeMAStrategy,
-  },
-  {
-    id: 'XMRUSD',
-    strategy: AvailableStrategies.ThreeMAStrategy,
-  }],
+  // {
+  //   id: 'ETHBTC',
+  //   strategy: AvailableStrategies.ThreeMAStrategy,
+  // },
+  // {
+  //   id: 'XMRUSD',
+  //   strategy: AvailableStrategies.ThreeMAStrategy,
+  // }
+  ],
   currentInvestingSymbol: 'BTCUSD',
   symbolInfo: {},
 };

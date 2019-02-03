@@ -8,6 +8,7 @@ export class InjectableObservables {
   public indicator$ = new ReplaySubject();
   public positionAction$ = new ReplaySubject();
   public strategyAction$ = new ReplaySubject();
+  public moneyAction$ = new ReplaySubject();
 
   constructor() {}
 }

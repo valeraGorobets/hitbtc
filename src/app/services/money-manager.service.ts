@@ -11,6 +11,10 @@ interface IActionUpdate {
   timestamp: string;
 }
 
+export interface IMoneyUpdate extends IActionUpdate{
+  amount: number;
+}
+
 export interface IBalance {
   currency: string;
   available: string;
@@ -33,8 +37,15 @@ export class MoneyManagerService {
   }
 
   private handleActionUpdate(actionUpdate: IActionUpdate): void {
-    // console.log(actionUpdate);
-
+    if (actionUpdate.advisedResult !== Side.none) {
+      this.hitBTCApiService.getBalance().subscribe((balanceValues: IBalance[]) => {
+        console.log(balanceValues);
+        this.injectableObservables.moneyAction$.next({
+          ...actionUpdate,
+          amount: this.countAmountAvailableToPerform(actionUpdate, balanceValues),
+        });
+      });
+    }
   }
 
   private handleConfigUpdate(configUpdate: any): void {
@@ -56,5 +67,20 @@ export class MoneyManagerService {
         symbolInfo: objForUpd,
       });
     });
+  }
+
+  private countAmountAvailableToPerform(actionUpdate: IActionUpdate, balanceValues: IBalance[]): number {
+    switch (actionUpdate.advisedResult) {
+      case Side.buy:
+        return +balanceValues.find(
+          (balance: IBalance) => balance.currency === this.config.symbolInfo[actionUpdate.symbolID].quoteCurrency,
+        ).available;
+      case Side.sell:
+        return +balanceValues.find(
+          (balance: IBalance) => balance.currency === this.config.symbolInfo[actionUpdate.symbolID].baseCurrency,
+        ).available;
+      default:
+        return 0;
+    }
   }
 }
