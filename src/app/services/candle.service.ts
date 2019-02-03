@@ -44,6 +44,7 @@ export class CandleService {
   private updateSavedCandles(message: NotificationCandle): void {
     const symbol = message.params.symbol;
     const updateCandle = message.params.data.pop();
+    // console.log(`${symbol} - ${updateCandle.close} - ${updateCandle.timestamp}`);
     const prevCandle = this.savedCandles[symbol][this.savedCandles[symbol].length - 1];
     const prevUpdate: number = +new Date(prevCandle.timestamp);
     const lastUpdate: number = +new Date(updateCandle.timestamp);

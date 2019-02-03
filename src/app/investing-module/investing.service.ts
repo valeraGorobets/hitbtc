@@ -29,7 +29,7 @@ export class InvestingService {
     this.injectableObservables.config$
       .pipe(first())
       .subscribe((config: any) => this.handleConfigUpdate(config));
-    this.injectableObservables.positionAction$.subscribe((action: any) => this.handleActionUpdate(action));
+    this.injectableObservables.positionAction$.subscribe((actionUpdate: any) => this.handleActionUpdate(actionUpdate));
   }
 
   private handleConfigUpdate(config: any): void {

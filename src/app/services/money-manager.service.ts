@@ -6,6 +6,7 @@ import { Symbol } from '../models/Symbol';
 import { zip } from 'rxjs';
 
 interface IActionUpdate {
+  symbolID: string;
   advisedResult: Side;
   timestamp: string;
 }
@@ -25,7 +26,7 @@ export class MoneyManagerService {
   }
 
   private handleActionUpdate(actionUpdate: IActionUpdate): void {
-    // console.log(actionUpdate);
+    console.log(actionUpdate);
   }
 
   private handleConfigUpdate(configUpdate: any): void {

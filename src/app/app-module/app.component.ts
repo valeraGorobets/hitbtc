@@ -7,10 +7,10 @@ import { AvailableStrategies } from '../investing-module/strategies/abstractStra
 
 const defaultConfig = {
   availableSymbolsForInvesting: [{
-    id: 'BTCUSD',
+    id: 'ETHUSD',
     strategy: AvailableStrategies.ThreeMAStrategy,
   }, {
-    id: 'ETHUSD',
+    id: 'BTCUSD',
     strategy: AvailableStrategies.ThreeMAStrategy,
   }],
   currentInvestingSymbol: 'BTCUSD',
@@ -31,7 +31,9 @@ export class AppComponent {
     private injectableObservables: InjectableObservables,
     ) {
     this.injectableObservables.config$.next(this.config);
-    this.config.availableSymbolsForInvesting.forEach(symbol => this.candleService.connectToHitBtcApi(symbol.id));
+    this.config.availableSymbolsForInvesting.forEach(symbol => {
+      this.candleService.connectToHitBtcApi(symbol.id);
+    });
     this.injectableObservables.config$.subscribe((newConfig: any) => this.config = {...this.config, ...newConfig});
   }
 

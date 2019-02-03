@@ -20,17 +20,19 @@ export class ThreeMAStrategy implements Strategy {
     private indicatorService: IndicatorService,
   ) {
     console.log('Strategy ThreeMAStrategy started');
-    injectableObservables.candles$.subscribe((candles: ISavedCandles) => this.handleCandlesUpdate(candles[this.symbolID]));
+    injectableObservables.candles$.subscribe((candlesUpdate: ISavedCandles) => this.handleCandlesUpdate(candlesUpdate));
   }
 
-  private handleCandlesUpdate(candles: Candle[]): void {
+  private handleCandlesUpdate(candlesUpdate: ISavedCandles): void {
+    const candles = candlesUpdate[this.symbolID] || [];
     this.timestamp = candles[candles.length - 1].timestamp;
     const advisedResult = this.advisedInvestingSide(candles);
     this.injectableObservables.strategyAction$.next({
+      symbolID: this.symbolID,
       advisedResult,
       timestamp: this.timestamp,
     });
-    console.log(`${this.symbolID} - ${advisedResult} - ${this.timestamp}`);
+    // console.log(`${this.symbolID} - ${advisedResult} - ${this.timestamp}`);
   }
 
   public advisedInvestingSide(candles: Candle[], isPartOfStrategy?: boolean): Side {
