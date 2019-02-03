@@ -4,6 +4,7 @@ import { Candle } from '../../models/Candle';
 import { InjectableObservables } from '../../app-module/injectable-observables';
 import { Strategy } from './abstractStrategy';
 import { IndicatorService } from '../../services/indicator.service';
+import { ISavedCandles } from '../../services/candle.service';
 
 export class ThreeMAStrategy implements Strategy {
   private field: string = 'close';
@@ -14,11 +15,12 @@ export class ThreeMAStrategy implements Strategy {
   private MALong: MA = new MA(21);
 
   constructor(
+    private symbolID: string,
     private injectableObservables: InjectableObservables,
     private indicatorService: IndicatorService,
   ) {
     console.log('Strategy ThreeMAStrategy started');
-    injectableObservables.candles$.subscribe((candles: Candle[]) => this.handleCandlesUpdate(candles));
+    injectableObservables.candles$.subscribe((candles: ISavedCandles) => this.handleCandlesUpdate(candles[this.symbolID]));
   }
 
   private handleCandlesUpdate(candles: Candle[]): void {
@@ -28,7 +30,7 @@ export class ThreeMAStrategy implements Strategy {
       advisedResult,
       timestamp: this.timestamp,
     });
-    console.log(`${advisedResult} - ${this.timestamp}`);
+    console.log(`${this.symbolID} - ${advisedResult} - ${this.timestamp}`);
   }
 
   public advisedInvestingSide(candles: Candle[], isPartOfStrategy?: boolean): Side {
@@ -39,7 +41,7 @@ export class ThreeMAStrategy implements Strategy {
     const longValue = this.MALong.calculate(prices);
 
     this.updateLastValue(shortValue, middleValue, longValue);
-    const {MAShort: prevShort, MAMiddle: prevMiddle, MALong: prevLong} = this.indicatorService.getIndicatorValue(2);
+    const {MAShort: prevShort, MAMiddle: prevMiddle, MALong: prevLong} = this.indicatorService.getIndicatorValue(this.symbolID, 2).values;
 
     if ((prevLong > prevShort && longValue < shortValue) ||
       (isPartOfStrategy && longValue < shortValue)) {
@@ -54,17 +56,20 @@ export class ThreeMAStrategy implements Strategy {
 
   private updateLastValue(shortValue: number, middleValue: number, longValue: number): void {
     this.indicatorService.handleIndicatorsUpdate({
-      MAShort: {
-        value: shortValue,
-        timestamp: this.timestamp,
-      },
-      MAMiddle: {
-        value: middleValue,
-        timestamp: this.timestamp,
-      },
-      MALong: {
-        value: longValue,
-        timestamp: this.timestamp,
+      symbolID: this.symbolID,
+      values: {
+        MAShort: {
+          value: shortValue,
+          timestamp: this.timestamp,
+        },
+        MAMiddle: {
+          value: middleValue,
+          timestamp: this.timestamp,
+        },
+        MALong: {
+          value: longValue,
+          timestamp: this.timestamp,
+        },
       },
     });
   }

@@ -8,11 +8,16 @@ export interface IndicatorModel {
 }
 
 export interface IndicatorUpdateModel {
-  [indicatorName: string]: IndicatorModel;
+  symbolID: string;
+  values: {
+    [indicatorName: string]: IndicatorModel
+  };
 }
 
 export interface IndicatorPlotModel {
-  [indicatorName: string]: ScatterChartFormat;
+  [symbolID: string]: {
+    [indicatorName: string]: ScatterChartFormat;
+  };
 }
 
 @Injectable({
@@ -24,27 +29,35 @@ export class IndicatorService {
 
   constructor(
     private injectableObservables: InjectableObservables,
-  ) { }
+  ) {}
 
   public handleIndicatorsUpdate(indicatorUpdateModel: IndicatorUpdateModel): void {
-    Object.keys(indicatorUpdateModel).forEach(plotName => {
-      if (!this.savedIndicators[plotName]) {
-        this.savedIndicators[plotName] = new ScatterChartFormat();
-        this.savedIndicators[plotName].name = plotName;
+    Object.keys(indicatorUpdateModel.values).forEach(plotName => {
+      const symbolID = indicatorUpdateModel.symbolID;
+      const indicatorValuesOfPlot = indicatorUpdateModel.values[plotName];
+      if (!this.savedIndicators[symbolID]) {
+        this.savedIndicators[symbolID] = {};
       }
-      this.updateLastIndicator(this.savedIndicators[plotName], indicatorUpdateModel[plotName]);
-      this.savedIndicators[plotName].x.push(indicatorUpdateModel[plotName].timestamp);
-      this.savedIndicators[plotName].y.push(indicatorUpdateModel[plotName].value);
+      if (!this.savedIndicators[symbolID][plotName]) {
+        this.savedIndicators[symbolID][plotName] = new ScatterChartFormat();
+        this.savedIndicators[symbolID][plotName].name = plotName;
+      }
+      this.updateLastIndicator(this.savedIndicators[symbolID][plotName], indicatorValuesOfPlot);
+      this.savedIndicators[symbolID][plotName].x.push(indicatorValuesOfPlot.timestamp);
+      this.savedIndicators[symbolID][plotName].y.push(indicatorValuesOfPlot.value);
     });
     this.notifyAboutNewIndicatorValues();
   }
 
-  public getIndicatorValue(period: number = 1): IndicatorUpdateModel {
-    const indicatorValuePeriodsAgo: IndicatorUpdateModel = {};
-    Object.keys(this.savedIndicators).forEach(plotName => {
-      indicatorValuePeriodsAgo[plotName] = {
-        value: this.savedIndicators[plotName].y.slice(-period).shift(),
-        timestamp: this.savedIndicators[plotName].x.slice(-period).shift(),
+  public getIndicatorValue(symbolID: string, period: number = 1): IndicatorUpdateModel {
+    const indicatorValuePeriodsAgo: IndicatorUpdateModel = {
+      symbolID,
+      values: {},
+    };
+    Object.keys(this.savedIndicators[symbolID]).forEach(plotName => {
+      indicatorValuePeriodsAgo.values[plotName] = {
+        value: this.savedIndicators[symbolID][plotName].y.slice(-period).shift(),
+        timestamp: this.savedIndicators[symbolID][plotName].x.slice(-period).shift(),
       };
     });
     return indicatorValuePeriodsAgo;

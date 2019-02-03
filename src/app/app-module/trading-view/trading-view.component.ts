@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Candle } from '../../models/Candle';
 import { ChartFormat } from '../../models/ChartFormats/ChartFormat';
 import { CandlesChartFormat } from '../../models/ChartFormats/CandlesChartFormat';
 import { InjectableObservables } from '../injectable-observables';
 import { IndicatorPlotModel } from '../../services/indicator.service';
+import { ISavedCandles } from '../../services/candle.service';
+import { ScatterChartFormat } from '../../models/ChartFormats/ScatterChartFormat';
 
 @Component({
   selector: 'trading-view',
@@ -12,18 +14,25 @@ import { IndicatorPlotModel } from '../../services/indicator.service';
 })
 
 export class TradingViewComponent {
-  public plots: ChartFormat[] = [];
-  public savedCandles: Candle[] = [];
-  public savedIndicators: IndicatorPlotModel = {};
+  @Input() public observableSymbol: string;
 
-  constructor(injectableObservables: InjectableObservables) {
+  private savedCandles: Candle[] = [];
+  private savedIndicators: {
+    [indicatorName: string]: ScatterChartFormat;
+  } = {};
+
+  public plots: ChartFormat[] = [];
+
+  constructor(
+    injectableObservables: InjectableObservables,
+  ) {
     injectableObservables.candles$.subscribe(
-      (candles: Candle[]) => this.handleCandlesUpdate(candles),
+      (candles: Candle[]) => this.handleCandlesUpdate(candles[this.observableSymbol]),
       e => this.handleError(e),
       () => this.handleOnComplete());
 
    injectableObservables.indicator$.subscribe(
-      (indicators: IndicatorPlotModel) => this.handleIndicatorsUpdate(indicators),
+      (indicators: IndicatorPlotModel) => this.handleIndicatorsUpdate(indicators[this.observableSymbol]),
       e => this.handleError(e),
       () => this.handleOnComplete());
   }
@@ -39,7 +48,7 @@ export class TradingViewComponent {
   }
 
   private reDrawPlots(): void {
-    const viewingAmount = 55;
+    const viewingAmount = 35;
     const indicators: ChartFormat[] = Object.values(this.savedIndicators);
     indicators.forEach(indicator => {
       indicator.x = indicator.x.slice(-viewingAmount);

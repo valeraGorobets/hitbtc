@@ -25,16 +25,16 @@ export class MoneyManagerService {
   }
 
   private handleActionUpdate(actionUpdate: IActionUpdate): void {
-    console.log(actionUpdate);
+    // console.log(actionUpdate);
   }
 
   private handleConfigUpdate(configUpdate: any): void {
     this.config = configUpdate;
-    const arrayOfRequests = configUpdate.availableSymbolsFornIvesting.map(symbol => {
-      if (configUpdate[symbol]) {
+    const arrayOfRequests = configUpdate.availableSymbolsForInvesting.map(symbol => {
+      if (configUpdate[symbol.id]) {
         return;
       }
-      return this.hitBTCApiService.getSymbolDescription(symbol);
+      return this.hitBTCApiService.getSymbolDescription(symbol.id);
     }).filter(request => request);
     zip(...arrayOfRequests).subscribe((symbolInfo: string[]) => {
       const objForUpd = {};

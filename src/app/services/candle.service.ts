@@ -3,12 +3,16 @@ import { InjectableObservables } from '../app-module/injectable-observables';
 import { HitBTCApi } from '../crypto-exchange-module/hitbtc-api.service';
 import { Candle, NotificationCandle } from '../models/Candle';
 
+export interface ISavedCandles {
+  [symbol: string]: Candle[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
 
 export class CandleService {
-  private savedCandles: Candle[] = [];
+  private savedCandles: ISavedCandles = {};
 
   constructor(
     private injectableObservables: InjectableObservables,
@@ -22,7 +26,7 @@ export class CandleService {
       .subscribe((message: any) => {
         switch (message.method) {
           case 'snapshotCandles':
-            this.savedCandles = [...message.params.data];
+            this.savedCandles[message.params.symbol] = [...message.params.data];
             break;
           case 'updateCandles':
             this.updateSavedCandles(message);
@@ -38,14 +42,15 @@ export class CandleService {
   }
 
   private updateSavedCandles(message: NotificationCandle): void {
+    const symbol = message.params.symbol;
     const updateCandle = message.params.data.pop();
-    const prevCandle = this.savedCandles[this.savedCandles.length - 1];
+    const prevCandle = this.savedCandles[symbol][this.savedCandles[symbol].length - 1];
     const prevUpdate: number = +new Date(prevCandle.timestamp);
     const lastUpdate: number = +new Date(updateCandle.timestamp);
     if (lastUpdate - prevUpdate === 0) {
-      this.savedCandles.pop();
+      this.savedCandles[symbol].pop();
     }
-    this.savedCandles = [...this.savedCandles, updateCandle];
+    this.savedCandles[symbol] = [...this.savedCandles[symbol], updateCandle];
     this.injectableObservables.candles$.next(this.savedCandles);
   }
 }

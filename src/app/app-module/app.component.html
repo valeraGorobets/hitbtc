@@ -11,7 +11,7 @@
   
   <!-- <mat-progress-bar mode="indeterminate"></mat-progress-bar> -->
   <!-- <router-outlet></router-outlet> -->
-  <trading-view></trading-view>
+  <trading-view *ngFor="let symbol of config.availableSymbolsForInvesting" [observableSymbol]="symbol.id"></trading-view>
 
   <button (click)="stopWatching()">Stop</button>
   <button (click)="getBalance()">getBalance</button>

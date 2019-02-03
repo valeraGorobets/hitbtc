@@ -3,9 +3,16 @@ import { InvestingService } from '../investing-module/investing.service';
 import { CandleService } from '../services/candle.service';
 import { InjectableObservables } from './injectable-observables';
 import { MoneyManagerService } from '../services/money-manager.service';
+import { AvailableStrategies } from '../investing-module/strategies/abstractStrategy';
 
 const defaultConfig = {
-  availableSymbolsFornIvesting: ['BTCUSD', 'DASHUSD'],
+  availableSymbolsForInvesting: [{
+    id: 'BTCUSD',
+    strategy: AvailableStrategies.ThreeMAStrategy,
+  }, {
+    id: 'ETHUSD',
+    strategy: AvailableStrategies.ThreeMAStrategy,
+  }],
   currentInvestingSymbol: 'BTCUSD',
 };
 
@@ -24,7 +31,7 @@ export class AppComponent {
     private injectableObservables: InjectableObservables,
     ) {
     this.injectableObservables.config$.next(this.config);
-    this.candleService.connectToHitBtcApi(this.config.currentInvestingSymbol);
+    this.config.availableSymbolsForInvesting.forEach(symbol => this.candleService.connectToHitBtcApi(symbol.id));
     this.injectableObservables.config$.subscribe((newConfig: any) => this.config = {...this.config, ...newConfig});
   }
 
