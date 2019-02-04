@@ -32,7 +32,7 @@ export class CandleService {
             this.savedCandles[message.params.symbol] = [...message.params.data];
             break;
           case 'updateCandles':
-            console.log(`${symbol} - updateCandles - ${this.count[symbol]++}`);
+            //console.log(`${symbol} - updateCandles - ${this.count[symbol]++}`);
             this.updateSavedCandles(message);
             break;
           default:

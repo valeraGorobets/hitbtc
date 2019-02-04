@@ -38,6 +38,7 @@ export class MoneyManagerService {
 
   private handleActionUpdate(actionUpdate: IActionUpdate): void {
     if (actionUpdate.advisedResult !== Side.none) {
+      console.log(actionUpdate);
       this.hitBTCApiService.getBalance().subscribe((balanceValues: IBalance[]) => {
         console.log(balanceValues);
         this.injectableObservables.moneyAction$.next({

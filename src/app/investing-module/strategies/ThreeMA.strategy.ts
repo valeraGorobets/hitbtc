@@ -49,10 +49,10 @@ export class ThreeMAStrategy implements Strategy {
     this.updateLastValue(shortValue, middleValue, longValue);
     const {MAShort: prevShort, MAMiddle: prevMiddle, MALong: prevLong} = this.indicatorService.getIndicatorValue(this.symbolID, 2).values;
 
-    if ((prevLong > prevShort && longValue < shortValue) ||
+    if ((prevLong.value > prevShort.value && longValue < shortValue) ||
       (isPartOfStrategy && longValue < shortValue)) {
       return Side.buy;
-    } else if ((prevMiddle < prevShort && middleValue > shortValue) ||
+    } else if ((prevMiddle.value < prevShort.value && middleValue > shortValue) ||
       (isPartOfStrategy && middleValue > shortValue)) {
       return Side.sell;
     } else {
