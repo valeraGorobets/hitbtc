@@ -57,7 +57,7 @@ export class AppComponent {
     this.injectableObservables.config$.subscribe((configUpdate: any) => this.config = {...this.config, ...configUpdate});
   }
 
-  private stopWatching(): void {
+  public stopWatching(): void {
     this.investingService.stopWatching();
   }
 
