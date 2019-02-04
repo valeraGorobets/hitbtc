@@ -1,6 +1,7 @@
 import { Component, SimpleChanges, Input, OnChanges } from '@angular/core';
 import Plotly from 'plotly.js-dist';
 import { ChartFormat } from '../../models/ChartFormats/ChartFormat';
+import { Candle } from '../../models/Candle';
 
 @Component({
   selector: 'chart',
@@ -10,12 +11,15 @@ import { ChartFormat } from '../../models/ChartFormats/ChartFormat';
 
 export class ChartComponent implements OnChanges {
   @Input() public plots;
+  @Input() public chartID;
+
   private colorPalet: any = {};
 
   public ngOnChanges(changes: SimpleChanges): void {
     if (changes['plots'] ) {
       this.plots = changes.plots.currentValue;
       this.plots.filter(plot => plot.type === 'scatter').forEach(plot => plot.marker = { color: this.getColor(plot.name)});
+      this.plots.forEach(plot => plot.x = plot.x.map(xAxis => new Date(xAxis)));
       this.drawPlot(this.plots);
       this.adjustWidth();
     }
@@ -32,7 +36,7 @@ export class ChartComponent implements OnChanges {
 
     const layout = {
       dragmode: 'zoom',
-      height: 800,
+      height: 400,
       margin: {
         r: 10,
         t: 25,
@@ -42,7 +46,7 @@ export class ChartComponent implements OnChanges {
       paper_bgcolor: paperColor,
       plot_bgcolor: paperColor,
       showlegend: false,
-      width: 1500,
+      width: 700,
       xaxis: {
         autorange: true,
         gridcolor,
@@ -66,7 +70,7 @@ export class ChartComponent implements OnChanges {
         },
       },
     };
-    Plotly.newPlot('displayPlot', plots, layout);
+    Plotly.newPlot(`displayPlot${this.chartID}`, plots, layout);
   }
 
   private getColor(name: string): string {
@@ -79,8 +83,12 @@ export class ChartComponent implements OnChanges {
 
   private adjustWidth(): void {
     const svgElements = document.getElementsByClassName('main-svg');
-    if (svgElements && svgElements[0]) {
-      (svgElements[0] as any).attributes.width.value = 1600;
-    }
+    [].forEach.call(svgElements, (svgElement) => {
+      svgElement.attributes.width.value = 800;
+    });
+  }
+
+  private convertTimeToCurrentTimezone(candle: Candle): Date {
+    return new Date(candle.timestamp);
   }
 }

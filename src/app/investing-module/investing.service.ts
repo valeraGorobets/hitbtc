@@ -4,9 +4,10 @@ import { Injectable } from '@angular/core';
 import { InjectableObservables } from '../app-module/injectable-observables';
 import { Orderbook } from '../models/Orderbook';
 import { Side } from '../models/SharedConstants';
-import { Strategy } from './strategies/abstractStrategy';
+import { AvailableStrategies, Strategy } from './strategies/abstractStrategy';
 import { ThreeMAStrategy } from './strategies/ThreeMA.strategy';
 import { IndicatorService } from '../services/indicator.service';
+import { IMoneyUpdate } from '../services/money-manager.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +16,6 @@ import { IndicatorService } from '../services/indicator.service';
 export class InvestingService {
   private actualOpenTime = null;
   private strategy: Strategy;
-  private strategyId = 'ThreeMAStrategy';
   private openedTrade = null;
   private money: number = 1000;
   private config: any = {};
@@ -27,19 +27,32 @@ export class InvestingService {
     ) {
     console.log('InvestingService working');
 
-    this.strategy = this.getStrategyInstance();
-    this.injectableObservables.config$.subscribe((action: any) => this.config = action);
-    this.injectableObservables.positionAction$.subscribe((action: any) => this.handleActionUpdate(action));
+    this.injectableObservables.config$
+      .pipe(first())
+      .subscribe((config: any) => this.handleConfigUpdate(config));
+    this.injectableObservables.positionAction$.subscribe((actionUpdate: any) => this.handleActionUpdate(actionUpdate));
+    this.injectableObservables.moneyAction$.subscribe((moneyUpdate: any) => this.handleMoneyUpdate(moneyUpdate));
   }
 
-  private getStrategyInstance(): Strategy {
+  private handleConfigUpdate(config: any): void {
+    this.config = config;
+    config.availableSymbolsForInvesting.forEach(symbol => {
+      this.createStrategyInstance(symbol);
+    });
+  }
+
+  private handleMoneyUpdate(moneyUpdate: IMoneyUpdate): void {
+    console.log(moneyUpdate);
+  }
+
+  private createStrategyInstance(symbol: any): Strategy {
     let StrategyConstructor;
-    switch (this.strategyId) {
+    switch (symbol.strategy as AvailableStrategies) {
       case 'ThreeMAStrategy':
         StrategyConstructor = ThreeMAStrategy;
         break;
     }
-    return new StrategyConstructor(this.injectableObservables, this.indicatorService);
+    return new StrategyConstructor(symbol.id, this.injectableObservables, this.indicatorService);
   }
 
   private handleActionUpdate(action: {time: string, side: Side}): void {
@@ -98,5 +111,17 @@ export class InvestingService {
 
   public stopWatching(): void {
     this.hitBTCApiService.closeConnection();
+  }
+
+  public getBalance(): void {
+    this.hitBTCApiService.getBalance().subscribe(res => {
+      console.log(res);
+    });
+  }
+
+  public getHistoryOrder(): void {
+    this.hitBTCApiService.getHistoryOrder().subscribe(res => {
+      console.log(res);
+    });
   }
 }

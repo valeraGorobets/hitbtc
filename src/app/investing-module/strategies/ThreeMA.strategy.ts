@@ -4,6 +4,7 @@ import { Candle } from '../../models/Candle';
 import { InjectableObservables } from '../../app-module/injectable-observables';
 import { Strategy } from './abstractStrategy';
 import { IndicatorService } from '../../services/indicator.service';
+import { ISavedCandles } from '../../services/candle.service';
 
 export class ThreeMAStrategy implements Strategy {
   private field: string = 'close';
@@ -14,17 +15,28 @@ export class ThreeMAStrategy implements Strategy {
   private MALong: MA = new MA(21);
 
   constructor(
+    private symbolID: string,
     private injectableObservables: InjectableObservables,
     private indicatorService: IndicatorService,
   ) {
     console.log('Strategy ThreeMAStrategy started');
-    injectableObservables.candles$.subscribe((candles: Candle[]) => this.handleCandlesUpdate(candles));
+    injectableObservables.candles$.subscribe((candlesUpdate: ISavedCandles) => this.handleCandlesUpdate(candlesUpdate));
   }
 
-  private handleCandlesUpdate(candles: Candle[]): void {
+  private handleCandlesUpdate(candlesUpdate: ISavedCandles): void {
+    // console.log(`${this.symbolID} - ${this.timestamp}`);
+    // console.log(candlesUpdate);
+    const candles = candlesUpdate[this.symbolID] || [];
+    if (!candles.length) {
+      return;
+    }
     this.timestamp = candles[candles.length - 1].timestamp;
-    const r = this.advisedInvestingSide(candles);
-    console.log(`${r} - ${this.timestamp}`);
+    const advisedResult = this.advisedInvestingSide(candles);
+    this.injectableObservables.strategyAction$.next({
+      symbolID: this.symbolID,
+      advisedResult,
+      timestamp: this.timestamp,
+    });
   }
 
   public advisedInvestingSide(candles: Candle[], isPartOfStrategy?: boolean): Side {
@@ -35,12 +47,12 @@ export class ThreeMAStrategy implements Strategy {
     const longValue = this.MALong.calculate(prices);
 
     this.updateLastValue(shortValue, middleValue, longValue);
-    const {MAShort: prevShort, MAMiddle: prevMiddle, MALong: prevLong} = this.indicatorService.getIndicatorValue(2);
+    const {MAShort: prevShort, MAMiddle: prevMiddle, MALong: prevLong} = this.indicatorService.getIndicatorValue(this.symbolID, 2).values;
 
-    if ((prevLong > prevShort && longValue < shortValue) ||
+    if ((prevLong.value > prevShort.value && longValue < shortValue) ||
       (isPartOfStrategy && longValue < shortValue)) {
       return Side.buy;
-    } else if ((prevMiddle < prevShort && middleValue > shortValue) ||
+    } else if ((prevMiddle.value < prevShort.value && middleValue > shortValue) ||
       (isPartOfStrategy && middleValue > shortValue)) {
       return Side.sell;
     } else {
@@ -50,17 +62,20 @@ export class ThreeMAStrategy implements Strategy {
 
   private updateLastValue(shortValue: number, middleValue: number, longValue: number): void {
     this.indicatorService.handleIndicatorsUpdate({
-      MAShort: {
-        value: shortValue,
-        timestamp: this.timestamp,
-      },
-      MAMiddle: {
-        value: middleValue,
-        timestamp: this.timestamp,
-      },
-      MALong: {
-        value: longValue,
-        timestamp: this.timestamp,
+      symbolID: this.symbolID,
+      values: {
+        MAShort: {
+          value: shortValue,
+          timestamp: this.timestamp,
+        },
+        MAMiddle: {
+          value: middleValue,
+          timestamp: this.timestamp,
+        },
+        MALong: {
+          value: longValue,
+          timestamp: this.timestamp,
+        },
       },
     });
   }

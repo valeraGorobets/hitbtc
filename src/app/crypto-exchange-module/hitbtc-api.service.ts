@@ -3,6 +3,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { WSService } from '../../libs/ws.service';
+import { map } from 'rxjs/operators';
+import { IBalance } from '../services/money-manager.service';
+import { InjectableObservables } from '../app-module/injectable-observables';
+import { Symbol } from '../models/Symbol';
 
 const socketURL = 'wss://api.hitbtc.com/api/2/ws';
 const backendPoint = 'http://localhost:8000/backend';
@@ -13,21 +17,32 @@ const restEndPoint = 'https://api.hitbtc.com/api/2/public';
 })
 
 export class HitBTCApi implements AbstractCryptoService {
-  private ws: WSService;
+  private ws: {
+    [symbol: string]: WSService,
+  } = {};
   private period: string = 'M1';
+  private config: any = {};
+  private requiredCurrencies: any;
 
   constructor(
       private http: HttpClient,
+      private injectableObservables: InjectableObservables,
     ) {
     console.log('HitBTCApi working');
+    this.injectableObservables.config$.subscribe((configUpdate: any) => {
+      this.config = {...configUpdate};
+      this.requiredCurrencies = Object.values(this.config.symbolInfo)
+        .reduce((array: string[], symbolInfo: Symbol ) => [...array, symbolInfo.baseCurrency, symbolInfo.quoteCurrency], []);
+  });
   }
 
-  public createConnection(): void {
-    this.ws = new WSService(socketURL);
+  public createConnection(symbol: string): void {
+    console.log('create connection');
+    this.ws[symbol] = new WSService(socketURL);
   }
 
   public subscribeCandles(symbol: string, period: string = this.period): void {
-    this.ws.send({
+    this.ws[symbol].send({
       method: 'subscribeCandles',
       params: {
         symbol,
@@ -38,7 +53,7 @@ export class HitBTCApi implements AbstractCryptoService {
   }
 
   public subscribeTrades(symbol: string): void {
-    this.ws.send({
+    this.ws[symbol].send({
       method: 'subscribeTrades',
       params: {
         symbol,
@@ -47,17 +62,40 @@ export class HitBTCApi implements AbstractCryptoService {
     });
   }
 
-  // cd c:\Program\ Files\ \(x86\)//Google/Chrome/Application/
-  // ./chrome.exe --user-data-dir="C://Chrome dev session" --disable-web-security
+  public getSymbolDescription(symbol: string): Observable<any> {
+    return this.http.get(`${backendPoint}/symbol/${symbol}`);
+  }
+
   public getOrderbook(symbol: string): any {
     return this.http.get(`${backendPoint}/getOrderbook/${symbol}`);
   }
 
-  public onMessage(): Observable<MessageEvent> {
-    return this.ws.onMessage();
+  public onMessage(symbol: string): Observable<MessageEvent> {
+    return this.ws[symbol].onMessage();
   }
 
-  public closeConnection(delay: number = 0): void {
-    setTimeout(() => this.ws.closeConnection(), delay);
+  public closeConnection(symbol?: string, delay: number = 0): void {
+    if (symbol) {
+      setTimeout(() => this.ws[symbol].closeConnection(), delay);
+    } else {
+      Object.values(this.ws).forEach((wsConnection: WSService) => wsConnection.closeConnection());
+    }
+  }
+
+  public getBalance(): Observable<IBalance[]> {
+    return this.http.get(`${backendPoint}/trading/balance`)
+      .pipe(
+        map((response: any) => JSON.parse(response)
+          .filter((currency: IBalance) =>
+            !!(this.requiredCurrencies.includes(currency.currency) || +currency.available || +currency.reserved)),
+        ),
+      );
+  }
+
+  public getHistoryOrder(): any {
+    return this.http.get(`${backendPoint}/history/order`)
+      .pipe(
+        map((response: any) => JSON.parse(response)),
+      );
   }
 }

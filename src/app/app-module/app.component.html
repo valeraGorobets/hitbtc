@@ -1,7 +1,7 @@
 <div class="content">
   <header>
     <div class="align">
-      <h1 class="text-center">{{symbol}}</h1>
+      <h1 class="text-center">{{config.currentInvestingSymbol}}</h1>
       <nav>
         <a mat-raised-button routerLink="/trading" routerLinkActive="active">Trading</a>
         <a mat-raised-button routerLink="/statistics" routerLinkActive="active">Statistics</a>
@@ -11,9 +11,11 @@
   
   <!-- <mat-progress-bar mode="indeterminate"></mat-progress-bar> -->
   <!-- <router-outlet></router-outlet> -->
-  <trading-view></trading-view>
+  <trading-view *ngFor="let symbol of config.availableSymbolsForInvesting" [observableSymbol]="symbol.id"></trading-view>
 
   <button (click)="stopWatching()">Stop</button>
+  <button (click)="getBalance()">getBalance</button>
+  <button (click)="getHistoryOrder()">getHistoryOrder</button>
 </div>
 
 <footer class="footer text-center">
