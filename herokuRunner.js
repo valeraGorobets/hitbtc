@@ -6,7 +6,8 @@ const app = express();
 app.use(express.static(__dirname + '/dist/hitbtc'));
 
 app.get('/*', function(req,res) {
-  res.sendFile(path.join(__dirname+'/dist/hitbtc/index.html'));
+  const index = path.join(__dirname, 'build', 'index.html');
+  res.sendFile(path.join(index));
 });
 
 app.listen(process.env.PORT || 8080);
