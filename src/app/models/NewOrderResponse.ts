@@ -1,4 +1,4 @@
-import { Candle } from './candle';
+import { Candle } from './Candle';
 import { Period } from './SharedConstants';
 
 enum notificationMethod {

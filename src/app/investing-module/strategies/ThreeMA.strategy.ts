@@ -1,5 +1,5 @@
 import { Side } from '../../models/SharedConstants';
-import { MA } from '../indicators/MA';
+import { MA } from '../indicators/ma';
 import { Candle } from '../../models/Candle';
 import { InjectableObservables } from '../../app-module/injectable-observables';
 import { Strategy } from './abstractStrategy';
