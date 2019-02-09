@@ -27,6 +27,7 @@ export interface IBalance {
 
 export class MoneyManagerService {
   private config: any;
+  private balance: IBalance[] = [];
 
   constructor(
     private injectableObservables: InjectableObservables,
@@ -38,18 +39,22 @@ export class MoneyManagerService {
 
   private handleActionUpdate(actionUpdate: IActionUpdate): void {
     if (actionUpdate.advisedResult !== Side.none) {
-      console.log(actionUpdate);
-      this.hitBTCApiService.getBalance().subscribe((balanceValues: IBalance[]) => {
-        console.log(balanceValues);
-        this.injectableObservables.moneyAction$.next({
-          ...actionUpdate,
-          amount: this.countAmountAvailableToPerform(actionUpdate, balanceValues),
-        });
+      this.injectableObservables.moneyAction$.next({
+        ...actionUpdate,
+        amount: this.countAmountAvailableToPerform(actionUpdate, this.balance),
       });
     }
   }
 
+  private updateBalance(): void {
+    this.hitBTCApiService.getBalance().subscribe((balanceValues: IBalance[]) => {
+      console.log(balanceValues);
+      this.balance = balanceValues;
+    });
+  }
+
   private handleConfigUpdate(configUpdate: any): void {
+    this.updateBalance();
     this.config = configUpdate;
     const arrayOfRequests = configUpdate.availableSymbolsForInvesting.map(symbol => {
       if (configUpdate.symbolInfo[symbol.id]) {

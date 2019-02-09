@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { WSService } from '../../libs/ws.service';
-import {map, tap} from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { IBalance } from '../services/money-manager.service';
 import { InjectableObservables } from '../app-module/injectable-observables';
 import { Symbol } from '../models/Symbol';
