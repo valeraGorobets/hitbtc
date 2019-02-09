@@ -11,9 +11,13 @@
   
   <!-- <mat-progress-bar mode="indeterminate"></mat-progress-bar> -->
   <!-- <router-outlet></router-outlet> -->
-  <trading-view *ngFor="let symbol of config.availableSymbolsForInvesting" [observableSymbol]="symbol.id"></trading-view>
+  <div class="main-view">
+    <div class="trading-view-container">
+      <trading-view *ngFor="let symbol of config.availableSymbolsForInvesting" [observableSymbol]="symbol.id"></trading-view>
+    </div>
 
-  <button (click)="stopWatching()">Stop</button>
-  <button (click)="getBalance()">getBalance</button>
-  <button (click)="getHistoryOrder()">getHistoryOrder</button>
+    <button (click)="stopWatching()">Stop</button>
+    <button (click)="getBalance()">getBalance</button>
+    <button (click)="getHistoryOrder()">getHistoryOrder</button>
+  </div>
 </div>
