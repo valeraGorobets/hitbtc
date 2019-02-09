@@ -15,9 +15,12 @@
     <div class="trading-view-container">
       <trading-view *ngFor="let symbol of config.availableSymbolsForInvesting" [observableSymbol]="symbol.id"></trading-view>
     </div>
+    <div class="right-column">
+      <order-table></order-table>
+    </div>
 
-    <button (click)="stopWatching()">Stop</button>
-    <button (click)="getBalance()">getBalance</button>
-    <button (click)="getHistoryOrder()">getHistoryOrder</button>
+    <!--<button (click)="stopWatching()">Stop</button>-->
+    <!--<button (click)="getBalance()">getBalance</button>-->
+    <!--<button (click)="getHistoryOrder()">getHistoryOrder</button>-->
   </div>
 </div>

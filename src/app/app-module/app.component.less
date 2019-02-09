@@ -1,5 +1,17 @@
 @import url(../../assets/colors.less);
 
+*::-webkit-scrollbar-thumb {
+  background: @accentBlue;
+  border-radius: 10px;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+}
+8::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  border-radius: 10px;
+}
+
 .content {
   .align {
     display: flex;
@@ -38,22 +50,21 @@
   .main-view {
     height: calc(100vh - 70px);
     overflow-y: hidden;
+    display: flex;
+    align-items: center;
 
     .trading-view-container {
       height: calc(100vh - 70px);
       overflow-y: scroll;
       width: 820px;
-      &::-webkit-scrollbar-thumb {
-        background: @accentBlue;
-        border-radius: 10px;
-      }
-      &::-webkit-scrollbar {
-        width: 10px;
-      }
-      &::-webkit-scrollbar-track {
-        -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-        border-radius: 10px;
-      }
+    }
+
+    .right-column {
+      margin-left: auto;
+      width: calc(100vw - 850px);
+      height: 100%;
+      overflow-y: scroll;
+      padding: 40px 10px;
     }
   }
 }
