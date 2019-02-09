@@ -52,8 +52,7 @@ export class ThreeMAStrategy implements Strategy {
     if ((prevLong.value > prevShort.value && longValue < shortValue) ||
       (isPartOfStrategy && longValue < shortValue)) {
       return Side.buy;
-    } else if ((prevMiddle.value < prevShort.value && middleValue > shortValue) ||
-      (isPartOfStrategy && middleValue > shortValue)) {
+    } else if (+candles[candles.length - 1].min < prevMiddle.value) {
       return Side.sell;
     } else {
       return Side.none;
