@@ -19,6 +19,9 @@ export class InvestingService {
   private openedTrade = null;
   private money: number = 1000;
   private config: any = {};
+  private savedAdvice: {
+    [symbol: string]: IMoneyUpdate,
+  } = {};
 
   constructor(
       private injectableObservables: InjectableObservables,
@@ -42,7 +45,14 @@ export class InvestingService {
   }
 
   private handleMoneyUpdate(moneyUpdate: IMoneyUpdate): void {
-    console.log(moneyUpdate);
+    if (!moneyUpdate.amount) {
+      return;
+    } else if (!this.savedAdvice[moneyUpdate.symbolID] ||
+      this.savedAdvice[moneyUpdate.symbolID].advisedResult !== moneyUpdate.advisedResult ||
+      +new Date(moneyUpdate.timestamp) !== +new Date(this.savedAdvice[moneyUpdate.symbolID].timestamp)) {
+        this.savedAdvice[moneyUpdate.symbolID] = moneyUpdate;
+        console.log(this.savedAdvice);
+    }
   }
 
   private createStrategyInstance(symbol: any): Strategy {
