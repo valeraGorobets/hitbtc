@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatTableDataSource, MatTableModule } from '@angular/material';
+import { MatPaginator, MatTableDataSource } from '@angular/material';
 
 @Component({
   selector: 'order-table',

@@ -35,6 +35,13 @@ export class MoneyManagerService {
   ) {
     injectableObservables.strategyAction$.subscribe((actionUpdate: IActionUpdate) => this.handleActionUpdate(actionUpdate));
     injectableObservables.config$.subscribe((configUpdate: any) => this.handleConfigUpdate(configUpdate));
+    // setInterval(() => {
+    //   const newobj = this.balance;
+    //   let v = +newobj[4].available;
+    //   v += 1;
+    //   newobj[4].available = v.toString();
+    //   this.injectableObservables.balance$.next(newobj);
+    // }, 2000);
   }
 
   private handleActionUpdate(actionUpdate: IActionUpdate): void {
@@ -50,6 +57,7 @@ export class MoneyManagerService {
     this.hitBTCApiService.getBalance().subscribe((balanceValues: IBalance[]) => {
       console.log(balanceValues);
       this.balance = balanceValues;
+      this.injectableObservables.balance$.next(balanceValues);
     });
   }
 

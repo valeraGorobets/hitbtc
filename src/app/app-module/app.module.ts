@@ -17,6 +17,8 @@ import { TradingViewComponent } from './trading-view/trading-view.component';
 
 import { InjectableObservables } from './injectable-observables';
 import { OrderTableComponent } from './order-table/order-table.component';
+import { CurrencyComponent } from './currency/currency.component';
+import { TopBarComponent } from './top-bar/top-bar.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +26,8 @@ import { OrderTableComponent } from './order-table/order-table.component';
     ChartComponent,
     TradingViewComponent,
     OrderTableComponent,
+    CurrencyComponent,
+    TopBarComponent,
   ],
   imports: [
     BrowserModule,
