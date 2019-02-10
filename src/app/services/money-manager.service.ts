@@ -4,6 +4,7 @@ import { Side } from '../models/SharedConstants';
 import { HitBTCApi } from '../crypto-exchange-module/hitbtc-api.service';
 import { Symbol } from '../models/Symbol';
 import { zip } from 'rxjs';
+import { CurrencyBalance } from '../models/CurrencyBalance';
 
 interface IActionUpdate {
   symbolID: string;
@@ -15,19 +16,13 @@ export interface IMoneyUpdate extends IActionUpdate{
   amount: number;
 }
 
-export interface IBalance {
-  currency: string;
-  available: string;
-  reserved: string;
-}
-
 @Injectable({
   providedIn: 'root',
 })
 
 export class MoneyManagerService {
   private config: any;
-  private balance: IBalance[] = [];
+  private balance: CurrencyBalance[] = [];
 
   constructor(
     private injectableObservables: InjectableObservablesService,
@@ -35,7 +30,7 @@ export class MoneyManagerService {
   ) {
     injectableObservables.strategyAction$.subscribe((actionUpdate: IActionUpdate) => this.handleActionUpdate(actionUpdate));
     injectableObservables.config$.subscribe((configUpdate: any) => this.handleConfigUpdate(configUpdate));
-    injectableObservables.balance$.subscribe((balance: IBalance[]) => this.handleBalanceUpdate(balance));
+    injectableObservables.balance$.subscribe((balance: CurrencyBalance[]) => this.handleBalanceUpdate(balance));
   }
 
   private handleActionUpdate(actionUpdate: IActionUpdate): void {
@@ -54,11 +49,11 @@ export class MoneyManagerService {
     switch (actionUpdate.advisedResult) {
       case Side.buy:
         return +this.balance.find(
-          (balance: IBalance) => balance.currency === this.config.symbolInfo[actionUpdate.symbolID].quoteCurrency,
+          (balance: CurrencyBalance) => balance.currency === this.config.symbolInfo[actionUpdate.symbolID].quoteCurrency,
         ).available;
       case Side.sell:
         return +this.balance.find(
-          (balance: IBalance) => balance.currency === this.config.symbolInfo[actionUpdate.symbolID].baseCurrency,
+          (balance: CurrencyBalance) => balance.currency === this.config.symbolInfo[actionUpdate.symbolID].baseCurrency,
         ).available;
       default:
         return 0;
@@ -86,8 +81,7 @@ export class MoneyManagerService {
     });
   }
 
-  private handleBalanceUpdate(balance: IBalance[]): void {
+  private handleBalanceUpdate(balance: CurrencyBalance[]): void {
     this.balance = balance;
-    console.log(balance);
   }
 }

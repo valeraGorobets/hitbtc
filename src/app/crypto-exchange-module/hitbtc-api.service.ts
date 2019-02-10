@@ -4,9 +4,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { WSService } from '../../libs/ws.service';
 import { map, tap } from 'rxjs/operators';
-import { IBalance } from '../services/money-manager.service';
 import { InjectableObservablesService } from '../services/injectable-observables.service';
 import { Symbol } from '../models/Symbol';
+import { CurrencyBalance } from '../models/CurrencyBalance';
 
 const socketURL = 'wss://api.hitbtc.com/api/2/ws';
 const backendPoint = 'http://localhost:8080/backend';
@@ -88,11 +88,11 @@ export class HitBTCApi implements AbstractCryptoService {
     }
   }
 
-  public getBalance(): Observable<IBalance[]> {
+  public getBalance(): Observable<CurrencyBalance[]> {
     return this.http.get(`${backendPoint}/trading/balance`)
       .pipe(
         map((response: any) => JSON.parse(response)
-          .filter((currency: IBalance) =>
+          .filter((currency: CurrencyBalance) =>
             !!(this.requiredCurrencies.includes(currency.currency) || +currency.available || +currency.reserved)),
         ),
         tap(response => console.log(`Backend response getBalance: \n ${response}`)),

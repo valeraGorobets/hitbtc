@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { IBalance } from '../../services/money-manager.service';
+import { CurrencyBalance } from '../../models/CurrencyBalance';
 
 @Component({
   selector: 'currency',
@@ -7,7 +7,7 @@ import { IBalance } from '../../services/money-manager.service';
   styleUrls: ['./currency.component.less'],
 })
 export class CurrencyComponent {
-  @Input() public balance: IBalance;
+  @Input() public currencyBalance: CurrencyBalance;
   constructor() { }
 
 }

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { InjectableObservablesService } from '../../services/injectable-observables.service';
-import { IBalance } from '../../services/money-manager.service';
+import { CurrencyBalance } from '../../models/CurrencyBalance';
 
 @Component({
   selector: 'top-bar',
@@ -8,16 +8,16 @@ import { IBalance } from '../../services/money-manager.service';
   templateUrl: './top-bar.component.html',
 })
 export class TopBarComponent {
-  public balance: IBalance[] = [];
+  public balanceList: CurrencyBalance[] = [];
 
   constructor(
     private injectableObservables: InjectableObservablesService,
   ) {
-    injectableObservables.balance$.subscribe((balanceUpdate: IBalance[]) => this.handleBalanceUpdate(balanceUpdate));
+    injectableObservables.balance$.subscribe((balanceUpdate: CurrencyBalance[]) => this.handleBalanceUpdate(balanceUpdate));
   }
 
-  private handleBalanceUpdate(balance: IBalance[] ): void {
-    this.balance = balance;
+  private handleBalanceUpdate(balance: CurrencyBalance[] ): void {
+    this.balanceList = balance;
   }
 
 }

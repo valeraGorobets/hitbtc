@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { InjectableObservablesService } from './injectable-observables.service';
-import { IBalance } from './money-manager.service';
 import { HitBTCApi } from '../crypto-exchange-module/hitbtc-api.service';
+import { CurrencyBalance } from '../models/CurrencyBalance';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BalanceService {
-  private balanceList: IBalance[] = [];
+  private balanceList: CurrencyBalance[] = [];
 
   constructor(
     private injectableObservables: InjectableObservablesService,
@@ -24,10 +24,10 @@ export class BalanceService {
   }
 
   private onConfigUpdate(): void {
-    this.hitBTCApiService.getBalance().subscribe((balanceValues: IBalance[]) => this.updateBalanceList(balanceValues));
+    this.hitBTCApiService.getBalance().subscribe((balanceValues: CurrencyBalance[]) => this.updateBalanceList(balanceValues));
   }
 
-  public updateBalanceList(newBalance: IBalance[]): void {
+  public updateBalanceList(newBalance: CurrencyBalance[]): void {
     this.balanceList = newBalance.sort((value1, value2) => +value2.available - +value1.available);
     this.notifyAboutNewBalanceValue();
   }
