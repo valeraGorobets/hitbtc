@@ -12,13 +12,13 @@ import { AppRoutingModule } from './app-routing.module';
 import { InvestingModule } from '../investing-module/investing.module';
 
 import { AppComponent } from './app.component';
-import { ChartComponent } from './chart/chart.component';
-import { TradingViewComponent } from './trading-view/trading-view.component';
+import { ChartComponent } from '../components/chart/chart.component';
+import { TradingViewComponent } from '../components/trading-view/trading-view.component';
 
 import { InjectableObservablesService } from '../services/injectable-observables.service';
-import { OrderTableComponent } from './order-table/order-table.component';
-import { CurrencyComponent } from './currency/currency.component';
-import { TopBarComponent } from './top-bar/top-bar.component';
+import { OrderTableComponent } from '../components/order-table/order-table.component';
+import { CurrencyComponent } from '../components/currency/currency.component';
+import { TopBarComponent } from '../components/top-bar/top-bar.component';
 
 @NgModule({
   declarations: [
