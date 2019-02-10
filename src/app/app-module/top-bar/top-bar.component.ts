@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { InjectableObservables } from '../injectable-observables';
+import { InjectableObservablesService } from '../../services/injectable-observables.service';
 import { IBalance } from '../../services/money-manager.service';
 
 @Component({
@@ -11,7 +11,7 @@ export class TopBarComponent {
   public balance: IBalance[] = [];
 
   constructor(
-    private injectableObservables: InjectableObservables,
+    private injectableObservables: InjectableObservablesService,
   ) {
     injectableObservables.balance$.subscribe((balanceUpdate: IBalance[]) => this.handleBalanceUpdate(balanceUpdate));
   }

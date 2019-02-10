@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { InvestingService } from '../investing-module/investing.service';
 import { CandleService } from '../services/candle.service';
-import { InjectableObservables } from './injectable-observables';
+import { InjectableObservablesService } from '../services/injectable-observables.service';
 import { MoneyManagerService } from '../services/money-manager.service';
 import { AvailableStrategies } from '../investing-module/strategies/abstractStrategy';
+import { BalanceService } from '../services/balance.service';
 
 const defaultConfig = {
   availableSymbolsForInvesting: [
@@ -48,7 +49,8 @@ export class AppComponent {
     private investingService: InvestingService,
     private moneyManagerService: MoneyManagerService,
     private candleService: CandleService,
-    private injectableObservables: InjectableObservables,
+    private balanceService: BalanceService,
+    private injectableObservables: InjectableObservablesService,
     ) {
     this.injectableObservables.config$.next(this.config);
     this.config.availableSymbolsForInvesting.forEach(symbol => {

@@ -1,7 +1,7 @@
 import { Side } from '../../models/SharedConstants';
 import { MA } from '../indicators/ma';
 import { Candle } from '../../models/Candle';
-import { InjectableObservables } from '../../app-module/injectable-observables';
+import { InjectableObservablesService } from '../../services/injectable-observables.service';
 import { Strategy } from './abstractStrategy';
 import { IndicatorService } from '../../services/indicator.service';
 import { ISavedCandles } from '../../services/candle.service';
@@ -16,7 +16,7 @@ export class ThreeMAStrategy implements Strategy {
 
   constructor(
     private symbolID: string,
-    private injectableObservables: InjectableObservables,
+    private injectableObservables: InjectableObservablesService,
     private indicatorService: IndicatorService,
   ) {
     console.log('Strategy ThreeMAStrategy started');

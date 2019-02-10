@@ -15,7 +15,7 @@ import { AppComponent } from './app.component';
 import { ChartComponent } from './chart/chart.component';
 import { TradingViewComponent } from './trading-view/trading-view.component';
 
-import { InjectableObservables } from './injectable-observables';
+import { InjectableObservablesService } from '../services/injectable-observables.service';
 import { OrderTableComponent } from './order-table/order-table.component';
 import { CurrencyComponent } from './currency/currency.component';
 import { TopBarComponent } from './top-bar/top-bar.component';
@@ -37,7 +37,7 @@ import { TopBarComponent } from './top-bar/top-bar.component';
     InvestingModule,
     MatProgressBarModule, MatButtonModule, MatTableModule
   ],
-  providers: [InjectableObservables],
+  providers: [InjectableObservablesService],
   bootstrap: [AppComponent],
 })
 export class AppModule { }

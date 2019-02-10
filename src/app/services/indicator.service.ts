@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { InjectableObservables } from '../app-module/injectable-observables';
+import { InjectableObservablesService } from './injectable-observables.service';
 import { ScatterChartFormat } from '../models/ChartFormats/ScatterChartFormat';
 
 export interface IndicatorModel {
@@ -28,7 +28,7 @@ export class IndicatorService {
   public savedIndicators: IndicatorPlotModel = {};
 
   constructor(
-    private injectableObservables: InjectableObservables,
+    private injectableObservables: InjectableObservablesService,
   ) {}
 
   public handleIndicatorsUpdate(indicatorUpdateModel: IndicatorUpdateModel): void {

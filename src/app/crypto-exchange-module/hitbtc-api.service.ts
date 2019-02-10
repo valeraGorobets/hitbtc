@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { WSService } from '../../libs/ws.service';
 import { map, tap } from 'rxjs/operators';
 import { IBalance } from '../services/money-manager.service';
-import { InjectableObservables } from '../app-module/injectable-observables';
+import { InjectableObservablesService } from '../services/injectable-observables.service';
 import { Symbol } from '../models/Symbol';
 
 const socketURL = 'wss://api.hitbtc.com/api/2/ws';
@@ -26,7 +26,7 @@ export class HitBTCApi implements AbstractCryptoService {
 
   constructor(
       private http: HttpClient,
-      private injectableObservables: InjectableObservables,
+      private injectableObservables: InjectableObservablesService,
     ) {
     console.log('HitBTCApi working');
     this.injectableObservables.config$.subscribe((configUpdate: any) => {
