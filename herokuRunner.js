@@ -74,7 +74,7 @@ function makePrivateRequest(type, response, url, method = 'GET') {
   });
 }
 
-app.route('/backend/trading/currencyBalance').get((request, response) => {
+app.route('/backend/trading/balance').get((request, response) => {
   makePrivateRequest(0, response, `${apiURL}/trading/balance`);
 });
 
