@@ -5,22 +5,29 @@ import { HttpClientModule } from '@angular/common/http';
 import {
   MatProgressBarModule,
   MatButtonModule,
+  MatTableModule,
 } from '@angular/material/';
 
 import { AppRoutingModule } from './app-routing.module';
 import { InvestingModule } from '../investing-module/investing.module';
 
 import { AppComponent } from './app.component';
-import { ChartComponent } from './chart/chart.component';
-import { TradingViewComponent } from './trading-view/trading-view.component';
+import { ChartComponent } from '../components/chart/chart.component';
+import { TradingViewComponent } from '../components/trading-view/trading-view.component';
 
-import { InjectableObservables } from './injectable-observables';
+import { InjectableObservablesService } from '../services/injectable-observables.service';
+import { OrderTableComponent } from '../components/order-table/order-table.component';
+import { CurrencyComponent } from '../components/currency/currency.component';
+import { TopBarComponent } from '../components/top-bar/top-bar.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ChartComponent,
     TradingViewComponent,
+    OrderTableComponent,
+    CurrencyComponent,
+    TopBarComponent,
   ],
   imports: [
     BrowserModule,
@@ -28,9 +35,9 @@ import { InjectableObservables } from './injectable-observables';
     BrowserAnimationsModule,
     AppRoutingModule,
     InvestingModule,
-    MatProgressBarModule, MatButtonModule,
+    MatProgressBarModule, MatButtonModule, MatTableModule
   ],
-  providers: [InjectableObservables],
+  providers: [InjectableObservablesService],
   bootstrap: [AppComponent],
 })
 export class AppModule { }

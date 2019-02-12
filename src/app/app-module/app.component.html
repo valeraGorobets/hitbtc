@@ -1,23 +1,18 @@
 <div class="content">
-  <header>
-    <div class="align">
-      <h1 class="text-center">{{config.currentInvestingSymbol}}</h1>
-      <nav>
-        <a mat-raised-button routerLink="/trading" routerLinkActive="active">Trading</a>
-        <a mat-raised-button routerLink="/statistics" routerLinkActive="active">Statistics</a>
-      </nav>
-    </div>
-  </header>
+  <top-bar></top-bar>
   
   <!-- <mat-progress-bar mode="indeterminate"></mat-progress-bar> -->
   <!-- <router-outlet></router-outlet> -->
-  <trading-view *ngFor="let symbol of config.availableSymbolsForInvesting" [observableSymbol]="symbol.id"></trading-view>
+  <div class="main-view">
+    <div class="trading-view-container">
+      <trading-view *ngFor="let symbol of config.availableSymbolsForInvesting" [observableSymbol]="symbol.id"></trading-view>
+    </div>
+    <div class="right-column">
+      <order-table></order-table>
+    </div>
 
-  <button (click)="stopWatching()">Stop</button>
-  <button (click)="getBalance()">getBalance</button>
-  <button (click)="getHistoryOrder()">getHistoryOrder</button>
+    <!--<button (click)="stopWatching()">Stop</button>-->
+    <!--<button (click)="getBalance()">getBalance</button>-->
+    <!--<button (click)="getHistoryOrder()">getHistoryOrder</button>-->
+  </div>
 </div>
-
-<footer class="footer text-center">
-  <p>Copyright 2018</p>
-</footer>

@@ -3,13 +3,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { WSService } from '../../libs/ws.service';
-import { map } from 'rxjs/operators';
-import { IBalance } from '../services/money-manager.service';
-import { InjectableObservables } from '../app-module/injectable-observables';
+import { map, tap } from 'rxjs/operators';
+import { InjectableObservablesService } from '../services/injectable-observables.service';
 import { Symbol } from '../models/Symbol';
+import { CurrencyBalance } from '../models/CurrencyBalance';
 
 const socketURL = 'wss://api.hitbtc.com/api/2/ws';
-const backendPoint = 'http://localhost:8000/backend';
+const backendPoint = 'http://localhost:8080/backend';
 const restEndPoint = 'https://api.hitbtc.com/api/2/public';
 
 @Injectable({
@@ -26,7 +26,7 @@ export class HitBTCApi implements AbstractCryptoService {
 
   constructor(
       private http: HttpClient,
-      private injectableObservables: InjectableObservables,
+      private injectableObservables: InjectableObservablesService,
     ) {
     console.log('HitBTCApi working');
     this.injectableObservables.config$.subscribe((configUpdate: any) => {
@@ -63,11 +63,17 @@ export class HitBTCApi implements AbstractCryptoService {
   }
 
   public getSymbolDescription(symbol: string): Observable<any> {
-    return this.http.get(`${backendPoint}/symbol/${symbol}`);
+    return this.http.get(`${backendPoint}/symbol/${symbol}`)
+      .pipe(
+        tap(response => console.log(`Backend response getSymbolDescription: \n ${response}`)),
+      );
   }
 
   public getOrderbook(symbol: string): any {
-    return this.http.get(`${backendPoint}/getOrderbook/${symbol}`);
+    return this.http.get(`${backendPoint}/getOrderbook/${symbol}`)
+      .pipe(
+        tap(response => console.log(`Backend response getOrderbook: \n ${response}`)),
+      );
   }
 
   public onMessage(symbol: string): Observable<MessageEvent> {
@@ -82,13 +88,14 @@ export class HitBTCApi implements AbstractCryptoService {
     }
   }
 
-  public getBalance(): Observable<IBalance[]> {
+  public getBalance(): Observable<CurrencyBalance[]> {
     return this.http.get(`${backendPoint}/trading/balance`)
       .pipe(
         map((response: any) => JSON.parse(response)
-          .filter((currency: IBalance) =>
+          .filter((currency: CurrencyBalance) =>
             !!(this.requiredCurrencies.includes(currency.currency) || +currency.available || +currency.reserved)),
         ),
+        tap(response => console.log(`Backend response getBalance: \n ${response}`)),
       );
   }
 
@@ -96,6 +103,7 @@ export class HitBTCApi implements AbstractCryptoService {
     return this.http.get(`${backendPoint}/history/order`)
       .pipe(
         map((response: any) => JSON.parse(response)),
+        tap(response => console.log(`Backend response getHistoryOrder: \n ${response}`)),
       );
   }
 }

@@ -1,7 +1,7 @@
 import { first } from 'rxjs/operators';
 import { HitBTCApi } from '../crypto-exchange-module/hitbtc-api.service';
 import { Injectable } from '@angular/core';
-import { InjectableObservables } from '../app-module/injectable-observables';
+import { InjectableObservablesService } from '../services/injectable-observables.service';
 import { Orderbook } from '../models/Orderbook';
 import { Side } from '../models/SharedConstants';
 import { AvailableStrategies, Strategy } from './strategies/abstractStrategy';
@@ -19,9 +19,12 @@ export class InvestingService {
   private openedTrade = null;
   private money: number = 1000;
   private config: any = {};
+  private savedAdvice: {
+    [symbol: string]: IMoneyUpdate,
+  } = {};
 
   constructor(
-      private injectableObservables: InjectableObservables,
+      private injectableObservables: InjectableObservablesService,
       private indicatorService: IndicatorService,
       private hitBTCApiService: HitBTCApi,
     ) {
@@ -42,7 +45,14 @@ export class InvestingService {
   }
 
   private handleMoneyUpdate(moneyUpdate: IMoneyUpdate): void {
-    console.log(moneyUpdate);
+    if (!moneyUpdate.amount) {
+      return;
+    } else if (!this.savedAdvice[moneyUpdate.symbolID] ||
+      this.savedAdvice[moneyUpdate.symbolID].advisedResult !== moneyUpdate.advisedResult ||
+      +new Date(moneyUpdate.timestamp) !== +new Date(this.savedAdvice[moneyUpdate.symbolID].timestamp)) {
+        this.savedAdvice[moneyUpdate.symbolID] = moneyUpdate;
+        console.log(this.savedAdvice);
+    }
   }
 
   private createStrategyInstance(symbol: any): Strategy {
