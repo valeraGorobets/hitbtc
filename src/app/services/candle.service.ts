@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { InjectableObservables } from '../app-module/injectable-observables';
+import { InjectableObservablesService } from './injectable-observables.service';
 import { HitBTCApi } from '../crypto-exchange-module/hitbtc-api.service';
 import { Candle, NotificationCandle } from '../models/Candle';
 
@@ -16,7 +16,7 @@ export class CandleService {
   public count = {};
 
   constructor(
-    private injectableObservables: InjectableObservables,
+    private injectableObservables: InjectableObservablesService,
     private cryptoExchangeService: HitBTCApi,
   ) {}
 

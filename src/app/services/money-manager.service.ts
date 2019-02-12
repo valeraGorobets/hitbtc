@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { InjectableObservables } from '../app-module/injectable-observables';
+import { InjectableObservablesService } from './injectable-observables.service';
 import { Side } from '../models/SharedConstants';
 import { HitBTCApi } from '../crypto-exchange-module/hitbtc-api.service';
 import { Symbol } from '../models/Symbol';
 import { zip } from 'rxjs';
+import { CurrencyBalance } from '../models/CurrencyBalance';
 
 interface IActionUpdate {
   symbolID: string;
@@ -15,54 +16,51 @@ export interface IMoneyUpdate extends IActionUpdate{
   amount: number;
 }
 
-export interface IBalance {
-  currency: string;
-  available: string;
-  reserved: string;
-}
-
 @Injectable({
   providedIn: 'root',
 })
 
 export class MoneyManagerService {
   private config: any;
-  private balance: IBalance[] = [];
+  private balance: CurrencyBalance[] = [];
 
   constructor(
-    private injectableObservables: InjectableObservables,
+    private injectableObservables: InjectableObservablesService,
     private hitBTCApiService: HitBTCApi,
   ) {
     injectableObservables.strategyAction$.subscribe((actionUpdate: IActionUpdate) => this.handleActionUpdate(actionUpdate));
     injectableObservables.config$.subscribe((configUpdate: any) => this.handleConfigUpdate(configUpdate));
-    // setInterval(() => {
-    //   const newobj = this.balance;
-    //   let v = +newobj[4].available;
-    //   v += 1;
-    //   newobj[4].available = v.toString();
-    //   this.injectableObservables.balance$.next(newobj);
-    // }, 2000);
+    injectableObservables.balance$.subscribe((balance: CurrencyBalance[]) => this.handleBalanceUpdate(balance));
   }
 
   private handleActionUpdate(actionUpdate: IActionUpdate): void {
     if (actionUpdate.advisedResult !== Side.none) {
       this.injectableObservables.moneyAction$.next({
         ...actionUpdate,
-        amount: this.countAmountAvailableToPerform(actionUpdate, this.balance),
+        amount: this.countAmountAvailableToPerform(actionUpdate),
       });
     }
   }
 
-  private updateBalance(): void {
-    this.hitBTCApiService.getBalance().subscribe((balanceValues: IBalance[]) => {
-      console.log(balanceValues);
-      this.balance = balanceValues;
-      this.injectableObservables.balance$.next(balanceValues);
-    });
+  private countAmountAvailableToPerform(actionUpdate: IActionUpdate): number {
+    if (!this.balance.length) {
+      return 0;
+    }
+    switch (actionUpdate.advisedResult) {
+      case Side.buy:
+        return +this.balance.find(
+          (balance: CurrencyBalance) => balance.currency === this.config.symbolInfo[actionUpdate.symbolID].quoteCurrency,
+        ).available;
+      case Side.sell:
+        return +this.balance.find(
+          (balance: CurrencyBalance) => balance.currency === this.config.symbolInfo[actionUpdate.symbolID].baseCurrency,
+        ).available;
+      default:
+        return 0;
+    }
   }
 
   private handleConfigUpdate(configUpdate: any): void {
-    this.updateBalance();
     this.config = configUpdate;
     const arrayOfRequests = configUpdate.availableSymbolsForInvesting.map(symbol => {
       if (configUpdate.symbolInfo[symbol.id]) {
@@ -83,18 +81,7 @@ export class MoneyManagerService {
     });
   }
 
-  private countAmountAvailableToPerform(actionUpdate: IActionUpdate, balanceValues: IBalance[]): number {
-    switch (actionUpdate.advisedResult) {
-      case Side.buy:
-        return +balanceValues.find(
-          (balance: IBalance) => balance.currency === this.config.symbolInfo[actionUpdate.symbolID].quoteCurrency,
-        ).available;
-      case Side.sell:
-        return +balanceValues.find(
-          (balance: IBalance) => balance.currency === this.config.symbolInfo[actionUpdate.symbolID].baseCurrency,
-        ).available;
-      default:
-        return 0;
-    }
+  private handleBalanceUpdate(balance: CurrencyBalance[]): void {
+    this.balance = balance;
   }
 }

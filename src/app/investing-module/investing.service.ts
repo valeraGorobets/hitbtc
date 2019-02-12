@@ -1,7 +1,7 @@
 import { first } from 'rxjs/operators';
 import { HitBTCApi } from '../crypto-exchange-module/hitbtc-api.service';
 import { Injectable } from '@angular/core';
-import { InjectableObservables } from '../app-module/injectable-observables';
+import { InjectableObservablesService } from '../services/injectable-observables.service';
 import { Orderbook } from '../models/Orderbook';
 import { Side } from '../models/SharedConstants';
 import { AvailableStrategies, Strategy } from './strategies/abstractStrategy';
@@ -24,7 +24,7 @@ export class InvestingService {
   } = {};
 
   constructor(
-      private injectableObservables: InjectableObservables,
+      private injectableObservables: InjectableObservablesService,
       private indicatorService: IndicatorService,
       private hitBTCApiService: HitBTCApi,
     ) {

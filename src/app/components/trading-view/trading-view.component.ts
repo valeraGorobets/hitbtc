@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { Candle } from '../../models/Candle';
 import { ChartFormat } from '../../models/ChartFormats/ChartFormat';
 import { CandlesChartFormat } from '../../models/ChartFormats/CandlesChartFormat';
-import { InjectableObservables } from '../injectable-observables';
+import { InjectableObservablesService } from '../../services/injectable-observables.service';
 import { IndicatorPlotModel } from '../../services/indicator.service';
 import { ISavedCandles } from '../../services/candle.service';
 import { ScatterChartFormat } from '../../models/ChartFormats/ScatterChartFormat';
@@ -24,7 +24,7 @@ export class TradingViewComponent {
   public plots: ChartFormat[] = [];
 
   constructor(
-    injectableObservables: InjectableObservables,
+    injectableObservables: InjectableObservablesService,
   ) {
     injectableObservables.candles$.subscribe(
       (candlesUpdate: ISavedCandles) => this.handleCandlesUpdate(candlesUpdate),
@@ -74,6 +74,6 @@ export class TradingViewComponent {
   }
 
   private handleOnComplete(): void {
-    console.log('InjectableObservables onCompleted');
+    console.log('InjectableObservablesService onCompleted');
   }
 }
