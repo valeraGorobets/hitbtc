@@ -1,7 +1,32 @@
 const express = require('express');
-const path = require('path');
+// const path = require('path');
 const request = require('request');
-const keys = require('./backend/keys');
+const keys = {
+  "mapping": {
+    "0": "Order book, History, Trading balance",
+    "1": "Place/cancel orders",
+    "2": "Payment information",
+    "3": "Withdraw cryptocurrencies"
+  },
+  "values": {
+    "Order book, History, Trading balance": {
+      "api": "be1fa2f8fe7f45fafcb096f0c1804946",
+      "secret": "a44aa0ee368d231b3da5025ac97124db"
+    },
+    "Place/cancel orders": {
+      "api": "b9be008b89e6185a86c2661fb2ce34ba",
+      "secret": "563ae92cf74bbf262685f346915ab91f"
+    },
+    "Payment information": {
+      "api": "a1c4ba1425114a0c97822a82b7cb314e",
+      "secret": "0bcf226bf4d7c9378e8a5d63d8905e77"
+    },
+    "Withdraw cryptocurrencies": {
+      "api": "be1fa2f8fe7f45fafcb096f0c1804946",
+      "secret": "8e2bec9c5f631ff812784137f29ea898"
+    }
+  }
+};
 
 const apiURL = 'https://api.hitbtc.com/api/2';
 
