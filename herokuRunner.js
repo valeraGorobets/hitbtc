@@ -36,12 +36,12 @@ function getKeysById(id) {
   return keys.values[keys.mapping[id.toString()]];
 }
 
-// app.all("/*", function(request, response, next) {
-//   response.header("Access-Control-Allow-Origin", "*");
-//   response.header("Access-Control-Allow-Headers", "Cache-Control, Pragma, Origin, Authorization, Content-Type, X-Requested-With");
-//   response.header("Access-Control-Allow-Methods", "GET, PUT, POST");
-//   return next();
-// });
+app.all("/*", function(request, response, next) {
+  response.header("Access-Control-Allow-Origin", "*");
+  response.header("Access-Control-Allow-Headers", "Cache-Control, Pragma, Origin, Authorization, Content-Type, X-Requested-With");
+  response.header("Access-Control-Allow-Methods", "GET, PUT, POST");
+  return next();
+});
 
 app.use(express.static(__dirname + '/dist/'));
 
