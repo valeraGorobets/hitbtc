@@ -1,4 +1,5 @@
 const express = require('express');
+const bodyParser = require("body-parser");
 // const path = require('path');
 const request = require('request');
 const keys = {
@@ -31,6 +32,7 @@ const keys = {
 const apiURL = 'https://api.hitbtc.com/api/2';
 
 const app = express();
+app.use(bodyParser.json());
 
 function getKeysById(id) {
   return keys.values[keys.mapping[id.toString()]];
@@ -52,6 +54,8 @@ app.use(express.static(__dirname + '/dist/'));
 
 app.listen(process.env.PORT || 8080, () => {
   console.log('Server started!');
+  console.log(process.env);
+  console.log(process.env.NODE_ENV);
 });
 
 function makePublicRequest(response, url, method = 'GET') {

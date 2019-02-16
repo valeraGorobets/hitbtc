@@ -67,7 +67,7 @@ var AppRoutingModule = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"content\">\r\n  <top-bar></top-bar>\r\n  \r\n  <!-- <mat-progress-bar mode=\"indeterminate\"></mat-progress-bar> -->\r\n  <!-- <router-outlet></router-outlet> -->\r\n  <div class=\"main-view\">\r\n    <div class=\"trading-view-container\">\r\n      <trading-view *ngFor=\"let symbol of config.availableSymbolsForInvesting\" [observableSymbol]=\"symbol.id\"></trading-view>\r\n    </div>\r\n    <div class=\"right-column\">\r\n      <order-table></order-table>\r\n    </div>\r\n\r\n    <!--<button (click)=\"stopWatching()\">Stop</button>-->\r\n    <!--<button (click)=\"getBalance()\">getBalance</button>-->\r\n    <!--<button (click)=\"getHistoryOrder()\">getHistoryOrder</button>-->\r\n  </div>\r\n</div>\r\n"
+module.exports = "<div class=\"content\">\r\n  <top-bar></top-bar>\r\n  \r\n  <!-- <mat-progress-bar mode=\"indeterminate\"></mat-progress-bar> -->\r\n  <!-- <router-outlet></router-outlet> -->\r\n  <div class=\"main-view\">\r\n    <div class=\"trading-view-container\">\r\n      <trading-view *ngFor=\"let symbol of config.availableSymbolsForInvesting\" [observableSymbol]=\"symbol.id\"></trading-view>\r\n    </div>\r\n    <div class=\"right-column\">\r\n      <button (click)=\"stopWatching()\">Stop</button>\r\n      <button (click)=\"getBalance()\">getBalance</button>\r\n      <button (click)=\"getHistoryOrder()\">getHistoryOrder</button>\r\n      <order-table></order-table>\r\n    </div>\r\n  </div>\r\n</div>\r\n"
 
 /***/ }),
 
