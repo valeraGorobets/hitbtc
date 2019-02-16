@@ -119,25 +119,25 @@ export class InvestingService {
     return true;
   }
 
-  public stopWatching(): void {
-    this.hitBTCApiService.closeConnection();
-  }
-
-  public getBalance(): void {
-    this.hitBTCApiService.getBalance().subscribe(res => {
-      console.log(res);
-    });
-  }
-
-  public getBalance2(): void {
-    this.hitBTCApiService.getBalance2().subscribe(res => {
-      console.log(res);
-    });
-  }
-
-  public getHistoryOrder(): void {
-    this.hitBTCApiService.getHistoryOrder().subscribe(res => {
-      console.log(res);
-    });
-  }
+  // public stopWatching(): void {
+  //   this.hitBTCApiService.closeConnection();
+  // }
+  //
+  // public getBalance(): void {
+  //   this.hitBTCApiService.getBalance().subscribe(res => {
+  //     console.log(res);
+  //   });
+  // }
+  //
+  // public getBalance2(): void {
+  //   this.hitBTCApiService.getBalance2().subscribe(res => {
+  //     console.log(res);
+  //   });
+  // }
+  //
+  // public getHistoryOrder(): void {
+  //   this.hitBTCApiService.getHistoryOrder().subscribe(res => {
+  //     console.log(res);
+  //   });
+  // }
 }

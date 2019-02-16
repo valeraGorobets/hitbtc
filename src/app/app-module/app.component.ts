@@ -59,19 +59,19 @@ export class AppComponent {
     this.injectableObservables.config$.subscribe((configUpdate: any) => this.config = {...this.config, ...configUpdate});
   }
 
-  public stopWatching(): void {
-    this.investingService.stopWatching();
-  }
-
-  public getBalance(): void {
-    this.investingService.getBalance();
-  }
-
-  public getBalance2(): void {
-    this.investingService.getBalance2();
-  }
-
-  public getHistoryOrder(): void {
-    this.investingService.getHistoryOrder();
-  }
+  // public stopWatching(): void {
+  //   this.investingService.stopWatching();
+  // }
+  //
+  // public getBalance(): void {
+  //   this.investingService.getBalance();
+  // }
+  //
+  // public getBalance2(): void {
+  //   this.investingService.getBalance2();
+  // }
+  //
+  // public getHistoryOrder(): void {
+  //   this.investingService.getHistoryOrder();
+  // }
 }

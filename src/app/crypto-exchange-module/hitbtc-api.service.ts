@@ -10,7 +10,6 @@ import { CurrencyBalance } from '../models/CurrencyBalance';
 
 const socketURL = 'wss://api.hitbtc.com/api/2/ws';
 const backendPoint = 'http://localhost:8080/backend';
-const restEndPoint = 'https://api.hitbtc.com/api/2/public';
 
 @Injectable({
   providedIn: 'root',
@@ -63,17 +62,11 @@ export class HitBTCApi implements AbstractCryptoService {
   }
 
   public getSymbolDescription(symbol: string): Observable<any> {
-    return this.http.get(`${backendPoint}/symbol/${symbol}`)
-      .pipe(
-        tap(response => console.log(`Backend response getSymbolDescription: \n ${response}`)),
-      );
+    return this.http.get(`${backendPoint}/symbol/${symbol}`);
   }
 
   public getOrderbook(symbol: string): any {
-    return this.http.get(`${backendPoint}/getOrderbook/${symbol}`)
-      .pipe(
-        tap(response => console.log(`Backend response getOrderbook: \n ${response}`)),
-      );
+    return this.http.get(`${backendPoint}/getOrderbook/${symbol}`);
   }
 
   public onMessage(symbol: string): Observable<MessageEvent> {
@@ -91,29 +84,35 @@ export class HitBTCApi implements AbstractCryptoService {
   public getBalance(): Observable<CurrencyBalance[]> {
     return this.http.get(`${backendPoint}/trading/balance`)
       .pipe(
-        map((response: any) => JSON.parse(response)
-          .filter((currency: CurrencyBalance) =>
-            !!(this.requiredCurrencies.includes(currency.currency) || +currency.available || +currency.reserved)),
+        map((response: any) => {
+          const parsed = JSON.parse(response);
+          if (!parsed.error) {
+            return parsed.filter((currency: CurrencyBalance) =>
+              !!(this.requiredCurrencies.includes(currency.currency) || +currency.available || +currency.reserved));
+          } else {
+            throw new Error(`Code: ${parsed.error.code}, message: ${parsed.error.message}`);
+          }
+          },
         ),
         tap(response => console.log(`Backend response getBalance: \n ${response}`)),
       );
   }
-  public getBalance2(): Observable<CurrencyBalance[]> {
-    return this.http.get('https://mercury-labs.herokuapp.com/backend/trading/balance')
-      .pipe(
-        map((response: any) => JSON.parse(response)
-          .filter((currency: CurrencyBalance) =>
-            !!(this.requiredCurrencies.includes(currency.currency) || +currency.available || +currency.reserved)),
-        ),
-        tap(response => console.log(`Backend response getBalance: \n ${response}`)),
-      );
-  }
-
-  public getHistoryOrder(): any {
-    return this.http.get(`${backendPoint}/history/order`)
-      .pipe(
-        map((response: any) => JSON.parse(response)),
-        tap(response => console.log(`Backend response getHistoryOrder: \n ${response}`)),
-      );
-  }
+  // public getBalance2(): Observable<CurrencyBalance[]> {
+  //   return this.http.get('https://mercury-labs.herokuapp.com/backend/trading/balance')
+  //     .pipe(
+  //       map((response: any) => JSON.parse(response)
+  //         .filter((currency: CurrencyBalance) =>
+  //           !!(this.requiredCurrencies.includes(currency.currency) || +currency.available || +currency.reserved)),
+  //       ),
+  //       tap(response => console.log(`Backend response getBalance: \n ${response}`)),
+  //     );
+  // }
+  //
+  // public getHistoryOrder(): any {
+  //   return this.http.get(`${backendPoint}/history/order`)
+  //     .pipe(
+  //       map((response: any) => JSON.parse(response)),
+  //       tap(response => console.log(`Backend response getHistoryOrder: \n ${response}`)),
+  //     );
+  // }
 }
