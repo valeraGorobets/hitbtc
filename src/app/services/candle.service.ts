@@ -28,11 +28,9 @@ export class CandleService {
       .subscribe((message: any) => {
         switch (message.method) {
           case 'snapshotCandles':
-            console.log('snapshotCandles');
             this.savedCandles[message.params.symbol] = [...message.params.data];
             break;
           case 'updateCandles':
-            //console.log(`${symbol} - updateCandles - ${this.count[symbol]++}`);
             this.updateSavedCandles(message);
             break;
           default:

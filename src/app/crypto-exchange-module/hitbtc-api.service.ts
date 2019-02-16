@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { WSService } from '../../libs/ws.service';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { InjectableObservablesService } from '../services/injectable-observables.service';
 import { Symbol } from '../models/Symbol';
 import { CurrencyBalance } from '../models/CurrencyBalance';
@@ -94,7 +94,6 @@ export class HitBTCApi implements AbstractCryptoService {
           }
           },
         ),
-        tap(response => console.log(`Backend response getBalance: \n ${response}`)),
       );
   }
   // public getBalance2(): Observable<CurrencyBalance[]> {
