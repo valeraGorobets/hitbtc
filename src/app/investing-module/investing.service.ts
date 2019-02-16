@@ -129,6 +129,12 @@ export class InvestingService {
     });
   }
 
+  public getBalance2(): void {
+    this.hitBTCApiService.getBalance2().subscribe(res => {
+      console.log(res);
+    });
+  }
+
   public getHistoryOrder(): void {
     this.hitBTCApiService.getHistoryOrder().subscribe(res => {
       console.log(res);

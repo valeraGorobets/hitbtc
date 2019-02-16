@@ -98,6 +98,16 @@ export class HitBTCApi implements AbstractCryptoService {
         tap(response => console.log(`Backend response getBalance: \n ${response}`)),
       );
   }
+  public getBalance2(): Observable<CurrencyBalance[]> {
+    return this.http.get('https://mercury-labs.herokuapp.com/backend/trading/balance')
+      .pipe(
+        map((response: any) => JSON.parse(response)
+          .filter((currency: CurrencyBalance) =>
+            !!(this.requiredCurrencies.includes(currency.currency) || +currency.available || +currency.reserved)),
+        ),
+        tap(response => console.log(`Backend response getBalance: \n ${response}`)),
+      );
+  }
 
   public getHistoryOrder(): any {
     return this.http.get(`${backendPoint}/history/order`)

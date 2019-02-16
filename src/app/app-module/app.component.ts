@@ -67,6 +67,10 @@ export class AppComponent {
     this.investingService.getBalance();
   }
 
+  public getBalance2(): void {
+    this.investingService.getBalance2();
+  }
+
   public getHistoryOrder(): void {
     this.investingService.getHistoryOrder();
   }
