@@ -2,7 +2,7 @@ import { first } from 'rxjs/operators';
 import { HitBTCApi } from '../crypto-exchange-module/hitbtc-api.service';
 import { Injectable } from '@angular/core';
 import { InjectableObservablesService } from '../services/injectable-observables.service';
-import { Orderbook } from '../models/Orderbook';
+import { IOrderbook } from '../models/IOrderbook';
 import { Side } from '../models/SharedConstants';
 import { AvailableStrategies, Strategy } from './strategies/abstractStrategy';
 import { ThreeMAStrategy } from './strategies/ThreeMA.strategy';
@@ -33,7 +33,6 @@ export class InvestingService {
     this.injectableObservables.config$
       .pipe(first())
       .subscribe((config: any) => this.handleConfigUpdate(config));
-    this.injectableObservables.positionAction$.subscribe((actionUpdate: any) => this.handleActionUpdate(actionUpdate));
     this.injectableObservables.moneyAction$.subscribe((moneyUpdate: any) => this.handleMoneyUpdate(moneyUpdate));
   }
 
@@ -45,9 +44,11 @@ export class InvestingService {
   }
 
   private handleMoneyUpdate(moneyUpdate: IMoneyUpdate): void {
+    console.log(moneyUpdate);
     if (!moneyUpdate.amount) {
       return;
-    } else if (!this.savedAdvice[moneyUpdate.symbolID] ||
+    } else if (
+      !this.savedAdvice[moneyUpdate.symbolID] ||
       this.savedAdvice[moneyUpdate.symbolID].advisedResult !== moneyUpdate.advisedResult ||
       +new Date(moneyUpdate.timestamp) !== +new Date(this.savedAdvice[moneyUpdate.symbolID].timestamp)) {
         this.savedAdvice[moneyUpdate.symbolID] = moneyUpdate;
@@ -69,7 +70,7 @@ export class InvestingService {
     // console.log(action);
     this.hitBTCApiService.getOrderbook(this.config.investingSymbol).pipe(
       first(),
-    ).subscribe((orderbook: Orderbook) => {
+    ).subscribe((orderbook: IOrderbook) => {
       console.log(orderbook);
       if (action.side === Side.buy && !this.openedTrade && !this.actualOpenTime) {
         this.actualOpenTime = new Date(action.time);

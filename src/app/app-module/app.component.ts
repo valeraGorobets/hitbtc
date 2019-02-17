@@ -5,6 +5,8 @@ import { InjectableObservablesService } from '../services/injectable-observables
 import { MoneyManagerService } from '../services/money-manager.service';
 import { AvailableStrategies } from '../investing-module/strategies/abstractStrategy';
 import { BalanceService } from '../services/balance.service';
+import {HitBTCApi} from '../crypto-exchange-module/hitbtc-api.service';
+import {Order} from '../models/Order';
 
 const defaultConfig = {
   availableSymbolsForInvesting: [
@@ -51,6 +53,7 @@ export class AppComponent {
     private candleService: CandleService,
     private balanceService: BalanceService,
     private injectableObservables: InjectableObservablesService,
+    private hitBTCApiService: HitBTCApi,
     ) {
     this.injectableObservables.config$.next(this.config);
     this.config.availableSymbolsForInvesting.forEach(symbol => {
@@ -74,4 +77,18 @@ export class AppComponent {
   // public getHistoryOrder(): void {
   //   this.investingService.getHistoryOrder();
   // }
+  public placeOrder(): void {
+    // const { symbol, side, type, timeInForce, quantity, price } = request.body;
+    console.log('placing order');
+    this.hitBTCApiService.placeNewOrder({
+      symbol: 'ETHUSD',
+      side: 'buy',
+      type: 'limit',
+      timeInForce: 'GTC',
+      quantity: '0.0001',
+      price: '1',
+    }).subscribe((res: Order) => {
+      console.log(res);
+    });
+  }
 }

@@ -7,6 +7,7 @@ import { map } from 'rxjs/operators';
 import { InjectableObservablesService } from '../services/injectable-observables.service';
 import { Symbol } from '../models/Symbol';
 import { CurrencyBalance } from '../models/CurrencyBalance';
+import { INewOrder } from '../models/Order';
 
 const socketURL = 'wss://api.hitbtc.com/api/2/ws';
 const backendPoint = 'http://localhost:8080/backend';
@@ -95,6 +96,10 @@ export class HitBTCApi implements AbstractCryptoService {
           },
         ),
       );
+  }
+
+  public placeNewOrder(order: INewOrder): Observable<any> {
+    return this.http.post(`${backendPoint}/order`, order);
   }
   // public getBalance2(): Observable<CurrencyBalance[]> {
   //   return this.http.get('https://mercury-labs.herokuapp.com/backend/trading/balance')

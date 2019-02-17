@@ -51,7 +51,7 @@ app.route('/backend/symbol/:symbol').get((request, response) => {
   makePublicRequest(response, url);
 });
 
-function makePrivateRequest(type, response, url, method = 'GET') {
+function makePrivateRequest(type, response, url, method = 'GET', body) {
   console.log(`Private: ${url}`);
   const {api, secret} = getKeysById(type);
   request({
@@ -60,7 +60,8 @@ function makePrivateRequest(type, response, url, method = 'GET') {
     auth: {
       'user': api,
       'pass': secret
-    }
+    },
+    json: body,
   }, function (error, res, body) {
     if (!error) {
       response.status(200).send(JSON.stringify(body));
@@ -78,4 +79,7 @@ app.route('/backend/history/order').get((request, response) => {
   makePrivateRequest(0, response, `${apiURL}/history/order`);
 });
 
+app.route('/backend/order').post((request, response) => {
+  makePrivateRequest(1, response, `${apiURL}/order`, 'POST', request.body);
+});
 
