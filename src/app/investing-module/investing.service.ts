@@ -44,7 +44,7 @@ export class InvestingService {
   }
 
   private handleMoneyUpdate(moneyUpdate: IMoneyUpdate): void {
-    console.log(moneyUpdate);
+    // console.log(moneyUpdate);
     if (!moneyUpdate.amount) {
       return;
     } else if (

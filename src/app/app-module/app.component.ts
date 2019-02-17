@@ -5,8 +5,8 @@ import { InjectableObservablesService } from '../services/injectable-observables
 import { MoneyManagerService } from '../services/money-manager.service';
 import { AvailableStrategies } from '../investing-module/strategies/abstractStrategy';
 import { BalanceService } from '../services/balance.service';
-import {HitBTCApi} from '../crypto-exchange-module/hitbtc-api.service';
-import {Order} from '../models/Order';
+import { HitBTCApi } from '../crypto-exchange-module/hitbtc-api.service';
+import { Order } from '../models/Order';
 
 const defaultConfig = {
   availableSymbolsForInvesting: [
@@ -48,12 +48,12 @@ export class AppComponent {
   public config: any = {...defaultConfig};
 
   constructor(
+    private hitBTCApiService: HitBTCApi,
     private investingService: InvestingService,
     private moneyManagerService: MoneyManagerService,
     private candleService: CandleService,
     private balanceService: BalanceService,
     private injectableObservables: InjectableObservablesService,
-    private hitBTCApiService: HitBTCApi,
     ) {
     this.injectableObservables.config$.next(this.config);
     this.config.availableSymbolsForInvesting.forEach(symbol => {
@@ -90,5 +90,15 @@ export class AppComponent {
     }).subscribe((res: Order) => {
       console.log(res);
     });
+  }
+
+  public getww(): void {
+    this.hitBTCApiService.getOrders();
+    this.hitBTCApiService.onMessage('getOrders').subscribe((msg2: any) => console.log(msg2));
+  }
+
+  public subscribeReports(): void {
+    this.hitBTCApiService.subscribeReports();
+    this.hitBTCApiService.onMessage('subscribeReports').subscribe((msg2: any) => console.log(msg2));
   }
 }

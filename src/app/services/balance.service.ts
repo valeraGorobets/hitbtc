@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import { InjectableObservablesService } from './injectable-observables.service';
 import { HitBTCApi } from '../crypto-exchange-module/hitbtc-api.service';
 import { CurrencyBalance } from '../models/CurrencyBalance';
+import { combineLatest } from 'rxjs';
+import { filter } from 'rxjs/operators';
+import { Symbol } from '../models/Symbol';
 
 @Injectable({
   providedIn: 'root',
@@ -13,18 +16,26 @@ export class BalanceService {
     private injectableObservables: InjectableObservablesService,
     private hitBTCApiService: HitBTCApi,
   ) {
-    this.injectableObservables.config$.subscribe(() => this.onConfigUpdate());
-    // setInterval(() => {
-    //   const newobj = this.balanceList;
-    //   let v = +newobj[4].available;
-    //   v += 1;
-    //   newobj[4].available = v.toString();
-    //   this.updateBalanceList(newobj);
-    // }, 2000);
+    setTimeout(() => this.subscribeGetTradingBalance(), 5000);
   }
 
-  private onConfigUpdate(): void {
-    this.hitBTCApiService.getBalance().subscribe((balanceValues: CurrencyBalance[]) => this.updateBalanceList(balanceValues));
+  private subscribeGetTradingBalance(): void {
+    this.hitBTCApiService.subscribeGetTradingBalance();
+
+    combineLatest(
+      this.injectableObservables.config$,
+      this.hitBTCApiService.onMessage('getTradingBalance'),
+    ).pipe(
+      filter(([_config, balance]) => Array.isArray((balance as any).result)),
+    ).subscribe(([config, balance]) => {
+      const requiredCurrencies = Object.values((config as any).symbolInfo)
+        .reduce((array: string[], symbolInfo: Symbol ) => [...array, symbolInfo.baseCurrency, symbolInfo.quoteCurrency], []) as any[];
+      const balanceValues = (balance as any).result.filter((currency: CurrencyBalance) =>
+        !!(requiredCurrencies.includes(currency.currency) || +currency.available || +currency.reserved));
+      console.log('updateBalanceList');
+      console.log(balanceValues);
+      this.updateBalanceList(balanceValues);
+    });
   }
 
   public updateBalanceList(newBalance: CurrencyBalance[]): void {
