@@ -15,6 +15,7 @@ export class OrderTableComponent implements OnInit {
   public isDataLoading = true;
 
   @ViewChild(MatPaginator) public paginator: MatPaginator;
+  public justUpdated: boolean = false;
 
   constructor(
     private injectableObservables: InjectableObservablesService,
@@ -30,7 +31,9 @@ export class OrderTableComponent implements OnInit {
     if (this.isDataLoading) {
       this.isDataLoading = false;
     }
+    this.justUpdated = true;
     this.dataSource = new MatTableDataSource<Report>(reportUpdate);
+    setTimeout(() => this.justUpdated = false, 5000);
   }
 }
 //   {
