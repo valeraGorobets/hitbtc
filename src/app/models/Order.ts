@@ -1,23 +1,13 @@
+import { CommonPositionFields } from './Report';
+
 export type TSide = 'sell' | 'buy';
 export type TType = 'limit' | 'market' | 'stopLimit' | 'stopMarket';
 export type TTimeInForce = 'GTC' | 'IOC' | 'FOK' | 'Day' | 'GTD';
 export type TStatus = 'new' | 'suspended' | 'partiallyFilled' | 'filled' | 'canceled' | 'expired';
 
-export class Order {
+export class Order extends CommonPositionFields {
   public id: number;
-  public clientOrderId: string;
-  public symbol: string;
-  public side: TSide;
-  public status: TStatus;
-  public type: TType;
-  public timeInForce: TTimeInForce;
-  public quantity: string;
-  public price:	string;
-  public cumQuantity: string;
-  public createdAt:	string;
-  public updatedAt:	string;
   public stopPrice:	string;
-  public postOnly: boolean;
   public expireTime: string;
 }
 

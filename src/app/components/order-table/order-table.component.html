@@ -1,6 +1,10 @@
 <div class="mat-elevation-z8">
   <table mat-table [dataSource]="dataSource">
-    <ng-container matColumnDef="{{column}}" *ngFor="let column of displayedColumns">
+    <ng-container matColumnDef="updatedAt">
+      <th mat-header-cell *matHeaderCellDef> Updated At </th>
+      <td mat-cell *matCellDef="let element"> {{element.updatedAt | date:'hh:mm:ss'}} </td>
+    </ng-container>
+    <ng-container matColumnDef="{{column}}" *ngFor="let column of dataColumns">
       <th mat-header-cell *matHeaderCellDef> {{column | titlecase}} </th>
       <td mat-cell *matCellDef="let element"> {{element[column]}} </td>
     </ng-container>

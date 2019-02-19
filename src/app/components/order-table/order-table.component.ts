@@ -9,7 +9,8 @@ import { InjectableObservablesService } from './../../services/injectable-observ
   styleUrls: ['./order-table.component.less'],
 })
 export class OrderTableComponent implements OnInit {
-  public displayedColumns: string[] = ['symbol', 'createdAt', 'id', 'price', 'quantity', 'side', 'status'];
+  public dataColumns: string[] = ['symbol', 'id', 'price', 'quantity', 'side', 'status'];
+  public displayedColumns: string[] = ['updatedAt', ...this.dataColumns];
   public dataSource = new MatTableDataSource<Report>([]);
   public isDataLoading = true;
 

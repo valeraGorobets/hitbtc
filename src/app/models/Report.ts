@@ -1,7 +1,6 @@
 import { TSide, TStatus, TType, TTimeInForce } from './Order';
 
-export class Report {
-  public id: string;
+export class CommonPositionFields {
   public clientOrderId: string;
   public symbol: string;
   public side: TSide;
@@ -11,8 +10,12 @@ export class Report {
   public quantity: string;
   public price: string;
   public cumQuantity: string;
-  public createdAt: string;
-  public updatedAt: string;
+  public createdAt: string | Date;
+  public updatedAt: string | Date;
   public postOnly: boolean;
+}
+
+export class Report extends CommonPositionFields {
+  public id: string;
   public reportType: string;
 }
