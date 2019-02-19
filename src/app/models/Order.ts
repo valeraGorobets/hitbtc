@@ -1,23 +1,24 @@
-type TSide = 'sell' | 'buy';
-type TType = 'limit' | 'market' | 'stopLimit' | 'stopMarket';
-type TTimeInForce = 'GTC' | 'IOC' | 'FOK' | 'Day' | 'GTD';
+export type TSide = 'sell' | 'buy';
+export type TType = 'limit' | 'market' | 'stopLimit' | 'stopMarket';
+export type TTimeInForce = 'GTC' | 'IOC' | 'FOK' | 'Day' | 'GTD';
+export type TStatus = 'new' | 'suspended' | 'partiallyFilled' | 'filled' | 'canceled' | 'expired';
 
 export class Order {
   public id: number;
   public clientOrderId: string;
   public symbol: string;
   public side: TSide;
-  public status: 'new' | 'suspended' | 'partiallyFilled' | 'filled' | 'canceled' | 'expired';
+  public status: TStatus;
   public type: TType;
   public timeInForce: TTimeInForce;
-  public quantity:	string;
+  public quantity: string;
   public price:	string;
-  public cumQuantity:	string;
+  public cumQuantity: string;
   public createdAt:	string;
   public updatedAt:	string;
   public stopPrice:	string;
-  public postOnly:	boolean;
-  public expireTime:	string;
+  public postOnly: boolean;
+  public expireTime: string;
 }
 
 export interface INewOrder {

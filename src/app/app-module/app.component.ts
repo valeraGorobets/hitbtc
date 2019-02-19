@@ -5,6 +5,7 @@ import { InjectableObservablesService } from '../services/injectable-observables
 import { MoneyManagerService } from '../services/money-manager.service';
 import { AvailableStrategies } from '../investing-module/strategies/abstractStrategy';
 import { BalanceService } from '../services/balance.service';
+import { ReportService } from '../services/report.service';
 import { HitBTCApi } from '../crypto-exchange-module/hitbtc-api.service';
 import { Order } from '../models/Order';
 
@@ -53,6 +54,7 @@ export class AppComponent {
     private moneyManagerService: MoneyManagerService,
     private candleService: CandleService,
     private balanceService: BalanceService,
+    private reportService: ReportService,
     private injectableObservables: InjectableObservablesService,
     ) {
     this.injectableObservables.config$.next(this.config);
