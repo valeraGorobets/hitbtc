@@ -3,5 +3,10 @@ table {
 }
 
 .glow {
-  box-shadow: 0 5px 5px -3px rgba(0,0,0,1), 0 8px 10px 1px rgba(255,0,0,1), 0 3px 14px 2px rgba(0,0,0,1);
+  animation: glowingAnimation 2s infinite;
+}
+
+@-webkit-keyframes glowingAnimation {
+  0%  { box-shadow: 0 0 10px 4px rgba(182,24,39,0.1); }
+  50% { box-shadow: 0 0 10px 4px rgba(182,24,39,1); }
 }
