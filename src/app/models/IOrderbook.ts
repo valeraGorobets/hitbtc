@@ -1,4 +1,9 @@
+export interface IOrderbookTick {
+  price: string;
+  size: string;
+}
+
 export interface IOrderbook {
-  bid: { price: string, size: string }[];
-  ask: { price: string, size: string }[];
+  bid: IOrderbookTick[];
+  ask: IOrderbookTick[];
 }

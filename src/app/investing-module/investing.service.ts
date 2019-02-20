@@ -2,12 +2,13 @@ import { first } from 'rxjs/operators';
 import { HitBTCApi } from '../crypto-exchange-module/hitbtc-api.service';
 import { Injectable } from '@angular/core';
 import { InjectableObservablesService } from '../services/injectable-observables.service';
-import { IOrderbook } from '../models/IOrderbook';
+import { IOrderbook, IOrderbookTick } from '../models/IOrderbook';
 import { Side } from '../models/SharedConstants';
 import { AvailableStrategies, Strategy } from './strategies/abstractStrategy';
 import { ThreeMAStrategy } from './strategies/ThreeMA.strategy';
 import { IndicatorService } from '../services/indicator.service';
 import { IMoneyUpdate } from '../services/money-manager.service';
+import { Order } from '../models/Order';
 
 @Injectable({
   providedIn: 'root',
@@ -22,6 +23,7 @@ export class InvestingService {
   private savedAdvice: {
     [symbol: string]: IMoneyUpdate,
   } = {};
+  private isFirstInit: boolean = true;
 
   constructor(
       private injectableObservables: InjectableObservablesService,
@@ -31,16 +33,19 @@ export class InvestingService {
     console.log('InvestingService working');
 
     this.injectableObservables.config$
-      .pipe(first())
       .subscribe((config: any) => this.handleConfigUpdate(config));
     this.injectableObservables.moneyAction$.subscribe((moneyUpdate: any) => this.handleMoneyUpdate(moneyUpdate));
   }
 
   private handleConfigUpdate(config: any): void {
+    console.log(config);
     this.config = config;
-    config.availableSymbolsForInvesting.forEach(symbol => {
-      this.createStrategyInstance(symbol);
-    });
+    if (this.isFirstInit) {
+      config.availableSymbolsForInvesting.forEach(symbol => {
+        this.createStrategyInstance(symbol);
+      });
+      this.isFirstInit = false;
+    }
   }
 
   private handleMoneyUpdate(moneyUpdate: IMoneyUpdate): void {
@@ -53,6 +58,13 @@ export class InvestingService {
       +new Date(moneyUpdate.timestamp) !== +new Date(this.savedAdvice[moneyUpdate.symbolID].timestamp)) {
         this.savedAdvice[moneyUpdate.symbolID] = moneyUpdate;
         console.log(this.savedAdvice);
+      this.hitBTCApiService.getOrderbook(moneyUpdate.symbolID).pipe(
+        first(),
+      ).subscribe((orderbook: IOrderbook) => {
+        if (moneyUpdate.advisedResult === Side.buy) {
+          this.openPosition(moneyUpdate, orderbook.ask[0]);
+        }
+      });
     }
   }
 
@@ -66,35 +78,40 @@ export class InvestingService {
     return new StrategyConstructor(symbol.id, this.injectableObservables, this.indicatorService);
   }
 
-  private handleActionUpdate(action: {time: string, side: Side}): void {
-    // console.log(action);
-    this.hitBTCApiService.getOrderbook(this.config.investingSymbol).pipe(
-      first(),
-    ).subscribe((orderbook: IOrderbook) => {
-      console.log(orderbook);
-      if (action.side === Side.buy && !this.openedTrade && !this.actualOpenTime) {
-        this.actualOpenTime = new Date(action.time);
-        this.actualOpenTime.setMinutes(this.actualOpenTime.getMinutes() + this.config.shiftForOpening);
-      } else if (+this.actualOpenTime === +new Date(action.time)) {
-        this.openPosition(action.time, +orderbook.bid[0].price);
-      } else if (action.side === Side.sell && this.openedTrade) {
-        this.closePosition(action.time, +orderbook.ask[0].price);
-      } else if (this.shouldBeClosedEarly(+orderbook.ask[0].price)) {
-        this.closePosition(action.time, +orderbook.ask[0].price);
-      }
-    });
-  }
+  // private handleActionUpdate(action: {time: string, side: Side}): void {
+  //   // console.log(action);
+  //   this.hitBTCApiService.getOrderbook(this.config.investingSymbol).pipe(
+  //     first(),
+  //   ).subscribe((orderbook: IOrderbook) => {
+  //     console.log(orderbook);
+  //     if (action.side === Side.buy && !this.openedTrade && !this.actualOpenTime) {
+  //       this.actualOpenTime = new Date(action.time);
+  //       this.actualOpenTime.setMinutes(this.actualOpenTime.getMinutes() + this.config.shiftForOpening);
+  //     } else if (+this.actualOpenTime === +new Date(action.time)) {
+  //       this.openPosition(action.time, +orderbook.bid[0].price);
+  //     } else if (action.side === Side.sell && this.openedTrade) {
+  //       this.closePosition(action.time, +orderbook.ask[0].price);
+  //     } else if (this.shouldBeClosedEarly(+orderbook.ask[0].price)) {
+  //       this.closePosition(action.time, +orderbook.ask[0].price);
+  //     }
+  //   });
+  // }
 
-  private openPosition(time: string, bidPrice: number): void {
-    console.log('Open: ' + time);
-    const openPrice = bidPrice - this.config.tickSize *  2;
-    this.openedTrade = {
-      time,
-      openPrice,
-      value: this.money / openPrice,
-    };
-    console.log(this.openedTrade);
-    this.actualOpenTime = null;
+  private openPosition(moneyUpdate: IMoneyUpdate, price: IOrderbookTick): void {
+    console.log('Opening!!!!');
+    console.log(moneyUpdate);
+    const quantity = +moneyUpdate.amount / +price.price;
+    const actualPrice = +price.price - +this.config.symbolInfo[moneyUpdate.symbolID].quantityIncrement * 2;
+    this.hitBTCApiService.placeNewOrder({
+      symbol: moneyUpdate.symbolID,
+      side: moneyUpdate.advisedResult === Side.buy ? 'buy' : 'sell',
+      type: 'limit',
+      timeInForce: 'GTC',
+      quantity: quantity.toString(),
+      price: actualPrice.toString(),
+    }).subscribe((res: Order) => {
+      console.log(res);
+    });
   }
 
   private closePosition(time: string, askPrice: number): void {

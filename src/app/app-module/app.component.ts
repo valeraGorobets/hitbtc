@@ -11,7 +11,11 @@ import { Order } from '../models/Order';
 
 const defaultConfig = {
   availableSymbolsForInvesting: [
-   {
+  {
+      id: 'DASHUSD',
+      strategy: AvailableStrategies.ThreeMAStrategy,
+  },
+  {
     id: 'ETHUSD',
     strategy: AvailableStrategies.ThreeMAStrategy,
   },
@@ -24,17 +28,13 @@ const defaultConfig = {
     strategy: AvailableStrategies.ThreeMAStrategy,
   },
   {
-    id: 'ZECUSD',
+    id: 'ETHBTC',
     strategy: AvailableStrategies.ThreeMAStrategy,
   },
-  // {
-  //   id: 'ETHBTC',
-  //   strategy: AvailableStrategies.ThreeMAStrategy,
-  // },
-  // {
-  //   id: 'XMRUSD',
-  //   strategy: AvailableStrategies.ThreeMAStrategy,
-  // }
+  {
+    id: 'XMRUSD',
+    strategy: AvailableStrategies.ThreeMAStrategy,
+  }
   ],
   currentInvestingSymbol: 'BTCUSD',
   symbolInfo: {},

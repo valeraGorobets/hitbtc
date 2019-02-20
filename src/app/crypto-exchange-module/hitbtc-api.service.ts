@@ -6,6 +6,7 @@ import { WSService } from '../../libs/ws.service';
 import { INewOrder } from '../models/Order';
 import hmacSHA256 from 'crypto-js/hmac-sha256';
 import Base64 from 'crypto-js/enc-base64';
+import {map} from 'rxjs/operators';
 
 const socketURL = 'wss://api.hitbtc.com/api/2/ws';
 const backendPoint = 'http://localhost:8080/backend';
@@ -137,7 +138,10 @@ export class HitBTCApi implements AbstractCryptoService {
   }
 
   public getOrderbook(symbol: string): any {
-    return this.http.get(`${backendPoint}/getOrderbook/${symbol}`);
+    return this.http.get(`${backendPoint}/getOrderbook/${symbol}`)
+      .pipe(
+          map((response: any) => JSON.parse(response)),
+        );
   }
 
   public onMessage(symbol: string): Observable<MessageEvent> {
@@ -152,8 +156,9 @@ export class HitBTCApi implements AbstractCryptoService {
     }
   }
 
-  public placeNewOrder(order: INewOrder): Observable<any> {
-    return this.http.post(`${backendPoint}/order`, order);
+  public placeNewOrder(order: INewOrder): any {
+    console.log(order);
+    // return this.http.post(`${backendPoint}/order`, order);
   }
 
   // public getHistoryOrder(): any {
