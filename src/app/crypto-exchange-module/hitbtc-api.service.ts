@@ -158,7 +158,7 @@ export class HitBTCApi implements AbstractCryptoService {
 
   public placeNewOrder(order: INewOrder): any {
     console.log(order);
-    // return this.http.post(`${backendPoint}/order`, order);
+    return this.http.post(`${backendPoint}/order`, order);
   }
 
   // public getHistoryOrder(): any {

@@ -34,7 +34,7 @@ const defaultConfig = {
   {
     id: 'XMRUSD',
     strategy: AvailableStrategies.ThreeMAStrategy,
-  }
+  },
   ],
   currentInvestingSymbol: 'BTCUSD',
   symbolInfo: {},

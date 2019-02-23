@@ -8,7 +8,7 @@ import { AvailableStrategies, Strategy } from './strategies/abstractStrategy';
 import { ThreeMAStrategy } from './strategies/ThreeMA.strategy';
 import { IndicatorService } from '../services/indicator.service';
 import { IMoneyUpdate } from '../services/money-manager.service';
-import { Order } from '../models/Order';
+import { INewOrder, Order } from '../models/Order';
 
 @Injectable({
   providedIn: 'root',
@@ -99,9 +99,8 @@ export class InvestingService {
 
   private openPosition(moneyUpdate: IMoneyUpdate, price: IOrderbookTick): void {
     console.log('Opening!!!!');
-    console.log(moneyUpdate);
-    const quantity = +moneyUpdate.amount / +price.price;
-    const actualPrice = +price.price - +this.config.symbolInfo[moneyUpdate.symbolID].quantityIncrement * 2;
+    const actualPrice = +price.price - +this.config.symbolInfo[moneyUpdate.symbolID].quantityIncrement * 5;
+    const quantity = +moneyUpdate.amount / actualPrice;
     this.hitBTCApiService.placeNewOrder({
       symbol: moneyUpdate.symbolID,
       side: moneyUpdate.advisedResult === Side.buy ? 'buy' : 'sell',
