@@ -50,7 +50,7 @@ export class MoneyManagerService {
       case Side.buy:
         return +this.balance.find(
           (balance: CurrencyBalance) => balance.currency === this.config.symbolInfo[actionUpdate.symbolID].quoteCurrency,
-        ).available;
+        ).available * 0.5;
       case Side.sell:
         return +this.balance.find(
           (balance: CurrencyBalance) => balance.currency === this.config.symbolInfo[actionUpdate.symbolID].baseCurrency,

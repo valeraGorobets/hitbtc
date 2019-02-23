@@ -3,14 +3,29 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { WSService } from '../../libs/ws.service';
-import { map, tap } from 'rxjs/operators';
-import { InjectableObservablesService } from '../services/injectable-observables.service';
-import { Symbol } from '../models/Symbol';
-import { CurrencyBalance } from '../models/CurrencyBalance';
+import { INewOrder } from '../models/Order';
+import hmacSHA256 from 'crypto-js/hmac-sha256';
+import Base64 from 'crypto-js/enc-base64';
+import {map} from 'rxjs/operators';
 
 const socketURL = 'wss://api.hitbtc.com/api/2/ws';
 const backendPoint = 'http://localhost:8080/backend';
-const restEndPoint = 'https://api.hitbtc.com/api/2/public';
+
+function getSignature(message: string, secret: string): string {
+  return base64toHEX(
+    hmacSHA256(message, secret).toString(Base64),
+  );
+}
+
+function base64toHEX(base64: string): string {
+  const raw = atob(base64);
+  let HEX = '';
+  for (let i = 0; i < raw.length; i++ ) {
+    const _hex = raw.charCodeAt(i).toString(16);
+    HEX += (_hex.length === 2 ? _hex : '0' + _hex);
+  }
+  return HEX;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -21,19 +36,21 @@ export class HitBTCApi implements AbstractCryptoService {
     [symbol: string]: WSService,
   } = {};
   private period: string = 'M1';
-  private config: any = {};
-  private requiredCurrencies: any;
+  private keys: any = {};
 
   constructor(
       private http: HttpClient,
-      private injectableObservables: InjectableObservablesService,
     ) {
     console.log('HitBTCApi working');
-    this.injectableObservables.config$.subscribe((configUpdate: any) => {
-      this.config = {...configUpdate};
-      this.requiredCurrencies = Object.values(this.config.symbolInfo)
-        .reduce((array: string[], symbolInfo: Symbol ) => [...array, symbolInfo.baseCurrency, symbolInfo.quoteCurrency], []);
-  });
+    this.http.get('./../../../backend/keys.json')
+      .subscribe(keys => this.keys = keys);
+  }
+
+  private getKeysById(id: number): any {
+    if (!Object.keys(this.keys).length) {
+      return ;
+    }
+    return this.keys.values[this.keys.mapping[id.toString()]];
   }
 
   public createConnection(symbol: string): void {
@@ -41,6 +58,7 @@ export class HitBTCApi implements AbstractCryptoService {
     this.ws[symbol] = new WSService(socketURL);
   }
 
+  // subscriptions
   public subscribeCandles(symbol: string, period: string = this.period): void {
     this.ws[symbol].send({
       method: 'subscribeCandles',
@@ -62,18 +80,68 @@ export class HitBTCApi implements AbstractCryptoService {
     });
   }
 
+  public login(method: string, id: number): void {
+    const {api: pKey, secret: sKey} = this.getKeysById(id);
+    const nonce = 'secretSign12345';
+    this.ws[method] = new WSService(socketURL);
+    this.ws[method].send({
+      method: 'login',
+      params: {
+        algo: 'HS256',
+        pKey,
+        nonce,
+        signature: getSignature(nonce, sKey),
+      },
+      id: 1234,
+    });
+  }
+
+  public subscribeGetTradingBalance(): any {
+    const method = 'getTradingBalance';
+    this.login(method, 0);
+    setTimeout(() => {
+      this.ws[method].send({
+        method,
+        params: {},
+        id: 12345,
+      });
+    }, 1000);
+  }
+
+  public subscribeReports(): void {
+    const method = 'subscribeReports';
+    this.login(method, 0);
+    setTimeout(() => {
+      this.ws[method].send({
+        method,
+        params: {},
+        id: 12345,
+      });
+    }, 1000);
+  }
+
+  public getOrders(): any {
+    const method = 'getOrders';
+    this.login(method, 0);
+    setTimeout(() => {
+      this.ws[method].send({
+        method,
+        params: {},
+        id: 12345,
+      });
+    }, 1000);
+  }
+
+  // REST
   public getSymbolDescription(symbol: string): Observable<any> {
-    return this.http.get(`${backendPoint}/symbol/${symbol}`)
-      .pipe(
-        tap(response => console.log(`Backend response getSymbolDescription: \n ${response}`)),
-      );
+    return this.http.get(`${backendPoint}/symbol/${symbol}`);
   }
 
   public getOrderbook(symbol: string): any {
     return this.http.get(`${backendPoint}/getOrderbook/${symbol}`)
       .pipe(
-        tap(response => console.log(`Backend response getOrderbook: \n ${response}`)),
-      );
+          map((response: any) => JSON.parse(response)),
+        );
   }
 
   public onMessage(symbol: string): Observable<MessageEvent> {
@@ -88,22 +156,16 @@ export class HitBTCApi implements AbstractCryptoService {
     }
   }
 
-  public getBalance(): Observable<CurrencyBalance[]> {
-    return this.http.get(`${backendPoint}/trading/balance`)
-      .pipe(
-        map((response: any) => JSON.parse(response)
-          .filter((currency: CurrencyBalance) =>
-            !!(this.requiredCurrencies.includes(currency.currency) || +currency.available || +currency.reserved)),
-        ),
-        tap(response => console.log(`Backend response getBalance: \n ${response}`)),
-      );
+  public placeNewOrder(order: INewOrder): any {
+    console.log(order);
+    return this.http.post(`${backendPoint}/order`, order);
   }
 
-  public getHistoryOrder(): any {
-    return this.http.get(`${backendPoint}/history/order`)
-      .pipe(
-        map((response: any) => JSON.parse(response)),
-        tap(response => console.log(`Backend response getHistoryOrder: \n ${response}`)),
-      );
-  }
+  // public getHistoryOrder(): any {
+  //   return this.http.get(`${backendPoint}/history/order`)
+  //     .pipe(
+  //       map((response: any) => JSON.parse(response)),
+  //       tap(response => console.log(`Backend response getHistoryOrder: \n ${response}`)),
+  //     );
+  // }
 }

@@ -9,8 +9,6 @@ export class WSService {
     this.ws.onclose = (event: any) => {
       console.log('WebSocket is closed now.');
       console.log(event);
-      console.log('WebSocket is inited');
-      this.ws = new WebSocket(url);
     };
     this.ws.onerror = function(event: any): void {
       console.error('WebSocket error observed:', event);
@@ -18,7 +16,11 @@ export class WSService {
   }
 
   public send(message: any): void {
-    this.ws.onopen = () => this.ws.send(JSON.stringify(message));
+    if (this.ws.readyState === this.ws.OPEN){
+      this.ws.send(JSON.stringify(message));
+    } else {
+      this.ws.onopen = () => this.ws.send(JSON.stringify(message));
+    }
   }
 
   public onMessage(): Observable<MessageEvent> {

@@ -1,11 +1,12 @@
 const express = require('express');
-const path = require('path');
+const bodyParser = require("body-parser");
 const request = require('request');
 const keys = require('./backend/keys');
 
 const apiURL = 'https://api.hitbtc.com/api/2';
 
 const app = express();
+app.use(bodyParser.json());
 
 function getKeysById(id) {
   return keys.values[keys.mapping[id.toString()]];
@@ -18,12 +19,7 @@ app.all("/*", function(request, response, next) {
   return next();
 });
 
-app.use(express.static(__dirname + '/dist/hitbtc'));
-
-app.get('/', function(req,res) {
-  const index = path.join(__dirname + '/dist/hitbtc/index.html');
-  res.sendFile(path.join(index));
-});
+app.use(express.static(__dirname + '/dist/'));
 
 app.listen(process.env.PORT || 8080, () => {
   console.log('Server started!');
@@ -55,7 +51,7 @@ app.route('/backend/symbol/:symbol').get((request, response) => {
   makePublicRequest(response, url);
 });
 
-function makePrivateRequest(type, response, url, method = 'GET') {
+function makePrivateRequest(type, response, url, method = 'GET', body) {
   console.log(`Private: ${url}`);
   const {api, secret} = getKeysById(type);
   request({
@@ -64,7 +60,8 @@ function makePrivateRequest(type, response, url, method = 'GET') {
     auth: {
       'user': api,
       'pass': secret
-    }
+    },
+    json: body,
   }, function (error, res, body) {
     if (!error) {
       response.status(200).send(JSON.stringify(body));
@@ -82,4 +79,7 @@ app.route('/backend/history/order').get((request, response) => {
   makePrivateRequest(0, response, `${apiURL}/history/order`);
 });
 
+app.route('/backend/order').post((request, response) => {
+  makePrivateRequest(1, response, `${apiURL}/order`, 'POST', request.body);
+});
 

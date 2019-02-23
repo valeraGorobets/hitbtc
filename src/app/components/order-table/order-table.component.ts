@@ -1,5 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatTableDataSource } from '@angular/material';
+import { Report } from './../../models/Report';
+import { InjectableObservablesService } from './../../services/injectable-observables.service';
 
 @Component({
   selector: 'order-table',
@@ -7,42 +9,46 @@ import { MatPaginator, MatTableDataSource } from '@angular/material';
   styleUrls: ['./order-table.component.less'],
 })
 export class OrderTableComponent implements OnInit {
-  public displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
-  public dataSource = new MatTableDataSource<IPeriodicElement>(ELEMENT_DATA);
+  public dataColumns: string[] = ['symbol', 'id', 'price', 'quantity', 'side', 'status'];
+  public displayedColumns: string[] = ['updatedAt', ...this.dataColumns];
+  public dataSource = new MatTableDataSource<Report>([]);
+  public isDataLoading = true;
 
   @ViewChild(MatPaginator) public paginator: MatPaginator;
+  public justUpdated: boolean = false;
+
+  constructor(
+    private injectableObservables: InjectableObservablesService,
+  ) {
+    this.injectableObservables.report$.subscribe((reportUpdate: Report[]) => this.handleReportUpdate(reportUpdate));
+  }
 
   public ngOnInit(): void {
     this.dataSource.paginator = this.paginator;
   }
-}
 
-export interface IPeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
+  private handleReportUpdate(reportUpdate: Report[]): void {
+    if (this.isDataLoading) {
+      this.isDataLoading = false;
+    }
+    this.justUpdated = true;
+    this.dataSource = new MatTableDataSource<Report>(reportUpdate);
+    setTimeout(() => this.justUpdated = false, 5000);
+  }
 }
-
-const ELEMENT_DATA: IPeriodicElement[] = [
-  {position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H'},
-  {position: 2, name: 'Helium', weight: 4.0026, symbol: 'He'},
-  {position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li'},
-  {position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be'},
-  {position: 5, name: 'Boron', weight: 10.811, symbol: 'B'},
-  {position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C'},
-  {position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N'},
-  {position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O'},
-  {position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F'},
-  {position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne'},
-  {position: 11, name: 'Sodium', weight: 22.9897, symbol: 'Na'},
-  {position: 12, name: 'Magnesium', weight: 24.305, symbol: 'Mg'},
-  {position: 13, name: 'Aluminum', weight: 26.9815, symbol: 'Al'},
-  {position: 14, name: 'Silicon', weight: 28.0855, symbol: 'Si'},
-  {position: 15, name: 'Phosphorus', weight: 30.9738, symbol: 'P'},
-  {position: 16, name: 'Sulfur', weight: 32.065, symbol: 'S'},
-  {position: 17, name: 'Chlorine', weight: 35.453, symbol: 'Cl'},
-  {position: 18, name: 'Argon', weight: 39.948, symbol: 'Ar'},
-  {position: 19, name: 'Potassium', weight: 39.0983, symbol: 'K'},
-  {position: 20, name: 'Calcium', weight: 40.078, symbol: 'Ca'},
-];
+//   {
+//     "id": "103984929241",
+//     "clientOrderId": "d12108e56236f75287518e1c395d5d4e",
+//     "symbol": "ETHUSD",
+//     "side": "buy",
+//     "status": "canceled",
+//     "type": "limit",
+//     "timeInForce": "GTC",
+//     "quantity": "0.0001",
+//     "price": "1.000",
+//     "cumQuantity": "0.0000",
+//     "createdAt": "2019-02-19T06:22:02.102Z",
+//     "updatedAt": "2019-02-19T06:30:29.004Z",
+//     "postOnly": false,
+//     "reportType": "canceled",
+//   },
