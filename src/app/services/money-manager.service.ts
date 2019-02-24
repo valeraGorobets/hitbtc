@@ -48,9 +48,10 @@ export class MoneyManagerService {
     }
     switch (actionUpdate.advisedResult) {
       case Side.buy:
-        return +this.balance.find(
-          (balance: CurrencyBalance) => balance.currency === this.config.symbolInfo[actionUpdate.symbolID].quoteCurrency,
-        ).available * 0.5;
+        return this.config.symbolInfo[actionUpdate.symbolID].quantityIncrement;
+        // return +this.balance.find(
+        //   (balance: CurrencyBalance) => balance.currency === this.config.symbolInfo[actionUpdate.symbolID].quoteCurrency,
+        // ).available * 0.5;
       case Side.sell:
         return +this.balance.find(
           (balance: CurrencyBalance) => balance.currency === this.config.symbolInfo[actionUpdate.symbolID].baseCurrency,

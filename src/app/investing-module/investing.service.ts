@@ -15,10 +15,6 @@ import { INewOrder, Order } from '../models/Order';
 })
 
 export class InvestingService {
-  private actualOpenTime = null;
-  private strategy: Strategy;
-  private openedTrade = null;
-  private money: number = 1000;
   private config: any = {};
   private savedAdvice: {
     [symbol: string]: IMoneyUpdate,
@@ -48,6 +44,16 @@ export class InvestingService {
     }
   }
 
+  private createStrategyInstance(symbol: any): Strategy {
+    let StrategyConstructor;
+    switch (symbol.strategy as AvailableStrategies) {
+      case 'ThreeMAStrategy':
+        StrategyConstructor = ThreeMAStrategy;
+        break;
+    }
+    return new StrategyConstructor(symbol.id, this.injectableObservables, this.indicatorService);
+  }
+
   private handleMoneyUpdate(moneyUpdate: IMoneyUpdate): void {
     // console.log(moneyUpdate);
     if (!moneyUpdate.amount) {
@@ -62,86 +68,33 @@ export class InvestingService {
         first(),
       ).subscribe((orderbook: IOrderbook) => {
         if (moneyUpdate.advisedResult === Side.buy) {
-          this.openPosition(moneyUpdate, orderbook.ask[0]);
+          this.placeNewOrder(moneyUpdate, this.getActualPriceInString(moneyUpdate, orderbook));
         }
       });
     }
   }
 
-  private createStrategyInstance(symbol: any): Strategy {
-    let StrategyConstructor;
-    switch (symbol.strategy as AvailableStrategies) {
-      case 'ThreeMAStrategy':
-        StrategyConstructor = ThreeMAStrategy;
-        break;
-    }
-    return new StrategyConstructor(symbol.id, this.injectableObservables, this.indicatorService);
+  private getActualPriceInString(moneyUpdate: IMoneyUpdate, orderbook: IOrderbook): string {
+    const isBuying = moneyUpdate.advisedResult === Side.buy;
+    const riskLevel = 5;
+    const quantityIncrement = +this.config.symbolInfo[moneyUpdate.symbolID].quantityIncrement * riskLevel;
+    const actualPrice = isBuying ? +orderbook.ask[0].price - quantityIncrement : +orderbook.bid[0].price + quantityIncrement;
+    return actualPrice.toString();
   }
 
-  // private handleActionUpdate(action: {time: string, side: Side}): void {
-  //   // console.log(action);
-  //   this.hitBTCApiService.getOrderbook(this.config.investingSymbol).pipe(
-  //     first(),
-  //   ).subscribe((orderbook: IOrderbook) => {
-  //     console.log(orderbook);
-  //     if (action.side === Side.buy && !this.openedTrade && !this.actualOpenTime) {
-  //       this.actualOpenTime = new Date(action.time);
-  //       this.actualOpenTime.setMinutes(this.actualOpenTime.getMinutes() + this.config.shiftForOpening);
-  //     } else if (+this.actualOpenTime === +new Date(action.time)) {
-  //       this.openPosition(action.time, +orderbook.bid[0].price);
-  //     } else if (action.side === Side.sell && this.openedTrade) {
-  //       this.closePosition(action.time, +orderbook.ask[0].price);
-  //     } else if (this.shouldBeClosedEarly(+orderbook.ask[0].price)) {
-  //       this.closePosition(action.time, +orderbook.ask[0].price);
-  //     }
-  //   });
-  // }
-
-  private openPosition(moneyUpdate: IMoneyUpdate, price: IOrderbookTick): void {
+  private placeNewOrder(moneyUpdate: IMoneyUpdate, price: string): void {
     console.log('Opening!!!!');
-    const actualPrice = this.getActualPriceInString(moneyUpdate, price);
-    // const quantity = +moneyUpdate.amount / +actualPrice;
+    // const quantity = +moneyUpdate.amount / +price;
     this.hitBTCApiService.placeNewOrder({
       symbol: moneyUpdate.symbolID,
       side: moneyUpdate.advisedResult === Side.buy ? 'buy' : 'sell',
       type: 'limit',
       timeInForce: 'GTC',
-      quantity: this.config.symbolInfo[moneyUpdate.symbolID].quantityIncrement,
-      price: actualPrice,
+      quantity: moneyUpdate.amount.toString(),
+      price,
     }, true).subscribe((res: Order) => {
       console.log(res);
     });
-  }
-
-  private getActualPriceInString(moneyUpdate: IMoneyUpdate, price: IOrderbookTick): string {
-    const riskLevel = 5;
-    const isBuying = moneyUpdate.advisedResult === Side.buy;
-    const quantityIncrement = +this.config.symbolInfo[moneyUpdate.symbolID].quantityIncrement * riskLevel;
-    const actualPrice = isBuying ? +price.price - quantityIncrement : +price.price + quantityIncrement;
-    return actualPrice.toString();
-  }
-
-  private closePosition(time: string, askPrice: number): void {
-    console.log('Close: ' + time);
-    const closePrice = askPrice + this.config.tickSize * 2;
-    this.money = this.openedTrade.value * closePrice;
-    this.openedTrade = null;
-    console.log(this.money);
-  }
-
-  private shouldBeClosedEarly(askPrice: number): boolean {
-    if (!this.openedTrade) {
-      return false;
-    }
-    const openPrice = this.openedTrade.openPrice;
-    if (
-      (openPrice - askPrice) / openPrice > this.config.allowedLost ||
-      (askPrice - openPrice) / openPrice > this.config.enoughProfit
-    ) {
-      console.log('Closing due to > allowedLost of enoughProfit');
-      return true;
-    }
-    return true;
   }
 
   // public stopWatching(): void {
