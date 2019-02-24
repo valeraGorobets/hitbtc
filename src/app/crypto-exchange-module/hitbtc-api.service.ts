@@ -142,9 +142,17 @@ export class HitBTCApi implements AbstractCryptoService {
   public getOrderbook(symbol: string): any {
     return this.http.get(`${backendPoint}/getOrderbook/${symbol}`)
       .pipe(
-          map((response: any) => JSON.parse(response)),
-        );
+        map((response: any) => JSON.parse(response)),
+      );
   }
+
+  public getTradingBalance(): any {
+    return this.http.get(`${backendPoint}/trading/balance`)
+      .pipe(
+        map((response: any) => JSON.parse(response)),
+      );
+  }
+
 
   public onMessage(symbol: string): Observable<MessageEvent> {
     return this.ws[symbol].onMessage();
