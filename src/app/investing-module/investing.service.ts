@@ -99,18 +99,26 @@ export class InvestingService {
 
   private openPosition(moneyUpdate: IMoneyUpdate, price: IOrderbookTick): void {
     console.log('Opening!!!!');
-    const actualPrice = +price.price - +this.config.symbolInfo[moneyUpdate.symbolID].quantityIncrement * 5;
-    const quantity = +moneyUpdate.amount / actualPrice;
+    const actualPrice = this.getActualPriceInString(moneyUpdate, price);
+    // const quantity = +moneyUpdate.amount / +actualPrice;
     this.hitBTCApiService.placeNewOrder({
       symbol: moneyUpdate.symbolID,
       side: moneyUpdate.advisedResult === Side.buy ? 'buy' : 'sell',
       type: 'limit',
       timeInForce: 'GTC',
-      quantity: quantity.toString(),
-      price: actualPrice.toString(),
-    }).subscribe((res: Order) => {
+      quantity: this.config.symbolInfo[moneyUpdate.symbolID].quantityIncrement,
+      price: actualPrice,
+    }, true).subscribe((res: Order) => {
       console.log(res);
     });
+  }
+
+  private getActualPriceInString(moneyUpdate: IMoneyUpdate, price: IOrderbookTick): string {
+    const riskLevel = 5;
+    const isBuying = moneyUpdate.advisedResult === Side.buy;
+    const quantityIncrement = +this.config.symbolInfo[moneyUpdate.symbolID].quantityIncrement * riskLevel;
+    const actualPrice = isBuying ? +price.price - quantityIncrement : +price.price + quantityIncrement;
+    return actualPrice.toString();
   }
 
   private closePosition(time: string, askPrice: number): void {

@@ -19,18 +19,18 @@ const defaultConfig = {
     id: 'ETHUSD',
     strategy: AvailableStrategies.ThreeMAStrategy,
   },
-  {
-    id: 'BTCUSD',
-    strategy: AvailableStrategies.ThreeMAStrategy,
-  },
+  // {
+  //   id: 'BTCUSD',
+  //   strategy: AvailableStrategies.ThreeMAStrategy,
+  // },
   {
     id: 'LTCUSD',
     strategy: AvailableStrategies.ThreeMAStrategy,
   },
-  {
-    id: 'ETHBTC',
-    strategy: AvailableStrategies.ThreeMAStrategy,
-  },
+  // {
+  //   id: 'ETHBTC',
+  //   strategy: AvailableStrategies.ThreeMAStrategy,
+  // },
   {
     id: 'XMRUSD',
     strategy: AvailableStrategies.ThreeMAStrategy,
