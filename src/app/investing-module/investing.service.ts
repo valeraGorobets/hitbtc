@@ -8,6 +8,7 @@ import { AvailableStrategies, Strategy } from './strategies/abstractStrategy';
 import { ThreeMAStrategy } from './strategies/ThreeMA.strategy';
 import { IndicatorService } from '../services/indicator.service';
 import { IMoneyUpdate } from '../services/money-manager.service';
+import { PositionService } from '../services/position.service';
 import { INewOrder, Order } from '../models/Order';
 
 @Injectable({
@@ -16,15 +17,13 @@ import { INewOrder, Order } from '../models/Order';
 
 export class InvestingService {
   private config: any = {};
-  private savedAdvice: {
-    [symbol: string]: IMoneyUpdate,
-  } = {};
   private isFirstInit: boolean = true;
 
   constructor(
       private injectableObservables: InjectableObservablesService,
       private indicatorService: IndicatorService,
       private hitBTCApiService: HitBTCApi,
+      private positionService: PositionService,
     ) {
     console.log('InvestingService working');
 
@@ -58,40 +57,33 @@ export class InvestingService {
     // console.log(moneyUpdate);
     if (!moneyUpdate.amount) {
       return;
-    } else if (
-      !this.savedAdvice[moneyUpdate.symbolID] ||
-      this.savedAdvice[moneyUpdate.symbolID].advisedResult !== moneyUpdate.advisedResult ||
-      +new Date(moneyUpdate.timestamp) !== +new Date(this.savedAdvice[moneyUpdate.symbolID].timestamp)) {
-        this.savedAdvice[moneyUpdate.symbolID] = moneyUpdate;
-        console.log(this.savedAdvice);
+    } else if (this.positionService.isPossibleToOpenNewOrder(moneyUpdate)) {
       this.hitBTCApiService.getOrderbook(moneyUpdate.symbolID).pipe(
         first(),
       ).subscribe((orderbook: IOrderbook) => {
-        if (moneyUpdate.advisedResult === Side.buy) {
-          this.placeNewOrder(moneyUpdate, this.getActualPriceInString(moneyUpdate, orderbook));
-        }
+        this.placeNewOrder(moneyUpdate, this.getActualPrice(moneyUpdate, orderbook));
       });
     }
   }
 
-  private getActualPriceInString(moneyUpdate: IMoneyUpdate, orderbook: IOrderbook): string {
+  private getActualPrice(moneyUpdate: IMoneyUpdate, orderbook: IOrderbook): number {
     const isBuying = moneyUpdate.advisedResult === Side.buy;
     const riskLevel = 5;
     const quantityIncrement = +this.config.symbolInfo[moneyUpdate.symbolID].quantityIncrement * riskLevel;
-    const actualPrice = isBuying ? +orderbook.ask[0].price - quantityIncrement : +orderbook.bid[0].price + quantityIncrement;
-    return actualPrice.toString();
+    return isBuying ?
+      +orderbook.ask[0].price - quantityIncrement :
+      +orderbook.bid[0].price + quantityIncrement;
   }
 
-  private placeNewOrder(moneyUpdate: IMoneyUpdate, price: string): void {
+  private placeNewOrder(moneyUpdate: IMoneyUpdate, price: number): void {
     console.log('Opening!!!!');
-    // const quantity = +moneyUpdate.amount / +price;
     this.hitBTCApiService.placeNewOrder({
       symbol: moneyUpdate.symbolID,
       side: moneyUpdate.advisedResult === Side.buy ? 'buy' : 'sell',
       type: 'limit',
       timeInForce: 'GTC',
       quantity: moneyUpdate.amount.toString(),
-      price,
+      price: price.toString(),
     }, true).subscribe((res: Order) => {
       console.log(res);
     });

@@ -4,9 +4,25 @@ export enum PositionStatus {
   Opened = 'OPENED',
   Closed = 'CLOSED',
 }
-export class Position extends Order {
+
+enum PositionType {
+  LONG = 'LONG',
+  SHORT = 'SHORT',
+}
+
+export class Position {
+  public id: number;
+  public symbolID: string;
   public positionStatus: PositionStatus;
-  public closedAt: string;
+  public positionType: PositionType;
+  
+  public quantity: string;
+  public openPrice: string;
+  public closePrice: string;
   public isProfitable: boolean;
   public difference: number;
+
+  public createdAt: string | Date;
+  public updatedAt: string | Date;
+  public closedAt: string | Date;
 }
