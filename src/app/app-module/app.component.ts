@@ -8,6 +8,7 @@ import { BalanceService } from '../services/balance.service';
 import { ReportService } from '../services/report.service';
 import { HitBTCApi } from '../crypto-exchange-module/hitbtc-api.service';
 import { Order } from '../models/Order';
+import { PositionService } from '../services/position.service';
 
 const defaultConfig = {
   availableSymbolsForInvesting: [
@@ -56,6 +57,7 @@ export class AppComponent {
     private balanceService: BalanceService,
     private reportService: ReportService,
     private injectableObservables: InjectableObservablesService,
+    private positionService: PositionService,
     ) {
     this.injectableObservables.config$.next(this.config);
     this.config.availableSymbolsForInvesting.forEach(symbol => {

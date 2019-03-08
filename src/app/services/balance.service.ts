@@ -9,6 +9,7 @@ import { Symbol } from '../models/Symbol';
 @Injectable({
   providedIn: 'root',
 })
+
 export class BalanceService {
   private balanceList: CurrencyBalance[] = [];
 

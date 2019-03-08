@@ -8,7 +8,7 @@ import { AvailableStrategies, Strategy } from './strategies/abstractStrategy';
 import { ThreeMAStrategy } from './strategies/ThreeMA.strategy';
 import { IndicatorService } from '../services/indicator.service';
 import { IMoneyUpdate } from '../services/money-manager.service';
-import { INewOrder, Order } from '../models/Order';
+import { Order } from '../models/Order';
 
 @Injectable({
   providedIn: 'root',
@@ -99,7 +99,9 @@ export class InvestingService {
 
   private openPosition(moneyUpdate: IMoneyUpdate, price: IOrderbookTick): void {
     console.log('Opening!!!!');
+    const riskLevel = 0.002;
     const actualPrice = this.getActualPriceInString(moneyUpdate, price);
+    const stopLossPrice = actualPrice - actualPrice * riskLevel;
     // const quantity = +moneyUpdate.amount / +actualPrice;
     this.hitBTCApiService.placeNewOrder({
       symbol: moneyUpdate.symbolID,
@@ -107,18 +109,19 @@ export class InvestingService {
       type: 'limit',
       timeInForce: 'GTC',
       quantity: this.config.symbolInfo[moneyUpdate.symbolID].quantityIncrement,
-      price: actualPrice,
+      price: actualPrice.toString(),
+      stopPrice: stopLossPrice.toString(),
     }, true).subscribe((res: Order) => {
       console.log(res);
     });
   }
 
-  private getActualPriceInString(moneyUpdate: IMoneyUpdate, price: IOrderbookTick): string {
+  private getActualPriceInString(moneyUpdate: IMoneyUpdate, price: IOrderbookTick): number {
     const riskLevel = 5;
     const isBuying = moneyUpdate.advisedResult === Side.buy;
     const quantityIncrement = +this.config.symbolInfo[moneyUpdate.symbolID].quantityIncrement * riskLevel;
     const actualPrice = isBuying ? +price.price - quantityIncrement : +price.price + quantityIncrement;
-    return actualPrice.toString();
+    return actualPrice;
   }
 
   private closePosition(time: string, askPrice: number): void {
