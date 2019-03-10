@@ -8,6 +8,7 @@ import { Side } from '../models/SharedConstants';
 @Injectable({
   providedIn: 'root',
 })
+
 export class PositionService {
   private positionList: Position[] = [];
 

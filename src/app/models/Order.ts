@@ -6,7 +6,7 @@ export type TTimeInForce = 'GTC' | 'IOC' | 'FOK' | 'Day' | 'GTD';
 export type TStatus = 'new' | 'suspended' | 'partiallyFilled' | 'filled' | 'canceled' | 'expired';
 
 export class Order extends CommonPositionFields {
-  public id: number;
+  public id: string;
   public stopPrice:	string;
   public expireTime: string;
 }

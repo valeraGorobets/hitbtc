@@ -10,6 +10,7 @@ import { Report } from '../models/Report';
 @Injectable({
   providedIn: 'root',
 })
+
 export class BalanceService {
   private balanceList: CurrencyBalance[] = [];
   private requiredCurrencies: string[] = [];

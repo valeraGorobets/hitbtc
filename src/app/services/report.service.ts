@@ -1,12 +1,13 @@
-import {Injectable} from '@angular/core';
-import {InjectableObservablesService} from './injectable-observables.service';
-import {HitBTCApi} from '../crypto-exchange-module/hitbtc-api.service';
-import {filter} from 'rxjs/operators';
-import {Order} from '../models/Order';
+import { Injectable } from '@angular/core';
+import { InjectableObservablesService } from './injectable-observables.service';
+import { HitBTCApi } from '../crypto-exchange-module/hitbtc-api.service';
+import { filter } from 'rxjs/operators';
+import { Order } from '../models/Order';
 
 @Injectable({
   providedIn: 'root',
 })
+
 export class ReportService {
   private reportList: Order[] = [];
 

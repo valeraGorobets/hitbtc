@@ -8,6 +8,7 @@ import { InjectableObservablesService } from './../../services/injectable-observ
   templateUrl: './order-table.component.html',
   styleUrls: ['./order-table.component.less'],
 })
+
 export class OrderTableComponent implements OnInit {
   public dataColumns: string[] = ['symbol', 'id', 'price', 'quantity', 'side', 'status'];
   public displayedColumns: string[] = ['updatedAt', ...this.dataColumns];
