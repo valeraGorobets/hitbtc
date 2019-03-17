@@ -5,18 +5,30 @@ export enum PositionStatus {
   Closed = 'CLOSED',
 }
 
-enum PositionType {
+export enum PositionType {
   LONG = 'LONG',
   SHORT = 'SHORT',
 }
 
+export interface IPositionConfig {
+  id: number | string;
+  symbolID: string;
+  positionStatus: PositionStatus;
+  positionType: PositionType;
+
+  quantity: number;
+  openPrice: string;
+
+  createdAt: string | Date;
+}
+
 export class Position {
-  public id: number;
+  public id: number | string;
   public symbolID: string;
   public positionStatus: PositionStatus;
   public positionType: PositionType;
-  
-  public quantity: string;
+
+  public quantity: number;
   public openPrice: string;
   public closePrice: string;
   public isProfitable: boolean;
@@ -25,4 +37,16 @@ export class Position {
   public createdAt: string | Date;
   public updatedAt: string | Date;
   public closedAt: string | Date;
+
+  constructor(config: IPositionConfig) {
+    this.id = config.id;
+    this.symbolID = config.symbolID;
+    this.positionStatus = config.positionStatus;
+    this.positionType = config.positionType;
+
+    this.quantity = config.quantity;
+    this.openPrice = config.openPrice;
+
+    this.createdAt = config.createdAt;
+  }
 }
