@@ -5,6 +5,9 @@ import { Report } from '../models/Report';
 import { IMoneyUpdate } from '../services/money-manager.service';
 import { Side } from '../models/SharedConstants';
 import { Order } from '../models/Order';
+import { HttpClient } from '@angular/common/http';
+import { backendPoint } from '../crypto-exchange-module/hitbtc-api.service';
+
 
 @Injectable({
   providedIn: 'root',
@@ -15,8 +18,11 @@ export class PositionService {
 
   constructor(
     private injectableObservables: InjectableObservablesService,
+    private http: HttpClient,
   ) {
     this.injectableObservables.report$.subscribe((reportUpdate: Report[]) => this.handleReportUpdate(reportUpdate));
+    this.http.get('./../../../backend/positions.json')
+      .subscribe(positionList => this.setInitPositionsValue(positionList));
   }
 
   public isPossibleToOpenPosition(moneyUpdate: IMoneyUpdate): boolean {
@@ -43,7 +49,12 @@ export class PositionService {
     } else if (moneyUpdate.advisedResult === Side.sell) {
       this.updateListWithClosedPosition(moneyUpdate, order);
     }
-    this.injectableObservables.positions$.next(this.positionList);
+    this.notifyAboutPositionChange();
+  }
+
+  private setInitPositionsValue(positionList: any): void {
+    this.positionList = positionList.positions;
+    this.notifyAboutPositionChange(true);
   }
 
   private handleReportUpdate(reportUpdate: Report[]): void {
@@ -69,14 +80,32 @@ export class PositionService {
 
   private updateListWithClosedPosition(moneyUpdate: IMoneyUpdate, order: Order): void {
     let openedPosition = this.getOpendPositionBySymbolID(moneyUpdate.symbolID);
-    const difference = +openedPosition.openPrice - +order.price;
-    openedPosition = {
-      ...openedPosition,
-      positionStatus: PositionStatus.Closed,
-      closePrice: order.price,
-      isProfitable: difference > 0,
-      difference,
-      closedAt: order.createdAt,
+    const difference = this.countPercentageDifference(+openedPosition.openPrice, +order.price);
+    this.positionList = this.positionList.map((position: Position) => {
+      if (position.id !== openedPosition.id) {
+        return position;
+      } else {
+        return {
+          ...openedPosition,
+          positionStatus: PositionStatus.Closed,
+          closePrice: order.price,
+          isProfitable: difference > 0,
+          difference,
+          closedAt: order.createdAt,
+        }
+      }
+    });
+  }
+
+  private countPercentageDifference(openPrice: number, closePrice: number): number {
+    return 100 * (closePrice - openPrice) / openPrice;
+  }
+
+  private notifyAboutPositionChange(isSavingLimited?: boolean): void {
+    this.injectableObservables.positions$.next(this.positionList);
+    if (!isSavingLimited) {
+      this.http.post(`${backendPoint}/savePositions`, this.positionList)
+      .subscribe(res => console.log(res));
     }
   }
 }

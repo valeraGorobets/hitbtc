@@ -2,8 +2,11 @@ const express = require('express');
 const bodyParser = require("body-parser");
 const request = require('request');
 const keys = require('./backend/keys');
+const fs = require('fs');
 
 const apiURL = 'https://api.hitbtc.com/api/2';
+const positionFileName = './backend/positions.json';
+const positionFile = require(positionFileName);
 
 const app = express();
 app.use(bodyParser.json());
@@ -23,6 +26,18 @@ app.use(express.static(__dirname + '/dist/'));
 
 app.listen(process.env.PORT || 8080, () => {
   console.log('Server started!');
+});
+
+app.route('/backend/savePositions').post((request, response) => {
+  const body = request.body;
+  positionFile.positions = body;
+  fs.writeFile(positionFileName, JSON.stringify(positionFile), (error) => {
+    if (!error) {
+      response.status(200).send(JSON.stringify(body));
+    } else {
+      response.status(500).send(error);
+    }
+  });
 });
 
 function makePublicRequest(response, url, method = 'GET') {

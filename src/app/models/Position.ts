@@ -18,8 +18,13 @@ export interface IPositionConfig {
 
   quantity: number;
   openPrice: string;
+  closePrice?: string;
+  isProfitable?: boolean;
+  difference?: number;
 
   createdAt: string | Date;
+  updatedAt?: string | Date;
+  closedAt?: string | Date;
 }
 
 export class Position {
@@ -46,7 +51,12 @@ export class Position {
 
     this.quantity = config.quantity;
     this.openPrice = config.openPrice;
+    this.closePrice = config.closePrice;
+    this.isProfitable = config.isProfitable;
+    this.difference = config.difference;
 
     this.createdAt = config.createdAt;
+    this.updatedAt = config.updatedAt;
+    this.closedAt = config.closedAt;
   }
 }

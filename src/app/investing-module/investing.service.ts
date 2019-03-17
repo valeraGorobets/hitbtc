@@ -87,10 +87,11 @@ export class InvestingService {
       type: 'limit',
       timeInForce: 'GTC',
       quantity: this.config.symbolInfo[moneyUpdate.symbolID].quantityIncrement,
-      price: actualPrice.toString(),
+      price: '1',
       stopPrice: stopLossPrice.toString(),
-    }, true).subscribe((res: Order) => {
-      console.log(res);
+    }, true).subscribe((order: Order) => {
+      console.log(order);
+      this.positionService.updatePositionList(moneyUpdate, order);
     });
   }
 

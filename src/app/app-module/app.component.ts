@@ -6,8 +6,10 @@ import { MoneyManagerService } from '../services/money-manager.service';
 import { AvailableStrategies } from '../investing-module/strategies/abstractStrategy';
 import { BalanceService } from '../services/balance.service';
 import { ReportService } from '../services/report.service';
+import { PositionService } from '../services/position.service';
 import { HitBTCApi } from '../crypto-exchange-module/hitbtc-api.service';
 import { Order } from '../models/Order';
+import { Side } from '../models/SharedConstants';
 
 const defaultConfig = {
   availableSymbolsForInvesting: [
@@ -56,6 +58,7 @@ export class AppComponent {
     private balanceService: BalanceService,
     private reportService: ReportService,
     private injectableObservables: InjectableObservablesService,
+    private positionService: PositionService,
     ) {
     this.injectableObservables.config$.next(this.config);
     this.config.availableSymbolsForInvesting.forEach(symbol => {
@@ -83,14 +86,20 @@ export class AppComponent {
     // const { symbol, side, type, timeInForce, quantity, price } = request.body;
     console.log('placing order');
     this.hitBTCApiService.placeNewOrder({
-      symbol: 'ETHUSD',
-      side: 'buy',
+      symbol: 'DASHUSD',
+      side: 'sell',
       type: 'limit',
       timeInForce: 'GTC',
-      quantity: '0.0001',
-      price: '1',
-    }).subscribe((res: Order) => {
-      console.log(res);
+      quantity: '0.001',
+      price: '120',
+    }).subscribe((order: Order) => {
+      console.log(order);
+      this.positionService.updatePositionList({
+        "symbolID": "DASHUSD",
+        "advisedResult": Side.sell,
+        "timestamp": "2019-03-17T17:57:00.000Z",
+        "amount": 0.001
+      }, order);
     });
   }
 

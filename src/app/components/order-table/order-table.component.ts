@@ -6,7 +6,7 @@ import { InjectableObservablesService } from './../../services/injectable-observ
 @Component({
   selector: 'order-table',
   templateUrl: './order-table.component.html',
-  styleUrls: ['./order-table.component.less'],
+  styleUrls: ['../../../assets/common-table-styles.less', './order-table.component.less'],
 })
 
 export class OrderTableComponent implements OnInit {

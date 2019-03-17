@@ -9,7 +9,7 @@ import Base64 from 'crypto-js/enc-base64';
 import { map } from 'rxjs/operators';
 
 const socketURL = 'wss://api.hitbtc.com/api/2/ws';
-const backendPoint = 'http://localhost:8080/backend';
+export const backendPoint = 'http://localhost:8080/backend';
 
 const timeout = 1500;
 
