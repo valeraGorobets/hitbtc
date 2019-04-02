@@ -2,12 +2,11 @@ import { Injectable } from '@angular/core';
 import { InjectableObservablesService } from './injectable-observables.service';
 import { Position, PositionStatus, PositionType } from '../models/Position';
 import { Report } from '../models/Report';
-import { IMoneyUpdate } from '../services/money-manager.service';
+import { IMoneyUpdate } from './money-manager.service';
 import { Side } from '../models/SharedConstants';
-import { Order } from '../models/Order';
 import { HttpClient } from '@angular/common/http';
 import { backendPoint } from '../crypto-exchange-module/hitbtc-api.service';
-
+import { filter, map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -20,34 +19,38 @@ export class PositionService {
     private injectableObservables: InjectableObservablesService,
     private http: HttpClient,
   ) {
-    this.injectableObservables.report$.subscribe((reportUpdate: Report[]) => this.handleReportUpdate(reportUpdate));
+    this.injectableObservables.report$
+      .pipe(
+        filter((reportUpdate: Report[]) => !!reportUpdate.length),
+        map((reportUpdate: Report[]) => reportUpdate[0]),
+        // filter((reportUpdate: Report) => reportUpdate.status === 'filled'),
+      ).subscribe((reportUpdate: Report) => this.handleReportUpdate(reportUpdate));
     this.http.get('./../../../backend/positions.json')
       .subscribe(positionList => this.setInitPositionsValue(positionList));
   }
 
   public isPossibleToOpenPosition(moneyUpdate: IMoneyUpdate): boolean {
-    const openedPosition = this.getOpendPositionBySymbolID(moneyUpdate.symbolID);
-    if (moneyUpdate.advisedResult === Side.buy && !openedPosition) {
-      return true;
-    } else {
-      return false;
-    }
+    const openedPosition = this.getOpenedPositionBySymbolID(moneyUpdate.symbolID);
+    return moneyUpdate.advisedResult === Side.buy && !openedPosition;
   }
 
   public isPossibleToClosePosition(moneyUpdate: IMoneyUpdate): boolean {
-    const openedPosition = this.getOpendPositionBySymbolID(moneyUpdate.symbolID);
-    if (moneyUpdate.advisedResult === Side.sell && openedPosition) {
-      return true;
-    } else {
-      return false;
-    }
+    const openedPosition = this.getOpenedPositionBySymbolID(moneyUpdate.symbolID);
+    return !!(moneyUpdate.advisedResult === Side.sell && openedPosition);
   }
 
-  public updatePositionList(moneyUpdate: IMoneyUpdate, order: Order): void {
-    if (moneyUpdate.advisedResult === Side.buy) {
-      this.positionList.push(this.createPositionInstance(moneyUpdate, order));
-    } else if (moneyUpdate.advisedResult === Side.sell) {
-      this.updateListWithClosedPosition(moneyUpdate, order);
+  private getOpenedPositionBySymbolID(symbolID: string): Position | undefined {
+    return this.positionList
+      .find((position: Position) => position.symbolID === symbolID && position.positionStatus === PositionStatus.Opened);
+  }
+
+  private handleReportUpdate(reportUpdate: Report): void {
+    console.log(reportUpdate);
+    const openedPosition = this.getOpenedPositionBySymbolID(reportUpdate.symbol);
+    if (openedPosition && reportUpdate.side === Side.sell) {
+      this.updateListWithClosedPosition(reportUpdate, openedPosition);
+    } else if (!openedPosition && reportUpdate.side === Side.buy) {
+      this.positionList.unshift(this.createPositionInstance(reportUpdate));
     }
     this.notifyAboutPositionChange();
   }
@@ -57,30 +60,21 @@ export class PositionService {
     this.notifyAboutPositionChange(true);
   }
 
-  private handleReportUpdate(reportUpdate: Report[]): void {
-    console.log(reportUpdate);
-  }
-
-  private getOpendPositionBySymbolID(symbolID: string): Position | undefined {
-    return this.positionList
-      .find((position: Position) => position.symbolID === symbolID && position.positionStatus === PositionStatus.Opened);
-  }
-
-  private createPositionInstance(moneyUpdate: IMoneyUpdate, order: Order): Position {
+  private createPositionInstance(report: Report): Position {
     return new Position({
-      id: order.id,
-      symbolID: moneyUpdate.symbolID,
+      id: report.id,
+      symbolID: report.symbol,
       positionStatus: PositionStatus.Opened,
       positionType: PositionType.LONG,
-      quantity: moneyUpdate.amount,
-      openPrice: order.price,
-      createdAt: order.createdAt,
+      quantity: +report.quantity,
+      openPrice: report.price,
+      createdAt: report.createdAt,
+      updatedAt: report.updatedAt,
     });
   }
 
-  private updateListWithClosedPosition(moneyUpdate: IMoneyUpdate, order: Order): void {
-    let openedPosition = this.getOpendPositionBySymbolID(moneyUpdate.symbolID);
-    const difference = this.countPercentageDifference(+openedPosition.openPrice, +order.price);
+  private updateListWithClosedPosition(report: Report, openedPosition: Position): void {
+    const difference = this.countPercentageDifference(+openedPosition.openPrice, +report.price);
     this.positionList = this.positionList.map((position: Position) => {
       if (position.id !== openedPosition.id) {
         return position;
@@ -88,17 +82,18 @@ export class PositionService {
         return {
           ...openedPosition,
           positionStatus: PositionStatus.Closed,
-          closePrice: order.price,
+          closePrice: report.price,
           isProfitable: difference > 0,
           difference,
-          closedAt: order.createdAt,
-        }
+          closedAt: report.createdAt,
+          updatedAt: report.updatedAt,
+        };
       }
     });
   }
 
   private countPercentageDifference(openPrice: number, closePrice: number): number {
-    return 100 * (closePrice - openPrice) / openPrice;
+    return (closePrice - openPrice) * 100 / openPrice;
   }
 
   private notifyAboutPositionChange(isSavingLimited?: boolean): void {

@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatTableDataSource } from '@angular/material';
-import { Report } from './../../models/Report';
-import { InjectableObservablesService } from './../../services/injectable-observables.service';
+import { Report } from '../../models/Report';
+import { InjectableObservablesService } from '../../services/injectable-observables.service';
 
 @Component({
   selector: 'order-table',

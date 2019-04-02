@@ -8,8 +8,8 @@ import { AvailableStrategies, Strategy } from './strategies/abstractStrategy';
 import { ThreeMAStrategy } from './strategies/ThreeMA.strategy';
 import { IndicatorService } from '../services/indicator.service';
 import { IMoneyUpdate } from '../services/money-manager.service';
-import { Order } from '../models/Order';
 import { PositionService } from '../services/position.service';
+import { distinctUntilChanged } from 'rxjs/internal/operators/distinctUntilChanged';
 
 @Injectable({
   providedIn: 'root',
@@ -30,7 +30,9 @@ export class InvestingService {
 
     this.injectableObservables.config$
       .subscribe((config: any) => this.handleConfigUpdate(config));
-    this.injectableObservables.moneyAction$.subscribe((moneyUpdate: any) => this.handleMoneyUpdate(moneyUpdate));
+    this.injectableObservables.moneyAction$
+      .pipe(distinctUntilChanged(),
+     ).subscribe((moneyUpdate: any) => this.handleMoneyUpdate(moneyUpdate));
   }
 
   private handleConfigUpdate(config: any): void {
@@ -47,7 +49,7 @@ export class InvestingService {
   private createStrategyInstance(symbol: any): Strategy {
     let StrategyConstructor;
     switch (symbol.strategy as AvailableStrategies) {
-      case 'ThreeMAStrategy':
+      case AvailableStrategies.ThreeMAStrategy:
         StrategyConstructor = ThreeMAStrategy;
         break;
     }
@@ -58,6 +60,7 @@ export class InvestingService {
     if (!moneyUpdate.amount) {
       return;
     } else {
+      console.log(moneyUpdate);
       if (
         moneyUpdate.advisedResult === Side.buy && this.positionService.isPossibleToOpenPosition(moneyUpdate) ||
         moneyUpdate.advisedResult === Side.sell && this.positionService.isPossibleToClosePosition(moneyUpdate)
@@ -89,10 +92,7 @@ export class InvestingService {
       quantity: this.config.symbolInfo[moneyUpdate.symbolID].quantityIncrement,
       price: '1',
       stopPrice: stopLossPrice.toString(),
-    }, true).subscribe((order: Order) => {
-      console.log(order);
-      this.positionService.updatePositionList(moneyUpdate, order);
-    });
+    }, true).subscribe();
   }
 
   private getActualPriceInString(moneyUpdate: IMoneyUpdate, price: IOrderbookTick): number {

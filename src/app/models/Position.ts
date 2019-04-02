@@ -1,8 +1,7 @@
-import { Order } from './Order';
-
 export enum PositionStatus {
   Opened = 'OPENED',
   Closed = 'CLOSED',
+  Triggered = 'TRIGGERED',
 }
 
 export enum PositionType {

@@ -5,6 +5,7 @@ import { HitBTCApi } from '../crypto-exchange-module/hitbtc-api.service';
 import { Symbol } from '../models/Symbol';
 import { zip } from 'rxjs';
 import { CurrencyBalance } from '../models/CurrencyBalance';
+import { distinctUntilChanged } from 'rxjs/operators';
 
 interface IActionUpdate {
   symbolID: string;
@@ -12,7 +13,7 @@ interface IActionUpdate {
   timestamp: string;
 }
 
-export interface IMoneyUpdate extends IActionUpdate{
+export interface IMoneyUpdate extends IActionUpdate {
   amount: number;
 }
 
@@ -28,7 +29,9 @@ export class MoneyManagerService {
     private injectableObservables: InjectableObservablesService,
     private hitBTCApiService: HitBTCApi,
   ) {
-    injectableObservables.strategyAction$.subscribe((actionUpdate: IActionUpdate) => this.handleActionUpdate(actionUpdate));
+    injectableObservables.strategyAction$
+      .pipe(distinctUntilChanged(),
+    ).subscribe((actionUpdate: IActionUpdate) => this.handleActionUpdate(actionUpdate));
     injectableObservables.config$.subscribe((configUpdate: any) => this.handleConfigUpdate(configUpdate));
     injectableObservables.balance$.subscribe((balance: CurrencyBalance[]) => this.handleBalanceUpdate(balance));
   }

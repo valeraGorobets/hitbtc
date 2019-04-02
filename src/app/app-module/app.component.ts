@@ -6,17 +6,15 @@ import { MoneyManagerService } from '../services/money-manager.service';
 import { AvailableStrategies } from '../investing-module/strategies/abstractStrategy';
 import { BalanceService } from '../services/balance.service';
 import { ReportService } from '../services/report.service';
-import { PositionService } from '../services/position.service';
 import { HitBTCApi } from '../crypto-exchange-module/hitbtc-api.service';
 import { Order } from '../models/Order';
-import { Side } from '../models/SharedConstants';
 
 const defaultConfig = {
   availableSymbolsForInvesting: [
-  {
-      id: 'DASHUSD',
-      strategy: AvailableStrategies.ThreeMAStrategy,
-  },
+  // {
+  //     id: 'DASHUSD',
+  //     strategy: AvailableStrategies.ThreeMAStrategy,
+  // },
   {
     id: 'ETHUSD',
     strategy: AvailableStrategies.ThreeMAStrategy,
@@ -25,18 +23,18 @@ const defaultConfig = {
   //   id: 'BTCUSD',
   //   strategy: AvailableStrategies.ThreeMAStrategy,
   // },
-  {
-    id: 'LTCUSD',
-    strategy: AvailableStrategies.ThreeMAStrategy,
-  },
+  // {
+  //   id: 'LTCUSD',
+  //   strategy: AvailableStrategies.ThreeMAStrategy,
+  // },
   // {
   //   id: 'ETHBTC',
   //   strategy: AvailableStrategies.ThreeMAStrategy,
   // },
-  {
-    id: 'XMRUSD',
-    strategy: AvailableStrategies.ThreeMAStrategy,
-  },
+  // {
+  //   id: 'XMRUSD',
+  //   strategy: AvailableStrategies.ThreeMAStrategy,
+  // },
   ],
   currentInvestingSymbol: 'BTCUSD',
   symbolInfo: {},
@@ -58,7 +56,6 @@ export class AppComponent {
     private balanceService: BalanceService,
     private reportService: ReportService,
     private injectableObservables: InjectableObservablesService,
-    private positionService: PositionService,
     ) {
     this.injectableObservables.config$.next(this.config);
     this.config.availableSymbolsForInvesting.forEach(symbol => {
@@ -94,12 +91,6 @@ export class AppComponent {
       price: '120',
     }).subscribe((order: Order) => {
       console.log(order);
-      this.positionService.updatePositionList({
-        "symbolID": "DASHUSD",
-        "advisedResult": Side.sell,
-        "timestamp": "2019-03-17T17:57:00.000Z",
-        "amount": 0.001
-      }, order);
     });
   }
 

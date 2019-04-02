@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatTableDataSource } from '@angular/material';
-import { Position } from './../../models/Position';
-import { InjectableObservablesService } from './../../services/injectable-observables.service';
+import { Position } from '../../models/Position';
+import { InjectableObservablesService } from '../../services/injectable-observables.service';
 
 @Component({
   selector: 'position-table',
