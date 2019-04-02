@@ -11,30 +11,30 @@ import { Order } from '../models/Order';
 
 const defaultConfig = {
   availableSymbolsForInvesting: [
-  {
-      id: 'DASHUSD',
-      strategy: AvailableStrategies.ThreeMAStrategy,
-  },
+  // {
+  //     id: 'DASHUSD',
+  //     strategy: AvailableStrategies.ThreeMAStrategy,
+  // },
   {
     id: 'ETHUSD',
     strategy: AvailableStrategies.ThreeMAStrategy,
   },
-  {
-    id: 'BTCUSD',
-    strategy: AvailableStrategies.ThreeMAStrategy,
-  },
-  {
-    id: 'LTCUSD',
-    strategy: AvailableStrategies.ThreeMAStrategy,
-  },
-  {
-    id: 'ETHBTC',
-    strategy: AvailableStrategies.ThreeMAStrategy,
-  },
-  {
-    id: 'XMRUSD',
-    strategy: AvailableStrategies.ThreeMAStrategy,
-  },
+  // {
+  //   id: 'BTCUSD',
+  //   strategy: AvailableStrategies.ThreeMAStrategy,
+  // },
+  // {
+  //   id: 'LTCUSD',
+  //   strategy: AvailableStrategies.ThreeMAStrategy,
+  // },
+  // {
+  //   id: 'ETHBTC',
+  //   strategy: AvailableStrategies.ThreeMAStrategy,
+  // },
+  // {
+  //   id: 'XMRUSD',
+  //   strategy: AvailableStrategies.ThreeMAStrategy,
+  // },
   ],
   currentInvestingSymbol: 'BTCUSD',
   symbolInfo: {},
@@ -83,14 +83,14 @@ export class AppComponent {
     // const { symbol, side, type, timeInForce, quantity, price } = request.body;
     console.log('placing order');
     this.hitBTCApiService.placeNewOrder({
-      symbol: 'ETHUSD',
-      side: 'buy',
+      symbol: 'DASHUSD',
+      side: 'sell',
       type: 'limit',
       timeInForce: 'GTC',
-      quantity: '0.0001',
-      price: '1',
-    }).subscribe((res: Order) => {
-      console.log(res);
+      quantity: '0.001',
+      price: '120',
+    }).subscribe((order: Order) => {
+      console.log(order);
     });
   }
 

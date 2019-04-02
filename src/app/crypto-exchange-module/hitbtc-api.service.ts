@@ -1,15 +1,17 @@
 import { AbstractCryptoService } from './abstract-crypto-service';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { WSService } from '../../libs/ws.service';
 import { INewOrder } from '../models/Order';
 import hmacSHA256 from 'crypto-js/hmac-sha256';
 import Base64 from 'crypto-js/enc-base64';
-import {map} from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 const socketURL = 'wss://api.hitbtc.com/api/2/ws';
-const backendPoint = 'http://localhost:8080/backend';
+export const backendPoint = 'http://localhost:8080/backend';
+
+const timeout = 1500;
 
 function getSignature(message: string, secret: string): string {
   return base64toHEX(
@@ -105,7 +107,7 @@ export class HitBTCApi implements AbstractCryptoService {
         params: {},
         id: 12345,
       });
-    }, 1000);
+    }, timeout);
   }
 
   public subscribeReports(): void {
@@ -117,7 +119,7 @@ export class HitBTCApi implements AbstractCryptoService {
         params: {},
         id: 12345,
       });
-    }, 1000);
+    }, timeout);
   }
 
   public getOrders(): any {
@@ -129,7 +131,7 @@ export class HitBTCApi implements AbstractCryptoService {
         params: {},
         id: 12345,
       });
-    }, 1000);
+    }, timeout);
   }
 
   // REST
@@ -140,9 +142,17 @@ export class HitBTCApi implements AbstractCryptoService {
   public getOrderbook(symbol: string): any {
     return this.http.get(`${backendPoint}/getOrderbook/${symbol}`)
       .pipe(
-          map((response: any) => JSON.parse(response)),
-        );
+        map((response: any) => JSON.parse(response)),
+      );
   }
+
+  public getTradingBalance(): any {
+    return this.http.get(`${backendPoint}/trading/balance`)
+      .pipe(
+        map((response: any) => JSON.parse(response)),
+      );
+  }
+
 
   public onMessage(symbol: string): Observable<MessageEvent> {
     return this.ws[symbol].onMessage();
@@ -156,9 +166,9 @@ export class HitBTCApi implements AbstractCryptoService {
     }
   }
 
-  public placeNewOrder(order: INewOrder): any {
+  public placeNewOrder(order: INewOrder, cancelAction?: boolean): any {
     console.log(order);
-    return this.http.post(`${backendPoint}/order`, order);
+    return !cancelAction ? this.http.post(`${backendPoint}/order`, order) : from([]);
   }
 
   // public getHistoryOrder(): any {

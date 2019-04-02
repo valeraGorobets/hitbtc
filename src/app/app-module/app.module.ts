@@ -17,6 +17,7 @@ import { TradingViewComponent } from '../components/trading-view/trading-view.co
 
 import { InjectableObservablesService } from '../services/injectable-observables.service';
 import { OrderTableComponent } from '../components/order-table/order-table.component';
+import { PositionTableComponent } from '../components/position-table/position-table.component';
 import { CurrencyComponent } from '../components/currency/currency.component';
 import { TopBarComponent } from '../components/top-bar/top-bar.component';
 
@@ -26,6 +27,7 @@ import { TopBarComponent } from '../components/top-bar/top-bar.component';
     ChartComponent,
     TradingViewComponent,
     OrderTableComponent,
+    PositionTableComponent,
     CurrencyComponent,
     TopBarComponent,
   ],

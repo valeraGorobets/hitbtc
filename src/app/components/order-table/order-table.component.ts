@@ -1,13 +1,14 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatTableDataSource } from '@angular/material';
-import { Report } from './../../models/Report';
-import { InjectableObservablesService } from './../../services/injectable-observables.service';
+import { Report } from '../../models/Report';
+import { InjectableObservablesService } from '../../services/injectable-observables.service';
 
 @Component({
   selector: 'order-table',
   templateUrl: './order-table.component.html',
-  styleUrls: ['./order-table.component.less'],
+  styleUrls: ['../../../assets/common-table-styles.less', './order-table.component.less'],
 })
+
 export class OrderTableComponent implements OnInit {
   public dataColumns: string[] = ['symbol', 'id', 'price', 'quantity', 'side', 'status'];
   public displayedColumns: string[] = ['updatedAt', ...this.dataColumns];

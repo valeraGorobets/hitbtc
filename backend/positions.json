@@ -1,0 +1,46 @@
+{
+  "positions": [
+    {
+      "id": "114514942422",
+      "symbolID": "DASHUSD",
+      "positionStatus": "CLOSED",
+      "positionType": "LONG",
+      "quantity": 0.005,
+      "openPrice": "1.0000",
+      "createdAt": "2019-04-01T18:59:02.455Z",
+      "updatedAt": "2019-04-01T19:00:07.519Z",
+      "closePrice": "1000000.0000",
+      "isProfitable": true,
+      "difference": 99999900,
+      "closedAt": "2019-04-01T19:00:07.519Z"
+    },
+    {
+      "id": "114514767428",
+      "symbolID": "DASHUSD",
+      "positionStatus": "CLOSED",
+      "positionType": "LONG",
+      "quantity": 0.005,
+      "openPrice": "1.0000",
+      "closePrice": "10001.0000",
+      "isProfitable": true,
+      "difference": 1000000,
+      "createdAt": "2019-04-01T18:57:50.590Z",
+      "updatedAt": "2019-04-01T18:58:23.537Z",
+      "closedAt": "2019-04-01T18:58:23.537Z"
+    },
+    {
+      "id": "114514610243",
+      "symbolID": "DASHUSD",
+      "positionStatus": "CLOSED",
+      "positionType": "LONG",
+      "quantity": 0.005,
+      "openPrice": "1.0000",
+      "closePrice": "10001.0000",
+      "isProfitable": true,
+      "difference": 1000000,
+      "createdAt": "2019-04-01T18:56:41.103Z",
+      "updatedAt": "2019-04-01T18:56:55.681Z",
+      "closedAt": "2019-04-01T18:56:55.681Z"
+    }
+  ]
+}
