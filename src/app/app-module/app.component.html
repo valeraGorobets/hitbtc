@@ -1,15 +1,15 @@
 <div class="content">
-  <top-bar></top-bar>
-  <div class="main-view">
-    <div class="trading-view-container">
-      <trading-view *ngFor="let symbol of config.availableSymbolsForInvesting" [observableSymbol]="symbol.id"></trading-view>
-    </div>
-    <div class="right-column">
-      <!--<button (click)="stopWatching()">Stop</button>-->
-      <!--<button (click)="getBalance()">getBalance</button>-->
-      <!--<button (click)="getBalance2()">getBalance2</button>-->
-      <!--<button (click)="getHistoryOrder()">getHistoryOrder</button>-->
-      <order-table></order-table>
-    </div>
-  </div>
+	<app-top-bar></app-top-bar>
+	<div class="main-view">
+		<div class="trading-view-container">
+			<app-trading-view *ngFor="let symbol of config.availableSymbolsForInvesting" [observableSymbol]="symbol.id"></app-trading-view>
+		</div>
+		<div class="right-column">
+			<!--<button (click)="stopWatching()">Stop</button>-->
+			<button (click)="getBalance()">getBalance</button>
+			<!--      <button (click)="getBalance2()">getBalance2</button>-->
+			<!--<button (click)="getHistoryOrder()">getHistoryOrder</button>-->
+			<app-order-table></app-order-table>
+		</div>
+	</div>
 </div>

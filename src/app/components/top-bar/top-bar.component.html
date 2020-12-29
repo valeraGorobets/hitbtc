@@ -1,11 +1,11 @@
 <div class="wrapper">
-  <div class="align">
-    <div class="currency-wrapper">
-      <currency *ngFor="let currencyBalance of balanceList" [currencyBalance]="currencyBalance"></currency>
-    </div>
-    <nav>
-      <a mat-raised-button routerLink="/trading" routerLinkActive="active">Trading</a>
-      <a mat-raised-button routerLink="/statistics" routerLinkActive="active">Statistics</a>
-    </nav>
-  </div>
+	<div class="align">
+		<div class="currency-wrapper">
+			<app-currency *ngFor="let currencyBalance of balanceList" [currencyBalance]="currencyBalance"></app-currency>
+		</div>
+		<nav>
+			<a mat-raised-button routerLink="/trading" routerLinkActive="active">Trading</a>
+			<a mat-raised-button routerLink="/statistics" routerLinkActive="active">Statistics</a>
+		</nav>
+	</div>
 </div>

@@ -1,6 +1,7 @@
 export class ChartFormat {
-  public x: string[];
-  public y?: number[];
-  public type: string;
-  public name: string = '';
+	public x: string[];
+	public y?: number[];
+	public type: string;
+	public name: string = '';
+	public marker: { color: string };
 }
