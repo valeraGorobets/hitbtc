@@ -4,36 +4,36 @@ export type TTimeInForce = 'GTC' | 'IOC' | 'FOK' | 'Day' | 'GTD';
 export type TStatus = 'new' | 'suspended' | 'partiallyFilled' | 'filled' | 'canceled' | 'expired';
 
 export interface INewOrder {
-  symbol: string;
-  quantity: string;
-  price: string;
-  side: TSide;
-  type?: TType;
-  stopPrice?: string;
-  timeInForce?: TTimeInForce;
-  strictValidate?: boolean;
-  postOnly?: boolean;
+	symbol: string;
+	quantity: string;
+	price: string;
+	side: TSide;
+	type?: TType;
+	stopPrice?: string;
+	timeInForce?: TTimeInForce;
+	strictValidate?: boolean;
+	postOnly?: boolean;
 }
 
 export class CommonPositionFields {
-  public id: string;
-  public clientOrderId: string;
-  public symbol: string;
-  public side: TSide;
-  public status: TStatus;
-  public type: TType;
-  public timeInForce: TTimeInForce;
-  public quantity: string;
-  public price: string;
-  public cumQuantity: string;
-  public createdAt: string | Date;
-  public updatedAt: string | Date;
-  public postOnly: boolean;
+	public id: string;
+	public clientOrderId: string;
+	public symbol: string;
+	public side: TSide;
+	public status: TStatus;
+	public type: TType;
+	public timeInForce: TTimeInForce;
+	public quantity: string;
+	public price: string;
+	public cumQuantity: string;
+	public createdAt: string | Date;
+	public updatedAt: string | Date;
+	public postOnly: boolean;
 }
 
 export class Order extends CommonPositionFields {
-  public stopPrice:	string;
-  public expireTime: string;
+	public stopPrice: string;
+	public expireTime: string;
 }
 
 /* Time in Force

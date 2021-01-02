@@ -1,42 +1,44 @@
 @import url(../../../assets/colors.less);
 
 .align {
-  display: flex;
-  width: 1600px;
+	display: flex;
+	width: 100%;
 }
 
 .wrapper {
-  background-color: @mainBlue;
-  box-shadow: 0 3px 5px -1px rgba(0,0,0,.2), 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12);
-  display: flex;
-  height: 56px;
-  justify-content: space-around;
-  padding: 0 20px;
+	background-color: @mainBlue;
+	box-shadow: 0 3px 5px -1px rgba(0, 0, 0, .2), 0 6px 10px 0 rgba(0, 0, 0, .14), 0 1px 18px 0 rgba(0, 0, 0, .12);
+	display: flex;
+	height: 56px;
+	justify-content: space-around;
+	padding: 0 20px;
 
-  .align {
-    justify-content: space-between;
-    align-self: center;
+	.align {
+		justify-content: space-between;
+		align-self: center;
 
-    .currency-wrapper {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-    }
+		.currency-wrapper {
+			width: 100%;
 
-    h1 {
-      align-self: center;
-      color: #fff;
-      font-size: 28px;
-      margin: 0 20px;
-    }
+			currency {
+				margin-right: 15px;
+			}
+		}
 
-    nav {
-      align-items: center;
-      display: flex;
+		h1 {
+			align-self: center;
+			color: #fff;
+			font-size: 28px;
+			margin: 0 20px;
+		}
 
-      a {
-        margin: 0 8px;
-      }
-    }
-  }
+		nav {
+			align-items: center;
+			display: flex;
+
+			a {
+				margin: 0 8px;
+			}
+		}
+	}
 }

@@ -1,45 +1,41 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
-import {
-  MatProgressBarModule,
-  MatButtonModule,
-  MatTableModule,
-} from '@angular/material/';
-
-import { AppRoutingModule } from './app-routing.module';
-import { InvestingModule } from '../investing-module/investing.module';
-
-import { AppComponent } from './app.component';
+import { NgModule } from '@angular/core';
+import { MatButtonModule, MatProgressBarModule, MatTableModule, } from '@angular/material/';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ChartComponent } from '../components/chart/chart.component';
-import { TradingViewComponent } from '../components/trading-view/trading-view.component';
-
-import { InjectableObservablesService } from '../services/injectable-observables.service';
+import { CurrencyComponent } from '../components/currency/currency.component';
 import { OrderTableComponent } from '../components/order-table/order-table.component';
 import { PositionTableComponent } from '../components/position-table/position-table.component';
-import { CurrencyComponent } from '../components/currency/currency.component';
 import { TopBarComponent } from '../components/top-bar/top-bar.component';
+import { TradingViewComponent } from '../components/trading-view/trading-view.component';
+import { InvestingModule } from '../investing-module/investing.module';
+import { InjectableObservablesService } from '../services/injectable-observables.service';
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    ChartComponent,
-    TradingViewComponent,
-    OrderTableComponent,
-    PositionTableComponent,
-    CurrencyComponent,
-    TopBarComponent,
-  ],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    BrowserAnimationsModule,
-    AppRoutingModule,
-    InvestingModule,
-    MatProgressBarModule, MatButtonModule, MatTableModule
-  ],
-  providers: [InjectableObservablesService],
-  bootstrap: [AppComponent],
+	declarations: [
+		AppComponent,
+		ChartComponent,
+		TradingViewComponent,
+		OrderTableComponent,
+		PositionTableComponent,
+		CurrencyComponent,
+		TopBarComponent,
+	],
+	imports: [
+		BrowserModule,
+		HttpClientModule,
+		BrowserAnimationsModule,
+		AppRoutingModule,
+		InvestingModule,
+		MatProgressBarModule,
+		MatButtonModule,
+		MatTableModule,
+	],
+	providers: [InjectableObservablesService],
+	bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {
+}
